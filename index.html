@@ -659,7 +659,7 @@ input[type=file] { display:none; }
           <div class="sw" style="flex:1;margin-bottom:0;"><span class="swIco">🔍</span><input id="eSearch" placeholder="Rechercher un employé…"></div>
           <div class="iBtn" id="btnAddEmp">＋</div>
         </div>
-        <div class="card" id="eList"><div class="loading"><div class="spinner"></div>Chargement…</div></div>
+        <div class="card" id="eList"></div>
       </div>
 
       <!-- RAPPORTS -->
@@ -916,7 +916,18 @@ function loadFirebaseData() {
         }
       });
     }
+    // Always render even if Firebase empty (uses LOCAL_EMPS)
     if (currentUser) { renderEmps(); buildDash(); }
+  });
+  // Push local employees to Firebase if empty
+  db.ref('employees').once('value', function(snap) {
+    if (!snap.val()) {
+      LOCAL_EMPS.forEach(function(e) {
+        var eCopy = Object.assign({}, e);
+        var eid = eCopy.id; delete eCopy.id;
+        db.ref('employees/' + eid).set(eCopy);
+      });
+    }
   });
 }
 
