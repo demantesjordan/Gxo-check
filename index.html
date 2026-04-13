@@ -799,28 +799,10 @@ var FB_CONFIG = {
    not configured / offline)
 ════════════════════════════════════ */
 var LOCAL_USERS = [
-  {username:'admin',    pw:'admin123', role:'admin',   color:'#ff6200', empId:null},
-  {username:'anderson', pw:'pass123',  role:'employe', color:'#4f8ef7', empId:'e1'},
-  {username:'gauvin',   pw:'pass123',  role:'employe', color:'#9b72f7', empId:'e2'},
-  {username:'martin',   pw:'pass123',  role:'employe', color:'#27c97a', empId:'e3'}
+  {username:'admin', pw:'admin123', role:'admin', color:'#ff6200', empId:null}
 ];
-var LOCAL_EMPS = [
-  {id:'e1',prenom:'Julia', nom:'Anderson', username:'anderson',pw:'pass123',role:'Technicien',  dept:'Montréal – Prod.',type:'Permanent',  s:94, c:'#4f8ef7'},
-  {id:'e2',prenom:'Maryse',nom:'Gauvin',   username:'gauvin',  pw:'pass123',role:'Direction',     dept:'Montréal',        type:'Permanent',  s:88, c:'#9b72f7'},
-  {id:'e3',prenom:'Jean',  nom:'Martin',   username:'martin',  pw:'pass123',role:'Chef d\'équipe',dept:'Montréal',        type:'Permanent',  s:97, c:'#27c97a'},
-  {id:'e4',prenom:'Julia', nom:'Andersson',username:'andersson',pw:'pass123',role:'Technicien',  dept:'New York',        type:'Permanent',  s:79, c:'#f5c518'},
-  {id:'e5',prenom:'Marc',  nom:'Leclerc',  username:'leclerc', pw:'pass123',role:'Opérateur',    dept:'Montréal – Prod.',type:'Temporaire', s:85, c:'#f04f5a'}
-];
-var LOCAL_FORMS = [
-  {id:'f1',code:'CL-M000002',nm:'Inspection Chariot élévateur',      cat:'inspection',p:74, r:8,freq:'Quotidienne',  assign:'anderson',  desc:''},
-  {id:'f2',code:'CL-M000047',nm:'Examen théorique chariot',          cat:'examen',    p:100,r:1,freq:'Annuelle',     assign:'gauvin',    desc:''},
-  {id:'f3',code:'FORM-001',  nm:'Inspection générale du site',       cat:'inspection',p:36, r:3,freq:'Hebdomadaire', assign:'martin',    desc:''},
-  {id:'f4',code:'AUD-002',   nm:'Audit de cadenassage',              cat:'audit',     p:0,  r:5,freq:'Mensuelle',   assign:'anderson',  desc:''},
-  {id:'f5',code:'SEC-001',   nm:'Programme de sécurité annuel',      cat:'securite',  p:60, r:2,freq:'Annuelle',    assign:'all',       desc:''},
-  {id:'f6',code:'FORM-088',  nm:'Approbation produits chimiques',    cat:'audit',     p:88, r:6,freq:'Mensuelle',   assign:'gauvin',    desc:''},
-  {id:'f7',code:'INS-030',   nm:'Inspection hebdo véhicules',        cat:'inspection',p:50, r:4,freq:'Hebdomadaire',assign:'andersson', desc:''},
-  {id:'f8',code:'EXA-009',   nm:'Évaluation et contrôle des risques',cat:'examen',   p:20, r:7,freq:'Mensuelle',   assign:'martin',    desc:''}
-];
+var LOCAL_EMPS = [];
+var LOCAL_FORMS = [];
 var DEFAULT_SECS = [
   {t:'🏭 Site et département',    qs:['Le site est propre et bien organisé','Les accès sont dégagés et sécuritaires','La signalisation est adéquate et visible']},
   {t:'🔧 Infrastructure',         qs:["Les équipements et plancher sont en bon état","Les portes ferment correctement","L'éclairage est suffisant"]},
@@ -894,16 +876,7 @@ function loadFirebaseData() {
     // Always render (use local data if Firebase empty)
     if (currentUser) { renderForms(); buildDash(); }
   });
-  // Push local forms to Firebase if empty
-  db.ref('forms').once('value', function(snap) {
-    if (!snap.val()) {
-      LOCAL_FORMS.forEach(function(f) {
-        var fCopy = Object.assign({}, f);
-        var fid = fCopy.id; delete fCopy.id;
-        db.ref('forms/' + fid).set(fCopy);
-      });
-    }
-  });
+
   db.ref('employees').on('value', function(snap) {
     var data = snap.val();
     if (data) {
@@ -919,16 +892,7 @@ function loadFirebaseData() {
     // Always render even if Firebase empty (uses LOCAL_EMPS)
     if (currentUser) { renderEmps(); buildDash(); }
   });
-  // Push local employees to Firebase if empty
-  db.ref('employees').once('value', function(snap) {
-    if (!snap.val()) {
-      LOCAL_EMPS.forEach(function(e) {
-        var eCopy = Object.assign({}, e);
-        var eid = eCopy.id; delete eCopy.id;
-        db.ref('employees/' + eid).set(eCopy);
-      });
-    }
-  });
+
 }
 
 function fbSet(path, data, cb) {
