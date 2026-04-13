@@ -544,13 +544,7 @@ input[type=file] { display:none; }
     </div>
     <button class="lBtn" id="lBtnGo">SE CONNECTER</button>
     <div class="lErr" id="lErr"></div>
-    <div class="lHint">
-      <div class="lHintT">Comptes de démonstration</div>
-      <div class="lHintR"><span class="lHintU">admin <span class="rolePill rpAdmin">Admin</span></span><span class="lHintP">admin123</span></div>
-      <div class="lHintR"><span class="lHintU">anderson <span class="rolePill rpEmp">Employé</span></span><span class="lHintP">pass123</span></div>
-      <div class="lHintR"><span class="lHintU">gauvin <span class="rolePill rpEmp">Employé</span></span><span class="lHintP">pass123</span></div>
-      <div class="lHintR"><span class="lHintU">martin <span class="rolePill rpEmp">Employé</span></span><span class="lHintP">pass123</span></div>
-    </div>
+
   </div>
 </div>
 
@@ -628,7 +622,7 @@ input[type=file] { display:none; }
           <div class="pill" id="pillExam">Examen</div>
           <div class="pill" id="pillSec">Sécurité</div>
         </div>
-        <div class="card" id="fList"><div class="loading"><div class="spinner"></div>Chargement…</div></div>
+        <div class="card" id="fList"></div>
       </div>
 
       <!-- INSPECTION (remplissage formulaire) -->
@@ -897,7 +891,18 @@ function loadFirebaseData() {
     if (data) {
       FORMS = Object.keys(data).map(function(k) { var f = data[k]; f.id = k; return f; });
     }
+    // Always render (use local data if Firebase empty)
     if (currentUser) { renderForms(); buildDash(); }
+  });
+  // Push local forms to Firebase if empty
+  db.ref('forms').once('value', function(snap) {
+    if (!snap.val()) {
+      LOCAL_FORMS.forEach(function(f) {
+        var fCopy = Object.assign({}, f);
+        var fid = fCopy.id; delete fCopy.id;
+        db.ref('forms/' + fid).set(fCopy);
+      });
+    }
   });
   db.ref('employees').on('value', function(snap) {
     var data = snap.val();
@@ -1676,8 +1681,7 @@ var RAPPORTS = [];
 var EMAILJS_SERVICE  = 'service_kqfu72g';
 var EMAILJS_TEMPLATE = 'template_t2imcul';
 var EMAILJS_PUBLIC   = '1vhuPXLJpBEoNJuKx';
-var ADMIN_EMAIL      = 'Jordan.demantes@gxo.com';   // admin principal
-var ADMIN_EMAIL2     = 'Maxime.viandier@gxo.com';  // admin secondaire
+var ADMIN_EMAIL      = 'Jordan.demantes@gxo.com';
 
 function sendRapportEmail(rapport) {
   try {
@@ -1689,7 +1693,7 @@ function sendRapportEmail(rapport) {
       else if (v==='no') nonConforme++;
       else na++;
     });
-    var params = {
+    emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
       to_email:    ADMIN_EMAIL,
       emp_name:    rapport.empNm,
       form_name:   rapport.formNm,
@@ -1702,11 +1706,7 @@ function sendRapportEmail(rapport) {
       na:          na,
       photos:      rapport.photoCount,
       app_url:     'https://demantesjordan.github.io/Gxo-check'
-    };
-    emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, params);
-    // Send to second admin
-    params.to_email = ADMIN_EMAIL2;
-    emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, params);
+    });
     console.log('Email sent');
   } catch(e) { console.log('Email error:', e); }
 }
