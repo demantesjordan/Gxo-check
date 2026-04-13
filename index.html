@@ -9,6 +9,8 @@
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
 <style>
 /* ════════════════════════════════
@@ -465,6 +467,25 @@ input[type=file] { display:none; }
 .spinner { width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--orange); border-radius:50%; animation:spin .7s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg);} }
 
+/* ── RAPPORT CARDS ──────────── */
+.rCard { background:var(--black2); border:1px solid var(--border); border-radius:var(--r); margin-bottom:12px; overflow:hidden; cursor:pointer; transition:border-color .15s; }
+.rCard:active { border-color:var(--orange); }
+.rCardHead { padding:14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+.rCardAv { width:40px; height:40px; min-width:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#fff; font-family:'Barlow Condensed',sans-serif; }
+.rCardInfo { flex:1; min-width:0; }
+.rCardNm { font-size:14px; font-weight:700; }
+.rCardSub { font-size:11.5px; color:var(--white3); margin-top:2px; }
+.rCardScore { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:800; }
+.rCardBody { padding:12px 16px; }
+.rCardRow { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--white2); margin-bottom:6px; }
+.rCardRow:last-child { margin-bottom:0; }
+.rCardPhotos { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+.rCardThumb { width:56px; height:56px; border-radius:7px; object-fit:cover; border:1px solid var(--border); }
+.rDetail { display:none; position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
+.rDetail.open { display:block; animation:fadeUp .2s ease; }
+.rDetailHead { position:sticky; top:0; background:var(--black2); border-bottom:1px solid var(--border); padding:14px 16px; display:flex; align-items:center; gap:12px; z-index:10; }
+.rDetailBody { padding:16px; }
+
 /* ── SECTIONS EDITOR ────────── */
 .secEditor { margin-bottom:10px; background:var(--black3); border:1px solid var(--border); border-radius:var(--r2); overflow:hidden; }
 .secEditorHead { display:flex; align-items:center; gap:8px; padding:10px 12px; background:var(--black4); border-bottom:1px solid var(--border); }
@@ -562,6 +583,7 @@ input[type=file] { display:none; }
     <div class="nTab active" data-page="dashboard"><div class="nI">⊞</div><div class="nL">Accueil</div><div class="nDot"></div></div>
     <div class="nTab" data-page="formulaires"><div class="nI">📋</div><div class="nL">Formulaires</div><div class="nBdg" id="fBdg">0</div><div class="nDot"></div></div>
     <div class="nTab" data-page="inspection"><div class="nI">🔍</div><div class="nL">Inspection</div><div class="nDot"></div></div>
+    <div class="nTab" data-page="rapports"><div class="nI">📄</div><div class="nL">Rapports</div><div class="nBdg" id="rBdg" style="background:var(--orange);display:none;">0</div><div class="nDot"></div></div>
     <div class="nTab adminOnly" data-page="employes"><div class="nI">👥</div><div class="nL">Employés</div><div class="nBdg" id="eBdg" style="background:#9b72f7">0</div><div class="nDot"></div></div>
     <div class="nTab adminOnly" data-page="stats"><div class="nI">📊</div><div class="nL">Stats</div><div class="nDot"></div></div>
   </nav>
@@ -631,7 +653,10 @@ input[type=file] { display:none; }
         <div id="inspSections">
           <div class="empty"><div class="emIco">🔍</div><div class="emTxt">Allez dans Formulaires<br>et appuyez sur ▶ Démarrer</div></div>
         </div>
-        <button class="btn btnP" style="width:100%;margin-top:4px;display:none;" id="btnSaveInsp">💾 ENREGISTRER L'INSPECTION</button>
+        <div style="height:70px;"></div><!-- spacer for sticky btn -->
+        <div id="btnSaveInspWrap" style="display:none;position:fixed;bottom:calc(var(--nav) + 10px);left:0;right:0;padding:0 13px;z-index:15;">
+          <button class="btn btnP" style="width:100%;padding:16px;font-size:16px;box-shadow:0 4px 24px #ff620050;" id="btnSaveInsp">💾 ENREGISTRER L'INSPECTION</button>
+        </div>
       </div>
 
       <!-- EMPLOYÉS (admin only) -->
@@ -641,6 +666,17 @@ input[type=file] { display:none; }
           <div class="iBtn" id="btnAddEmp">＋</div>
         </div>
         <div class="card" id="eList"><div class="loading"><div class="spinner"></div>Chargement…</div></div>
+      </div>
+
+      <!-- RAPPORTS -->
+      <div class="page" id="page-rapports">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:.3px;">RAPPORTS SOUMIS</div>
+          <div class="bdg bor" id="rapportsCount">0 rapport</div>
+        </div>
+        <div class="card" id="rapportsList">
+          <div class="empty"><div class="emIco">📄</div><div class="emTxt">Aucun rapport enregistré<br>pour le moment</div></div>
+        </div>
       </div>
 
       <!-- STATS (admin only) -->
@@ -731,6 +767,16 @@ input[type=file] { display:none; }
   </div>
 </div>
 
+<!-- RAPPORT DETAIL -->
+<div class="rDetail" id="rDetail">
+  <div class="rDetailHead">
+    <div class="iBtn" id="rDetailBack" style="font-size:20px;">←</div>
+    <div style="flex:1;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;" id="rDetailTitle">Rapport</div>
+    <div class="bdg bor" id="rDetailScore">–</div>
+  </div>
+  <div class="rDetailBody" id="rDetailBody"></div>
+</div>
+
 <div class="toast" id="toastEl"></div>
 
 <script>
@@ -792,7 +838,7 @@ var D23  = [18,22,28,15,20,18,25,28];
 var TOP  = [{n:'Approbation de produits',c:8},{n:'Inspection Chariot',c:7},{n:'Évaluation des risques',c:6},{n:'Audit cadenassage',c:5},{n:'Prog. sécurité',c:4}];
 var CAT_C= {inspection:'ctI',audit:'ctA',examen:'ctE',securite:'ctS'};
 var CAT_N= {inspection:'Inspection',audit:'Audit',examen:'Examen',securite:'Sécurité'};
-var PT   = {dashboard:'Tableau de bord',formulaires:'Formulaires',inspection:'Inspection',employes:'Employés',stats:'Statistiques'};
+var PT   = {dashboard:'Tableau de bord',formulaires:'Formulaires',inspection:'Inspection',rapports:'Rapports',employes:'Employés',stats:'Statistiques'};
 var COLORS=['#ff6200','#4f8ef7','#9b72f7','#27c97a','#f5c518','#f04f5a','#ff9a50','#06b6d4'];
 
 /* ── STATE ─────── */
@@ -1298,7 +1344,7 @@ function startInspection(fid) {
   if (G('inspTitle')) G('inspTitle').textContent = f.nm;
   if (G('inspCode'))  G('inspCode').textContent  = '📋 ' + f.code;
   buildInsp();
-  G('btnSaveInsp').style.display = 'block';
+  G('btnSaveInspWrap').style.display = 'block';
   goPage('inspection');
 }
 
@@ -1385,21 +1431,69 @@ function updateRing() {
 }
 
 on('btnSaveInsp', 'click', function() {
-  var total = (activeFormSecs || DEFAULT_SECS).reduce(function(a, s) { return a + s.qs.length; }, 0);
+  var secs = activeFormSecs || DEFAULT_SECS;
+  var total = secs.reduce(function(a, s) { return a + s.qs.length; }, 0);
   var done = Object.keys(answers).length;
   var pc = Object.values(photos).reduce(function(a, arr) { return a + (arr ? arr.length : 0); }, 0);
   var pct = total > 0 ? Math.round(done / total * 100) : 0;
 
-  // Update form progress in local state
-  if (activeFormId) {
-    var f = FORMS.find(function(x) { return x.id === activeFormId; });
-    if (f) {
-      f.p = pct;
-      if (useFirebase) fbSet('forms/' + activeFormId + '/p', pct);
-    }
+  // Find current form
+  var f = activeFormId ? FORMS.find(function(x) { return x.id === activeFormId; }) : null;
+  var emp = currentUser && currentUser.empId ? EMPS.find(function(e) { return e.id === currentUser.empId; }) : null;
+  var empName = emp ? (emp.prenom + ' ' + emp.nom) : 'Admin';
+  var now = new Date();
+  var dateStr = now.getDate() + '/' + (now.getMonth()+1) + '/' + now.getFullYear() + ' ' + now.getHours() + 'h' + String(now.getMinutes()).padStart(2,'0');
+
+  // Build rapport object
+  var rapport = {
+    id: uid(),
+    formId: activeFormId || '',
+    formNm: f ? f.nm : 'Formulaire',
+    formCode: f ? f.code : '',
+    empId: currentUser ? currentUser.empId : '',
+    empNm: empName,
+    empColor: currentUser ? (currentUser.color || '#ff6200') : '#ff6200',
+    date: dateStr,
+    timestamp: now.getTime(),
+    pct: pct,
+    done: done,
+    total: total,
+    photoCount: pc,
+    answers: Object.assign({}, answers),
+    photos: Object.assign({}, photos),
+    secs: secs
+  };
+
+  // Save to local rapports array
+  RAPPORTS.unshift(rapport);
+
+  // Save to Firebase
+  if (useFirebase && db) {
+    var rapportNoPhotos = Object.assign({}, rapport);
+    delete rapportNoPhotos.photos; // don't store base64 in Firebase (too large)
+    rapportNoPhotos.answers = Object.assign({}, answers);
+    db.ref('rapports').push(rapportNoPhotos);
   }
+
+  // Update form progress
+  if (f) {
+    f.p = pct;
+    if (useFirebase) fbSet('forms/' + activeFormId + '/p', pct);
+  }
+
+  // Send email notification
+  sendRapportEmail(rapport);
+
   renderForms();
-  showToast('💾 Inspection sauvegardée — ' + done + '/' + total + ' réponses · ' + pc + ' photo' + (pc !== 1 ? 's' : ''));
+  renderRapports();
+  showToast('✅ Rapport enregistré — ' + done + '/' + total + ' · ' + pc + ' photo' + (pc !== 1 ? 's' : ''));
+
+  // Redirect to rapports page after 1.5s
+  setTimeout(function() {
+    goPage('rapports');
+    document.querySelector('.nTab[data-page="rapports"]').classList.add('active');
+    document.querySelectorAll('.nTab').forEach(function(t) { if(t.getAttribute('data-page') !== 'rapports') t.classList.remove('active'); });
+  }, 1500);
 });
 
 /* ════════════════════════════════════
@@ -1565,9 +1659,168 @@ on('lUser',  'keydown', function(e) { if (e.key === 'Enter') G('lPass').focus();
 function buildAll() {
   buildDash();
   renderForms();
+  buildInsp();
   renderEmps();
   buildStats();
+  renderRapports();
   updateBadges();
+  if (useFirebase) loadRapportsFromFirebase();
+}
+
+/* ════════════════════════════════════
+   RAPPORTS
+════════════════════════════════════ */
+var RAPPORTS = [];
+
+// EmailJS config — admin fills these in emailjs.com (free)
+var EMAILJS_SERVICE  = 'service_kqfu72g';
+var EMAILJS_TEMPLATE = 'template_t2imcul';
+var EMAILJS_PUBLIC   = '1vhuPXLJpBEoNJuKx';
+var ADMIN_EMAIL      = 'Jordan.demantes@gxo.com';   // admin principal
+var ADMIN_EMAIL2     = 'Maxime.viandier@gxo.com';  // admin secondaire
+
+function sendRapportEmail(rapport) {
+  try {
+    // EmailJS configured
+    emailjs.init(EMAILJS_PUBLIC);
+    var conforme = 0, nonConforme = 0, na = 0;
+    Object.values(rapport.answers).forEach(function(v) {
+      if (v==='yes') conforme++;
+      else if (v==='no') nonConforme++;
+      else na++;
+    });
+    var params = {
+      to_email:    ADMIN_EMAIL,
+      emp_name:    rapport.empNm,
+      form_name:   rapport.formNm,
+      form_code:   rapport.formCode,
+      date:        rapport.date,
+      score:       rapport.pct + '%',
+      done:        rapport.done + '/' + rapport.total,
+      conforme:    conforme,
+      non_conforme:nonConforme,
+      na:          na,
+      photos:      rapport.photoCount,
+      app_url:     'https://demantesjordan.github.io/Gxo-check'
+    };
+    emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, params);
+    // Send to second admin
+    params.to_email = ADMIN_EMAIL2;
+    emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, params);
+    console.log('Email sent');
+  } catch(e) { console.log('Email error:', e); }
+}
+
+function renderRapports() {
+  var isAdmin = currentUser && currentUser.role === 'admin';
+  var list = isAdmin ? RAPPORTS : RAPPORTS.filter(function(r) {
+    return currentUser && r.empId === currentUser.empId;
+  });
+
+  // Update badge
+  var bdg = G('rBdg');
+  if (bdg) { bdg.textContent = list.length; bdg.style.display = list.length ? '' : 'none'; }
+  var cnt = G('rapportsCount');
+  if (cnt) cnt.textContent = list.length + ' rapport' + (list.length !== 1 ? 's' : '');
+
+  if (!list.length) {
+    G('rapportsList').innerHTML = '<div class="empty"><div class="emIco">📄</div><div class="emTxt">Aucun rapport enregistré<br>pour le moment</div></div>';
+    return;
+  }
+
+  var html = '';
+  list.forEach(function(r) {
+    var ini = r.empNm.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
+    var scoreColor = r.pct >= 80 ? 'var(--green)' : r.pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+    var pCount = Object.values(r.photos||{}).reduce(function(a,arr){return a+(arr?arr.length:0);},0);
+    var allPhotos = [];
+    Object.values(r.photos||{}).forEach(function(arr){if(arr)arr.forEach(function(p){allPhotos.push(p);});});
+
+    html += '<div class="rCard" data-rid="' + r.id + '">'
+      + '<div class="rCardHead">'
+      + '<div class="rCardAv" style="background:linear-gradient(135deg,' + r.empColor + ',' + r.empColor + '88)">' + ini + '</div>'
+      + '<div class="rCardInfo"><div class="rCardNm">' + r.formNm + '</div>'
+      + '<div class="rCardSub">👤 ' + r.empNm + ' · 📅 ' + r.date + '</div></div>'
+      + '<div class="rCardScore" style="color:' + scoreColor + '">' + r.pct + '%</div>'
+      + '</div>'
+      + '<div class="rCardBody">'
+      + '<div class="rCardRow">📋 ' + r.formCode + ' &nbsp;·&nbsp; ✅ ' + r.done + '/' + r.total + ' réponses &nbsp;·&nbsp; 📷 ' + pCount + ' photo' + (pCount!==1?'s':'') + '</div>'
+      + (allPhotos.length ? '<div class="rCardPhotos">' + allPhotos.slice(0,4).map(function(p){return '<img class="rCardThumb" src="'+p+'">';}).join('') + (allPhotos.length>4?'<div style="width:56px;height:56px;border-radius:7px;background:var(--black3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--white3);">+'+( allPhotos.length-4)+'</div>':'') + '</div>' : '')
+      + '</div></div>';
+  });
+  G('rapportsList').innerHTML = html;
+
+  // Bind click to open detail
+  G('rapportsList').querySelectorAll('.rCard').forEach(function(card) {
+    card.addEventListener('click', function() {
+      openRapportDetail(this.getAttribute('data-rid'));
+    });
+  });
+}
+
+function openRapportDetail(id) {
+  var r = RAPPORTS.find(function(x){return x.id===id;}); if(!r) return;
+  var scoreColor = r.pct >= 80 ? 'var(--green)' : r.pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+  G('rDetailTitle').textContent = r.formNm;
+  G('rDetailScore').textContent = r.pct + '%';
+  G('rDetailScore').style.color = scoreColor;
+
+  var secs = r.secs || DEFAULT_SECS;
+  var qn = 0;
+  var parts = [];
+
+  parts.push('<div style="margin-bottom:16px;padding:14px;background:var(--black2);border:1px solid var(--border);border-radius:12px;">');
+  parts.push('<div style="font-size:13px;color:var(--white3);margin-bottom:4px;">&#128100; ' + r.empNm + ' &nbsp;&middot;&nbsp; &#128197; ' + r.date + '</div>');
+  parts.push('<div style="font-size:13px;color:var(--white3);">&#128203; ' + r.formCode + ' &nbsp;&middot;&nbsp; &#9989; ' + r.done + '/' + r.total + ' r&eacute;ponses</div>');
+  parts.push('</div>');
+
+  secs.forEach(function(sec, si) {
+    parts.push('<div style="margin-bottom:14px;">');
+    parts.push('<div style="font-size:15px;font-weight:700;padding:10px 0;border-bottom:1px solid var(--border);margin-bottom:8px;text-transform:uppercase;letter-spacing:.3px;">' + sec.t + '</div>');
+    (sec.qs||[]).forEach(function(q, qi) {
+      var key = si + '_' + qi;
+      var ans = (r.answers||{})[key];
+      qn++;
+      var ansColor = ans==='yes' ? 'var(--green)' : ans==='no' ? 'var(--red)' : 'var(--white4)';
+      var ansLabel = ans==='yes' ? '&#10003; Conforme' : ans==='no' ? '&#10007; Non conforme' : ans==='na' ? '&mdash; N/A' : 'Non r&eacute;pondu';
+      var qPhotos = (r.photos||{})[key] || [];
+      parts.push('<div style="padding:10px 0;border-bottom:1px solid var(--border);">');
+      parts.push('<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:' + (qPhotos.length ? '8' : '0') + 'px;">');
+      parts.push('<div style="width:22px;height:22px;min-width:22px;border-radius:50%;background:' + (ans ? ansColor : 'var(--black4)') + ';display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;margin-top:2px;">' + qn + '</div>');
+      parts.push('<div style="flex:1;font-size:13.5px;">' + q + '</div>');
+      parts.push('<div style="font-size:12px;font-weight:700;color:' + ansColor + ';white-space:nowrap;flex-shrink:0;">' + ansLabel + '</div>');
+      parts.push('</div>');
+      if (qPhotos.length) {
+        parts.push('<div style="display:flex;gap:6px;flex-wrap:wrap;padding-left:32px;">');
+        qPhotos.forEach(function(p) {
+          parts.push('<img src="' + p + '" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--border);">');
+        });
+        parts.push('</div>');
+      }
+      parts.push('</div>');
+    });
+    parts.push('</div>');
+  });
+
+  G('rDetailBody').innerHTML = parts.join('');
+  G('rDetail').classList.add('open');
+}
+
+
+on('rDetailBack', 'click', function() { G('rDetail').classList.remove('open'); });
+
+// Load rapports from Firebase on connect
+function loadRapportsFromFirebase() {
+  if (!db) return;
+  db.ref('rapports').on('value', function(snap) {
+    var data = snap.val();
+    if (data) {
+      var arr = Object.keys(data).map(function(k){ var r=data[k]; r.photos=r.photos||{}; return r; });
+      arr.sort(function(a,b){return (b.timestamp||0)-(a.timestamp||0);});
+      RAPPORTS = arr;
+    } else { RAPPORTS = []; }
+    if (currentUser) renderRapports();
+  });
 }
 
 /* ════════════════════════════════════
