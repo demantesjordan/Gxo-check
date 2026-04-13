@@ -11,6 +11,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<!-- jsPDF for PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 /* ════════════════════════════════
@@ -77,7 +79,7 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
   box-shadow: 0 8px 32px #ff620040;
 }
 .loginMark svg { width:32px; height:32px; }
-.loginWord { font-family:'Barlow Condensed',sans-serif; font-size:36px; font-weight:800; letter-spacing:-1px; color:#fff; }
+.loginWord { font-weight:800; font-size:36px; font-weight:800; letter-spacing:-1px; color:#fff; }
 .loginWord span { color:var(--orange); }
 .loginTag { position:relative; font-size:13px; color:var(--white3); margin-bottom:36px; letter-spacing:.5px; }
 .loginBox {
@@ -90,7 +92,7 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
   content:''; position:absolute; top:0; left:20px; right:20px; height:1px;
   background: linear-gradient(90deg, transparent, var(--orange), transparent);
 }
-.loginTitle { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:700; margin-bottom:22px; text-align:center; letter-spacing:.5px; }
+.loginTitle { font-weight:800; font-size:22px; font-weight:700; margin-bottom:22px; text-align:center; letter-spacing:.5px; }
 .lFg { margin-bottom:14px; }
 .lLbl { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.8px; color:var(--white3); margin-bottom:6px; display:block; }
 .lInp {
@@ -106,7 +108,7 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
 .lBtn {
   width:100%; padding:15px; border-radius:var(--r2);
   font-size:16px; font-weight:700; border:none; cursor:pointer;
-  font-family:'Barlow Condensed',sans-serif; letter-spacing:.8px; text-transform:uppercase;
+  font-weight:800; letter-spacing:.8px; text-transform:uppercase;
   background: linear-gradient(135deg, var(--orange), var(--orangeD));
   color:#fff; margin-top:6px;
   box-shadow: 0 4px 20px #ff620030;
@@ -139,7 +141,7 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
   display:flex; align-items:center; justify-content:center;
 }
 .topMark svg { width:20px; height:20px; }
-.topWord { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:800; letter-spacing:-.3px; color:#fff; }
+.topWord { font-weight:800; font-size:22px; font-weight:800; letter-spacing:-.3px; color:#fff; }
 .topWord span { color:var(--orange); }
 .topR { margin-left:auto; display:flex; gap:8px; align-items:center; }
 .iBtn {
@@ -162,7 +164,7 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
   width:30px; height:30px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
   font-size:12px; font-weight:700; color:#fff; flex-shrink:0;
-  font-family:'Barlow Condensed',sans-serif; letter-spacing:.5px;
+  font-weight:800; letter-spacing:.5px;
 }
 .uChipNm { font-size:12px; font-weight:600; color:var(--white2); }
 
@@ -218,7 +220,7 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
   padding:13px 16px; border-bottom:1px solid var(--border);
   display:flex; align-items:center; justify-content:space-between;
 }
-.cT { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:.3px; }
+.cT { font-weight:800; font-size:16px; font-weight:700; letter-spacing:.3px; }
 .cB { padding:13px 16px; }
 
 /* ── STAT GRID ──────────────── */
@@ -232,7 +234,7 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
 .sCrd:active { border-color:var(--orange); }
 .sCrdBar { position:absolute; top:0; left:0; right:0; height:3px; }
 .sIco { font-size:24px; margin-bottom:8px; }
-.sVal { font-family:'Barlow Condensed',sans-serif; font-size:32px; font-weight:800; line-height:1; margin-bottom:3px; letter-spacing:-.5px; }
+.sVal { font-weight:800; font-size:32px; font-weight:800; line-height:1; margin-bottom:3px; letter-spacing:-.5px; }
 .sLbl { font-size:12px; color:var(--white3); margin-bottom:3px; }
 .sDlt { font-size:11px; font-weight:600; color:var(--green); }
 
@@ -335,13 +337,13 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
 }
 .rWrap { position:relative; width:64px; height:64px; flex-shrink:0; }
 .rWrap svg { transform:rotate(-90deg); }
-.rVal { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; color:var(--orange); }
-.iMeta h3 { font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:800; margin-bottom:5px; letter-spacing:.3px; }
+.rVal { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px; font-weight:800; color:var(--orange); }
+.iMeta h3 { font-weight:800; font-size:17px; font-weight:800; margin-bottom:5px; letter-spacing:.3px; }
 .iMetaR { display:flex; flex-wrap:wrap; gap:5px 12px; }
 .iMI { font-size:11.5px; color:var(--white3); }
 
 .secCard { background:var(--black2); border:1px solid var(--border); border-radius:var(--r); margin-bottom:12px; overflow:hidden; }
-.secH { padding:12px 16px; background:var(--black3); font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:.3px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+.secH { padding:12px 16px; background:var(--black3); font-weight:800; font-size:15px; font-weight:700; letter-spacing:.3px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
 .qRow { display:flex; align-items:flex-start; gap:10px; padding:13px 16px; border-top:1px solid var(--border); transition:background .15s; }
 .qRow.ans { background:#ff620008; }
 .qNum { width:26px; height:26px; min-width:26px; border-radius:50%; background:var(--black3); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--white4); margin-top:1px; flex-shrink:0; transition:all .2s; }
@@ -381,11 +383,11 @@ input[type=file] { display:none; }
 /* ── EMPLOYEES ──────────────── */
 .eItem { display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:1px solid var(--border); }
 .eItem:last-child { border-bottom:none; }
-.eAv { width:46px; height:46px; min-width:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:#fff; flex-shrink:0; font-family:'Barlow Condensed',sans-serif; letter-spacing:.5px; }
+.eAv { width:46px; height:46px; min-width:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:#fff; flex-shrink:0; font-weight:800; letter-spacing:.5px; }
 .eNm { font-size:14px; font-weight:600; }
 .eRl { font-size:12px; color:var(--white3); margin-top:1px; }
 .eR { margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
-.eSc { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; color:var(--orange); }
+.eSc { font-weight:800; font-size:20px; font-weight:800; color:var(--orange); }
 .eScL { font-size:10px; color:var(--white4); }
 .eBtns { display:flex; gap:6px; }
 .eBtn { width:32px; height:32px; border-radius:var(--r2); display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer; border:1px solid var(--border); background:var(--black3); -webkit-user-select:none; user-select:none; }
@@ -407,7 +409,7 @@ input[type=file] { display:none; }
 }
 @keyframes slideUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
 .mHandle { width:40px; height:4px; background:var(--border); border-radius:2px; margin:0 auto 20px; }
-.mTitle { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:800; margin-bottom:20px; letter-spacing:.5px; }
+.mTitle { font-weight:800; font-size:22px; font-weight:800; margin-bottom:20px; letter-spacing:.5px; }
 .fg { margin-bottom:14px; }
 .flbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.7px; color:var(--white3); margin-bottom:6px; display:block; }
 .fInp,.fSel {
@@ -430,7 +432,7 @@ input[type=file] { display:none; }
 .confBg { display:none; position:fixed; inset:0; background:#00000095; z-index:60; align-items:center; justify-content:center; padding:20px; }
 .confBg.open { display:flex; }
 .confBox { background:var(--black2); border:1px solid var(--border); border-radius:var(--r); padding:26px 22px; width:100%; max-width:340px; animation:fadeUp .2s ease; }
-.confTtl { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; margin-bottom:8px; letter-spacing:.3px; }
+.confTtl { font-weight:800; font-size:20px; font-weight:800; margin-bottom:8px; letter-spacing:.3px; }
 .confMsg { font-size:14px; color:var(--white3); margin-bottom:22px; line-height:1.5; }
 .confAct { display:flex; gap:10px; }
 
@@ -439,7 +441,7 @@ input[type=file] { display:none; }
 .uMenu.open { display:flex; }
 .uMenuBox { background:var(--black2); border:1px solid var(--border); border-radius:var(--r); width:230px; overflow:hidden; animation:fadeUp .15s ease; box-shadow:0 16px 48px #00000080; }
 .uMHead { padding:16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; background:var(--black3); }
-.uMAv { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:#fff; flex-shrink:0; font-family:'Barlow Condensed',sans-serif; letter-spacing:.5px; }
+.uMAv { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:#fff; flex-shrink:0; font-weight:800; letter-spacing:.5px; }
 .uMNm { font-size:14px; font-weight:700; }
 .uMRl { font-size:11px; color:var(--white3); margin-top:2px; }
 .uMItem { padding:13px 16px; border-bottom:1px solid var(--border); font-size:14px; cursor:pointer; transition:background .1s; -webkit-user-select:none; user-select:none; display:flex; align-items:center; gap:10px; }
@@ -467,6 +469,34 @@ input[type=file] { display:none; }
 .spinner { width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--orange); border-radius:50%; animation:spin .7s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg);} }
 
+/* ── NON-CONFORME WARNING ───── */
+.qComment.required-warn {
+  border-color: var(--red) !important;
+  animation: shake .3s ease;
+}
+@keyframes shake {
+  0%,100%{transform:translateX(0);}
+  25%{transform:translateX(-6px);}
+  75%{transform:translateX(6px);}
+}
+.nc-warn {
+  font-size:11.5px; color:var(--red); margin-top:4px;
+  display:none; font-weight:600;
+}
+.nc-warn.show { display:block; }
+
+/* ── PDF BUTTON ─────────────── */
+.btn-pdf {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; padding:13px; border-radius:var(--r2);
+  background:#00000000; border:1.5px solid var(--orange);
+  color:var(--orange); font-size:14px; font-weight:700;
+  cursor:pointer; margin-top:10px; transition:all .15s;
+  font-family:'DM Sans',sans-serif;
+  -webkit-user-select:none; user-select:none;
+}
+.btn-pdf:active { background:var(--orangeGl); transform:scale(.97); }
+
 /* ── COMMENT FIELD ─────────── */
 .qComment {
   width:100%; margin-top:8px;
@@ -485,11 +515,11 @@ input[type=file] { display:none; }
 .rCard { background:var(--black2); border:1px solid var(--border); border-radius:var(--r); margin-bottom:12px; overflow:hidden; cursor:pointer; transition:border-color .15s; }
 .rCard:active { border-color:var(--orange); }
 .rCardHead { padding:14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
-.rCardAv { width:40px; height:40px; min-width:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#fff; font-family:'Barlow Condensed',sans-serif; }
+.rCardAv { width:40px; height:40px; min-width:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#fff; font-weight:800; }
 .rCardInfo { flex:1; min-width:0; }
 .rCardNm { font-size:14px; font-weight:700; }
 .rCardSub { font-size:11.5px; color:var(--white3); margin-top:2px; }
-.rCardScore { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:800; }
+.rCardScore { font-weight:800; font-size:22px; font-weight:800; }
 .rCardBody { padding:12px 16px; }
 .rCardRow { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--white2); margin-bottom:6px; }
 .rCardRow:last-child { margin-bottom:0; }
@@ -598,7 +628,7 @@ input[type=file] { display:none; }
 
   <div class="mWrap">
     <div class="dkTop" id="dkTop">
-      <span id="dkTitle" style="font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;letter-spacing:.3px;">Tableau de bord</span>
+      <span id="dkTitle" style="font-weight:800;font-size:19px;font-weight:800;letter-spacing:.3px;">Tableau de bord</span>
       <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
         <div class="iBtn" id="dkBell">🔔</div>
         <div class="uChip" id="dkChip">
@@ -616,7 +646,7 @@ input[type=file] { display:none; }
         <div class="sGrid" id="dashGrid"></div>
         <div class="card"><div class="cH"><div class="cT">📈 COMPLÉTIONS MENSUELLES</div></div>
           <div class="cB"><div class="chrt" id="chart1"></div>
-            <div class="legend"><div class="li"><div class="ld" style="background:var(--orange)"></div>2024</div><div class="li"><div class="ld" style="background:var(--orange);opacity:.3"></div>2023</div></div>
+            <div class="legend"><div class="li"><div class="ld" style="background:var(--orange)"></div>Rapports soumis</div></div>
           </div>
         </div>
         <div class="card adminOnly2"><div class="cH"><div class="cT">🏆 TOP 5 FORMULAIRES</div></div><div class="cB" id="topList1" style="padding-top:6px;padding-bottom:6px;"></div></div>
@@ -679,7 +709,7 @@ input[type=file] { display:none; }
       <!-- RAPPORTS -->
       <div class="page" id="page-rapports">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:.3px;">RAPPORTS SOUMIS</div>
+          <div style="font-weight:800;font-size:18px;font-weight:800;letter-spacing:.3px;">RAPPORTS SOUMIS</div>
           <div class="bdg bor" id="rapportsCount">0 rapport</div>
         </div>
         <div class="card" id="rapportsList">
@@ -690,9 +720,9 @@ input[type=file] { display:none; }
       <!-- STATS (admin only) -->
       <div class="page adminOnly" id="page-stats">
         <div class="sGrid" id="statsGrid"></div>
-        <div class="card"><div class="cH"><div class="cT">📊 ÉVOLUTION 2023 VS 2024</div></div>
+        <div class="card"><div class="cH"><div class="cT">📊 RAPPORTS PAR MOIS — ANNÉE EN COURS</div></div>
           <div class="cB"><div class="chrt" id="chart2"></div>
-            <div class="legend"><div class="li"><div class="ld" style="background:var(--orange)"></div>2024</div><div class="li"><div class="ld" style="background:var(--orange);opacity:.3"></div>2023</div></div>
+            <div class="legend"><div class="li"><div class="ld" style="background:var(--orange)"></div>Rapports soumis</div></div>
           </div>
         </div>
         <div class="card"><div class="cH"><div class="cT">🏆 TOP FORMULAIRES</div></div><div class="cB" id="topList2" style="padding-top:6px;padding-bottom:6px;"></div></div>
@@ -779,7 +809,8 @@ input[type=file] { display:none; }
 <div class="rDetail" id="rDetail">
   <div class="rDetailHead">
     <div class="iBtn" id="rDetailBack" style="font-size:20px;">←</div>
-    <div style="flex:1;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;" id="rDetailTitle">Rapport</div>
+  <div style="padding:0 16px 10px;"><button class="btn-pdf" id="btnExportPDF">&#128196; Exporter en PDF</button></div>
+    <div style="flex:1;font-weight:800;font-size:18px;font-weight:800;" id="rDetailTitle">Rapport</div>
     <div class="bdg bor" id="rDetailScore">–</div>
   </div>
   <div class="rDetailBody" id="rDetailBody"></div>
@@ -1104,41 +1135,84 @@ var ACTS = [
 
 function buildDash() {
   var isAdmin = currentUser && currentUser.role === 'admin';
-  var myForms = isAdmin ? FORMS : FORMS.filter(function(f) { return f.assign === currentUser.username || f.assign === 'all'; });
+  var myForms = isAdmin ? FORMS : FORMS.filter(function(f){return f.assign===currentUser.username||f.assign==='all';});
+  var myRapports = isAdmin ? RAPPORTS : RAPPORTS.filter(function(r){return r.empId===currentUser.empId;});
+  var thisMonth=new Date().getMonth(), thisYear=new Date().getFullYear();
+  var rapportsCeMois=myRapports.filter(function(r){var d=new Date(r.timestamp||0);return d.getMonth()===thisMonth&&d.getFullYear()===thisYear;}).length;
+  var conf=0, total=0;
+  myRapports.forEach(function(r){Object.values(r.answers||{}).forEach(function(v){total++;if(v==='yes')conf++;});});
+  var taux=total>0?Math.round(conf/total*100):0;
 
-  G('dashGrid').innerHTML = isAdmin
-    ? mkStat('📋', FORMS.length,  'Formulaires actifs', '↑ Total actuel',      'var(--orange)') +
-      mkStat('⏱',  '12',          'En cours',           "↑ 3 aujourd'hui",     '#ff9a50') +
-      mkStat('✅',  '94%',         'Taux de conformité', '↑ +2% ce mois',       'var(--green)') +
-      mkStat('👥',  EMPS.length,   'Employés actifs',    'Équipe au complet',   'var(--blue)')
-    : mkStat('📋', myForms.length, 'Mes formulaires',    'Assignés à vous',     'var(--orange)') +
-      mkStat('✅',  myForms.filter(function(f){return f.p===100;}).length, 'Complétés', 'Ce mois', 'var(--green)') +
-      mkStat('⏱',  myForms.filter(function(f){return f.p>0&&f.p<100;}).length, 'En cours', 'À terminer', '#ff9a50') +
-      mkStat('🔍',  myForms.filter(function(f){return f.p===0;}).length, 'À démarrer', 'Non commencés', 'var(--blue)');
-
-  buildChart('chart1', 'bOr', 'bOr2');
-  buildTopList('topList1');
-
-  // Recent activity — for employees show only their activity
-  var acts = isAdmin ? ACTS : ACTS.filter(function(a) {
-    var emp = EMPS.find(function(e) { return e.id === currentUser.empId; });
-    return emp ? a.sub.toLowerCase().indexOf(emp.nom.toLowerCase()) > -1 : false;
-  });
-  if (!acts.length) acts = ACTS.slice(0, 2);
-
-  G('actList').innerHTML = acts.map(function(a) {
-    return '<div class="aItem"><div class="aIco" style="background:' + a.bg + '">' + a.ico + '</div>'
-      + '<div class="aInfo"><div class="aNm">' + a.nm + '</div><div class="aSub">' + a.sub + '</div></div>'
-      + '<div class="aR"><div class="bdg ' + a.cls + '">' + a.lbl + '</div><div class="aT">' + a.t + '</div></div></div>';
-  }).join('');
-  onAll(G('actList'), '.aItem', 'click', function() { goPage('formulaires'); });
-  on('actSeeAll', 'click', function() { goPage('formulaires'); });
+  if(isAdmin){
+    G('dashGrid').innerHTML=
+      mkStat('📋',FORMS.length,'Formulaires actifs',FORMS.length+' formulaires','var(--orange)')+
+      mkStat('📄',myRapports.length,'Rapports soumis',rapportsCeMois+' ce mois','#ff9a50')+
+      mkStat('✅',taux+'%','Taux conformité',total+' réponses','var(--green)')+
+      mkStat('👥',EMPS.length,'Employés actifs',EMPS.length+' membres','var(--blue)');
+  } else {
+    G('dashGrid').innerHTML=
+      mkStat('📋',myForms.length,'Mes formulaires','Assignés à moi','var(--orange)')+
+      mkStat('📄',myRapports.length,'Mes rapports',rapportsCeMois+' ce mois','#ff9a50')+
+      mkStat('✅',taux+'%','Mon taux conf.',total+' réponses','var(--green)')+
+      mkStat('🔍',myForms.filter(function(f){return f.p===0;}).length,'À démarrer',myForms.filter(function(f){return f.p===100;}).length+' complétés','var(--blue)');
+  }
+  setTimeout(function(){
+    var cards=G('dashGrid').querySelectorAll('.sCrd');
+    var pages=isAdmin?['formulaires','rapports','stats','employes']:['formulaires','rapports','inspection','formulaires'];
+    cards.forEach(function(c,i){c.style.cursor='pointer';c.addEventListener('click',function(){goPage(pages[i]);});});
+  },50);
+  buildChart('chart1','bOr','bOr2');
+  buildTopListReal('topList1');
+  buildRecentActivity();
   updateBadges();
 }
 
-/* ════════════════════════════════════
-   FORMS
-════════════════════════════════════ */
+function buildTopListReal(id) {
+  var el=G(id); if(!el)return;
+  var isAdmin=currentUser&&currentUser.role==='admin';
+  var raps=isAdmin?RAPPORTS:RAPPORTS.filter(function(r){return r.empId===currentUser.empId;});
+  var counts={},names={};
+  raps.forEach(function(r){counts[r.formId]=(counts[r.formId]||0)+1;names[r.formId]=r.formNm;});
+  FORMS.forEach(function(f){if(!names[f.id]){names[f.id]=f.nm;counts[f.id]=counts[f.id]||0;}});
+  var sorted=Object.keys(names).sort(function(a,b){return(counts[b]||0)-(counts[a]||0);}).slice(0,5);
+  var mx=Math.max(1,counts[sorted[0]]||1);
+  el.innerHTML=sorted.map(function(fid,i){
+    var bd=i<sorted.length-1?'border-bottom:1px solid var(--border)':'';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;'+bd+'">'
+      +'<div style="width:24px;height:24px;border-radius:6px;background:'+(i===0?'var(--orangeGl2)':'var(--black3)')+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:'+(i===0?'var(--orange)':'var(--white4)')+';">'+(i+1)+'</div>'
+      +'<div style="flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(names[fid]||'—')+'</div>'
+      +'<div style="width:50px;"><div class="pb"><div class="pf" style="width:'+Math.round((counts[fid]||0)/mx*100)+'%"></div></div></div>'
+      +'<div style="font-size:12px;font-weight:700;color:var(--white3);width:20px;text-align:right;">'+(counts[fid]||0)+'</div>'
+      +'</div>';
+  }).join('') || '<div style="padding:12px;text-align:center;font-size:13px;color:var(--white4);">Soumettez des rapports pour voir les stats</div>';
+}
+
+function buildRecentActivity() {
+  var el=G('actList'); if(!el)return;
+  var isAdmin=currentUser&&currentUser.role==='admin';
+  var list=(isAdmin?RAPPORTS:RAPPORTS.filter(function(r){return r.empId===currentUser.empId;})).slice(0,5);
+  if(!list.length){
+    el.innerHTML='<div style="padding:16px;text-align:center;font-size:13px;color:var(--white4);">Les rapports soumis apparaîtront ici</div>';
+  } else {
+    var sc=function(p){return p>=80?'bgr':p>=50?'byl':'brd';};
+    el.innerHTML=list.map(function(r){
+      var ini=r.empNm.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
+      return '<div class="aItem" data-rid="'+r.id+'">'
+        +'<div class="aIco" style="background:linear-gradient(135deg,'+r.empColor+','+r.empColor+'44);font-size:13px;font-weight:800;color:#fff;font-weight:800;">'+ini+'</div>'
+        +'<div class="aInfo"><div class="aNm">'+r.formNm+'</div><div class="aSub">&#128100; '+r.empNm+' &middot; '+r.date+'</div></div>'
+        +'<div class="aR"><div class="bdg '+sc(r.pct)+'">'+r.pct+'%</div></div>'
+        +'</div>';
+    }).join('');
+    onAll(el,'.aItem','click',function(){
+      var rid=this.getAttribute('data-rid');
+      goPage('rapports');
+      setTimeout(function(){openRapportDetail(rid);},150);
+    });
+  }
+  var sa=G('actSeeAll'); if(sa) sa.onclick=function(){goPage('rapports');};
+}
+
+
 function getVisibleForms() {
   var isAdmin = currentUser && currentUser.role === 'admin';
   var q = fSearch.toLowerCase();
@@ -1361,7 +1435,8 @@ function buildInsp() {
         + '<button class="qBtn' + (ans==='no'  ? ' no'  : '') + '" data-key="' + key + '" data-val="no">✗ Non conforme</button>'
         + '<button class="qBtn' + (ans==='na'  ? ' na'  : '') + '" data-key="' + key + '" data-val="na">— N/A</button>'
         + '</div>'
-        + '<textarea class="qComment" id="qc_' + key + '" placeholder="Ajouter un commentaire…"></textarea>'
+        + '<textarea class="qComment" id="qc_' + key + '" placeholder="Ajouter un commentaire…" data-key="' + key + '"></textarea>'
+        + '<div class="nc-warn" id="ncw_' + key + '">⚠ Description obligatoire si Non conforme</div>'
         + '<div class="pZone"><div class="pZTop">'
         + '<span class="pZLbl">📷 Photos</span>'
         + '<label class="addPBtn" for="pf_' + key + '">＋ Ajouter</label>'
@@ -1385,6 +1460,17 @@ function buildInsp() {
     this.classList.add(val);
     row.classList.add('ans');
     var num = G('qNum_' + key); num.classList.add('done'); num.textContent = '✓';
+    // Show/hide non-conforme warning
+    var warn = G('ncw_' + key);
+    var textarea = G('qc_' + key);
+    if (warn) warn.classList.toggle('show', val === 'no');
+    if (textarea && val === 'no') {
+      textarea.placeholder = '⚠ Description obligatoire — décrivez le problème…';
+      textarea.style.borderColor = 'var(--red)';
+    } else if (textarea) {
+      textarea.placeholder = 'Ajouter un commentaire…';
+      textarea.style.borderColor = '';
+    }
     updateRing();
   });
 
@@ -1429,6 +1515,35 @@ function updateRing() {
 }
 
 on('btnSaveInsp', 'click', function() {
+  // Validate: non-conforme must have description
+  var missingDesc = [];
+  var secs = activeFormSecs || DEFAULT_SECS;
+  secs.forEach(function(sec, si) {
+    (sec.qs||[]).forEach(function(q, qi) {
+      var key = si + '_' + qi;
+      if (answers[key] === 'no') {
+        var ta = G('qc_' + key);
+        var val = ta ? ta.value.trim() : '';
+        if (!val) missingDesc.push(key);
+      }
+    });
+  });
+  if (missingDesc.length) {
+    missingDesc.forEach(function(key) {
+      var ta = G('qc_' + key);
+      var warn = G('ncw_' + key);
+      if (ta) { ta.classList.add('required-warn'); ta.style.borderColor='var(--red)'; ta.focus(); }
+      if (warn) warn.classList.add('show');
+    });
+    showToast('⚠ Ajoutez une description pour chaque Non conforme');
+    // Scroll to first missing
+    var firstKey = missingDesc[0];
+    var el = G('qc_' + firstKey);
+    if (el) el.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  // Remove warnings
+  document.querySelectorAll('.qComment').forEach(function(t) { t.classList.remove('required-warn'); });
   var secs = activeFormSecs || DEFAULT_SECS;
   var total = secs.reduce(function(a, s) { return a + s.qs.length; }, 0);
   var done = Object.keys(answers).length;
@@ -1604,18 +1719,51 @@ on('shEmpSave',   'click', saveEmp);
    STATS
 ════════════════════════════════════ */
 function buildStats() {
-  G('statsGrid').innerHTML =
-    mkStat('📈','404','Complétions 2024',    '69.9% du total',       'var(--orange)') +
-    mkStat('📉','174','Complétions 2023',    '30.1% du total',       '#ff9a50')       +
-    mkStat('⚡','34.7','Moyenne mensuelle',  '↑ +132% vs 2023',      'var(--green)')  +
-    mkStat('📋', FORMS.length,'Formulaires actifs','À jour',          'var(--blue)');
-  buildChart('chart2', 'bOr', 'bOr2');
-  buildTopList('topList2');
+  var total=RAPPORTS.length;
+  var conf=0,ans=0;
+  RAPPORTS.forEach(function(r){Object.values(r.answers||{}).forEach(function(v){ans++;if(v==='yes')conf++;});});
+  var taux=ans>0?Math.round(conf/ans*100):0;
+  var thisYear=new Date().getFullYear(), thisMonth=new Date().getMonth();
+  var ceMois=RAPPORTS.filter(function(r){var d=new Date(r.timestamp||0);return d.getMonth()===thisMonth&&d.getFullYear()===thisYear;}).length;
+  var nonConf=RAPPORTS.reduce(function(a,r){return a+Object.values(r.answers||{}).filter(function(v){return v==='no';}).length;},0);
+  G('statsGrid').innerHTML=
+    mkStat('📄',total,'Rapports soumis',ceMois+' ce mois','var(--orange)')+
+    mkStat('✅',taux+'%','Taux conformité',ans+' réponses','var(--green)')+
+    mkStat('⚠️',nonConf,'Non-conformités','À corriger','var(--red)')+
+    mkStat('📋',FORMS.length,'Formulaires actifs',FORMS.length+' actifs','var(--blue)');
+  // Real monthly chart
+  var months=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  var mc=new Array(12).fill(0);
+  RAPPORTS.forEach(function(r){var d=new Date(r.timestamp||0);if(d.getFullYear()===thisYear)mc[d.getMonth()]++;});
+  var mx2=Math.max(1,Math.max.apply(null,mc));
+  var c2=G('chart2');
+  if(c2) c2.innerHTML=months.map(function(m,i){
+    return '<div class="cCol"><div class="cBrs"><div class="bar bOr" style="height:'+Math.round(mc[i]/mx2*100)+'%"></div></div><div class="cLbl">'+m+'</div></div>';
+  }).join('');
+  buildTopListReal('topList2');
+  // Employee ranking
+  var es={};
+  RAPPORTS.forEach(function(r){
+    if(!es[r.empId])es[r.empId]={nm:r.empNm,c:r.empColor,count:0,pts:0};
+    es[r.empId].count++;es[r.empId].pts+=r.pct;
+  });
+  var ranked=Object.values(es).sort(function(a,b){return b.count-a.count;});
+  var er=G('empRanking');
+  if(er){
+    er.innerHTML=ranked.length?ranked.map(function(e,i){
+      var avg=Math.round(e.pts/e.count);
+      var ini=e.nm.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
+      var bd=i<ranked.length-1?'border-bottom:1px solid var(--border)':'';
+      return '<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;'+bd+'">'
+        +'<div style="width:22px;font-size:13px;font-weight:800;color:var(--white4);text-align:center;">'+(i+1)+'</div>'
+        +'<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,'+e.c+','+e.c+'88);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">'+ini+'</div>'
+        +'<div style="flex:1;"><div style="font-size:14px;font-weight:600;">'+e.nm+'</div><div style="font-size:11.5px;color:var(--white3);">'+e.count+' rapport'+(e.count>1?'s':'')+'</div></div>'
+        +'<div style="text-align:right;"><div style="font-weight:800;font-size:18px;font-weight:800;color:var(--orange);">'+avg+'%</div><div style="font-size:10px;color:var(--white4);">moy.</div></div>'
+        +'</div>';
+    }).join(''):'<div style="padding:16px;text-align:center;font-size:13px;color:var(--white4);">Aucun rapport encore</div>';
+  }
 }
 
-/* ════════════════════════════════════
-   SHEETS / MODALS
-════════════════════════════════════ */
 function openSheet(id)  { G(id).classList.add('open'); }
 function closeSheet(id) { G(id).classList.remove('open'); }
 function openConf()  { G('confBg').classList.add('open'); }
@@ -1671,6 +1819,10 @@ function buildAll() {
   updateBadges();
   if (useFirebase) loadRapportsFromFirebase();
 }
+// Refresh all live data
+function refreshAll() {
+  buildDash(); buildStats(); renderRapports(); updateBadges();
+}
 
 /* ════════════════════════════════════
    RAPPORTS
@@ -1693,19 +1845,36 @@ function sendRapportEmail(rapport) {
       else if (v==='no') nonConforme++;
       else na++;
     });
+    // Build non-conforme details
+    var ncDetails = '';
+    var secsForEmail = rapport.secs || DEFAULT_SECS;
+    var qnEmail = 0;
+    secsForEmail.forEach(function(sec, si) {
+      (sec.qs||[]).forEach(function(q, qi) {
+        qnEmail++;
+        var key = si + '_' + qi;
+        if ((rapport.answers||{})[key] === 'no') {
+          var desc = (rapport.comments||{})[key] || '(aucune description)';
+          ncDetails += qnEmail + '. ' + q + ' -- ' + desc + ' | ';
+        }
+      });
+    });
+    if (!ncDetails) ncDetails = 'Aucune non-conformite';
+
     emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-      to_email:    ADMIN_EMAIL,
-      emp_name:    rapport.empNm,
-      form_name:   rapport.formNm,
-      form_code:   rapport.formCode,
-      date:        rapport.date,
-      score:       rapport.pct + '%',
-      done:        rapport.done + '/' + rapport.total,
-      conforme:    conforme,
-      non_conforme:nonConforme,
-      na:          na,
-      photos:      rapport.photoCount,
-      app_url:     'https://demantesjordan.github.io/Gxo-check'
+      to_email:     ADMIN_EMAIL,
+      emp_name:     rapport.empNm,
+      form_name:    rapport.formNm,
+      form_code:    rapport.formCode,
+      date:         rapport.date,
+      score:        rapport.pct + '%',
+      done:         rapport.done + '/' + rapport.total,
+      conforme:     conforme,
+      non_conforme: nonConforme,
+      na:           na,
+      photos:       rapport.photoCount,
+      nc_details:   ncDetails,
+      app_url:      'https://demantesjordan.github.io/Gxo-check'
     });
     console.log('Email sent');
   } catch(e) { console.log('Email error:', e); }
@@ -1744,6 +1913,7 @@ function renderRapports() {
       + '<div class="rCardScore" style="color:' + scoreColor + '">' + r.pct + '%</div>'
       + '</div>'
       + '<div class="rCardBody">'
+      + (isAdmin ? '<div style="display:flex;justify-content:flex-end;margin-bottom:6px;"><div class="bdg brd" style="cursor:pointer;" data-delrid="' + r.id + '">🗑 Supprimer</div></div>' : '')
       + '<div class="rCardRow">📋 ' + r.formCode + ' &nbsp;·&nbsp; ✅ ' + r.done + '/' + r.total + ' réponses &nbsp;·&nbsp; 📷 ' + pCount + ' photo' + (pCount!==1?'s':'') + '</div>'
       + (allPhotos.length ? '<div class="rCardPhotos">' + allPhotos.slice(0,4).map(function(p){return '<img class="rCardThumb" src="'+p+'">';}).join('') + (allPhotos.length>4?'<div style="width:56px;height:56px;border-radius:7px;background:var(--black3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--white3);">+'+( allPhotos.length-4)+'</div>':'') + '</div>' : '')
       + '</div></div>';
@@ -1751,6 +1921,23 @@ function renderRapports() {
   G('rapportsList').innerHTML = html;
 
   // Bind click to open detail
+    // Delete binding
+  G('rapportsList').querySelectorAll('[data-delrid]').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var rid=this.getAttribute('data-delrid');
+      var r=RAPPORTS.find(function(x){return x.id===rid;});
+      G('confTitle').textContent='SUPPRIMER LE RAPPORT';
+      G('confMsg').textContent='Supprimer "'+(r?r.formNm:'')+'" du '+(r?r.date:'')+' ?';
+      pendingDel=function(){
+        RAPPORTS=RAPPORTS.filter(function(x){return x.id!==rid;});
+        if(useFirebase&&db){db.ref('rapports').orderByChild('timestamp').once('value',function(snap){snap.forEach(function(c){if(c.val().id===rid)c.ref.remove();});});}
+        closeConf(); renderRapports(); buildDash(); buildStats();
+        showToast('🗑 Rapport supprimé');
+      };
+      openConf();
+    });
+  });
   G('rapportsList').querySelectorAll('.rCard').forEach(function(card) {
     card.addEventListener('click', function() {
       openRapportDetail(this.getAttribute('data-rid'));
@@ -1760,6 +1947,7 @@ function renderRapports() {
 
 function openRapportDetail(id) {
   var r = RAPPORTS.find(function(x){return x.id===id;}); if(!r) return;
+  currentRapportForPDF = r;
   var scoreColor = r.pct >= 80 ? 'var(--green)' : r.pct >= 50 ? 'var(--yellow)' : 'var(--red)';
   G('rDetailTitle').textContent = r.formNm;
   G('rDetailScore').textContent = r.pct + '%';
@@ -1812,6 +2000,7 @@ function openRapportDetail(id) {
 
 
 on('rDetailBack', 'click', function() { G('rDetail').classList.remove('open'); });
+on('btnExportPDF', 'click', function() { if (currentRapportForPDF) generatePDF(currentRapportForPDF); else showToast('Aucun rapport selectionne'); });
 
 // Load rapports from Firebase on connect
 function loadRapportsFromFirebase() {
@@ -1823,8 +2012,146 @@ function loadRapportsFromFirebase() {
       arr.sort(function(a,b){return (b.timestamp||0)-(a.timestamp||0);});
       RAPPORTS = arr;
     } else { RAPPORTS = []; }
-    if (currentUser) renderRapports();
+    if (currentUser) refreshAll();
   });
+}
+
+
+/* ════════════════════════════════════
+   PDF GENERATION
+════════════════════════════════════ */
+var currentRapportForPDF = null;
+
+function generatePDF(rapport) {
+  try {
+    var jsPDFLib = window.jspdf || window;
+    var JSPDF = jsPDFLib.jsPDF || jsPDFLib.default;
+    if (!JSPDF) { showToast('PDF non disponible'); return; }
+    var doc = new JSPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    var W=210, M=14, y=M;
+
+    function chkPage(h) { if(y+(h||6)>282){doc.addPage();y=M;} }
+    function txt(t,x,yy,opts) { doc.text(t,x,yy,opts||{}); }
+
+    // Header
+    doc.setFillColor(255,98,0);
+    doc.rect(0,0,W,26,'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(18);doc.setFont('helvetica','bold');
+    txt('GXO Check',M,11);
+    doc.setFontSize(9);doc.setFont('helvetica','normal');
+    txt("Rapport d'inspection",M,19);
+    txt(rapport.pct+'%  |  '+rapport.date, W-M, 11, {align:'right'});
+    txt(rapport.empNm+' - '+rapport.formCode, W-M, 19, {align:'right'});
+    y=32;
+
+    // Form name
+    doc.setTextColor(10,10,20);
+    doc.setFillColor(240,240,245);
+    doc.roundedRect(M,y,W-M*2,10,2,2,'F');
+    doc.setFontSize(11);doc.setFont('helvetica','bold');
+    txt(rapport.formNm, M+3, y+7);
+    doc.setFontSize(8);doc.setFont('helvetica','normal');
+    doc.setTextColor(100,100,110);
+    txt('Reponses: '+rapport.done+'/'+rapport.total, W-M-3, y+7, {align:'right'});
+    y+=14;
+
+    // Sections
+    var secs = rapport.secs || [];
+    var qn=0;
+    secs.forEach(function(sec,si) {
+      chkPage(10);
+      doc.setFillColor(255,98,0);
+      doc.rect(M,y,W-M*2,6,'F');
+      doc.setTextColor(255,255,255);
+      doc.setFontSize(8);doc.setFont('helvetica','bold');
+      var stitle=(sec.t||'').replace(/[^ -~]/g,'').trim();
+      txt(stitle||('Section '+(si+1)), M+2, y+4.5);
+      y+=8;
+
+      (sec.qs||[]).forEach(function(q,qi) {
+        var key=si+'_'+qi;
+        var ans=(rapport.answers||{})[key];
+        var comment=(rapport.comments||{})[key]||'';
+        var photos=(rapport.photos||{})[key]||[];
+        qn++;
+
+        var rowH=8+(comment?6:0)+(photos.length?22:0);
+        chkPage(rowH);
+
+        if(qn%2===0){
+          doc.setFillColor(248,248,252);
+          doc.rect(M,y-1,W-M*2,rowH,'F');
+        }
+
+        // Badge
+        var ac,al;
+        if(ans==='yes'){ac=[39,201,122];al='Conforme';}
+        else if(ans==='no'){ac=[240,79,90];al='Non-conforme';}
+        else if(ans==='na'){ac=[150,150,160];al='N/A';}
+        else{ac=[200,200,200];al='?';}
+        doc.setFillColor(ac[0],ac[1],ac[2]);
+        doc.roundedRect(W-M-22,y,22,5,1,1,'F');
+        doc.setTextColor(255,255,255);
+        doc.setFontSize(6.5);doc.setFont('helvetica','bold');
+        txt(al, W-M-11, y+3.5, {align:'center'});
+
+        // Question
+        doc.setTextColor(10,10,20);
+        doc.setFontSize(8);doc.setFont('helvetica','normal');
+        var qlines=doc.splitTextToSize(qn+'. '+q, W-M*2-28);
+        doc.text(qlines, M+2, y+4);
+        y+=Math.max(8, qlines.length*4+2);
+
+        if(comment){
+          chkPage(7);
+          doc.setFillColor(255,242,232);
+          doc.roundedRect(M+4,y-1,W-M*2-6,6,1,1,'F');
+          doc.setTextColor(180,60,0);
+          doc.setFontSize(7.5);doc.setFont('helvetica','italic');
+          var cl=doc.splitTextToSize('> '+comment, W-M*2-12);
+          doc.text(cl, M+7, y+3);
+          y+=Math.max(7, cl.length*4+2);
+        }
+
+        if(photos.length){
+          chkPage(22);
+          var px=M+4, pw=25, ph=20, pg=3;
+          photos.slice(0,4).forEach(function(d){
+            try{
+              var fmt=d.indexOf('png')>-1?'PNG':'JPEG';
+              doc.addImage(d,fmt,px,y,pw,ph);
+              px+=pw+pg;
+              if(px+pw>W-M){px=M+4;y+=ph+pg;chkPage(22);}
+            }catch(e){}
+          });
+          y+=ph+pg+2;
+        }
+
+        doc.setDrawColor(225,225,230);
+        doc.line(M,y,W-M,y);
+        y+=3;
+      });
+      y+=3;
+    });
+
+    // Footer
+    var pages=doc.internal.getNumberOfPages();
+    for(var p=1;p<=pages;p++){
+      doc.setPage(p);
+      doc.setFontSize(7);doc.setFont('helvetica','normal');
+      doc.setTextColor(150,150,160);
+      txt('GXO Check - '+rapport.formNm+' - '+rapport.date, M, 291);
+      txt('Page '+p+'/'+pages, W-M, 291, {align:'right'});
+    }
+
+    var fname='Rapport_'+rapport.formCode+'_'+rapport.date.replace(/[^0-9]/g,'')+'.pdf';
+    doc.save(fname);
+    showToast('PDF telecharge !');
+  } catch(e) {
+    console.error('PDF error:',e);
+    showToast('Erreur PDF : '+e.message);
+  }
 }
 
 /* ════════════════════════════════════
