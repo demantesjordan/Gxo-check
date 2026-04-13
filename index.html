@@ -465,6 +465,20 @@ input[type=file] { display:none; }
 .spinner { width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--orange); border-radius:50%; animation:spin .7s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg);} }
 
+/* ── SECTIONS EDITOR ────────── */
+.secEditor { margin-bottom:10px; background:var(--black3); border:1px solid var(--border); border-radius:var(--r2); overflow:hidden; }
+.secEditorHead { display:flex; align-items:center; gap:8px; padding:10px 12px; background:var(--black4); border-bottom:1px solid var(--border); }
+.secEditorTitle { flex:1; background:transparent; border:none; color:var(--white); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; outline:none; }
+.secEditorTitle::placeholder { color:var(--white4); }
+.secDelBtn { width:26px; height:26px; border-radius:6px; background:#e74c3c18; border:1px solid var(--red); color:var(--red); display:flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer; flex-shrink:0; -webkit-user-select:none; user-select:none; }
+.secDelBtn:active { opacity:.7; }
+.qEditor { display:flex; align-items:center; gap:8px; padding:9px 12px; border-top:1px solid var(--border); }
+.qEditorInp { flex:1; background:transparent; border:none; color:var(--white); font-family:'DM Sans',sans-serif; font-size:13px; outline:none; }
+.qEditorInp::placeholder { color:var(--white4); }
+.qDelBtn { width:22px; height:22px; border-radius:5px; background:#e74c3c12; border:1px solid #e74c3c50; color:var(--red); display:flex; align-items:center; justify-content:center; font-size:11px; cursor:pointer; flex-shrink:0; -webkit-user-select:none; user-select:none; }
+.addQBtn { display:flex; align-items:center; gap:6px; padding:8px 12px; border-top:1px solid var(--border); font-size:12px; color:var(--orange); cursor:pointer; -webkit-user-select:none; user-select:none; }
+.addQBtn:active { opacity:.7; }
+
 /* ── DESKTOP ────────────────── */
 @media(min-width:700px) { .sGrid{grid-template-columns:repeat(4,1fr);} }
 @media(min-width:1024px) {
@@ -658,6 +672,16 @@ input[type=file] { display:none; }
     </div>
     <div class="fg"><label class="flbl">Assigné à</label><select class="fSel" id="ffAssign"></select></div>
     <div class="fg"><label class="flbl">Description</label><input class="fInp" id="ffDesc" placeholder="Optionnel…"></div>
+    
+    <!-- SECTIONS & QUESTIONS -->
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <label class="flbl" style="margin-bottom:0;">Sections &amp; Questions</label>
+        <button class="btn btnP" id="btnAddSection" style="flex:0;padding:6px 14px;font-size:12px;">+ Section</button>
+      </div>
+      <div id="sectionsEditor"></div>
+    </div>
+
     <input type="hidden" id="ffId">
     <div class="mAct"><button class="btn btnS" id="shFormCancel">Annuler</button><button class="btn btnP" id="shFormSave">Enregistrer</button></div>
   </div>
@@ -675,7 +699,7 @@ input[type=file] { display:none; }
     <div class="fg"><label class="flbl">Identifiant de connexion</label><input class="fInp" id="efUser" placeholder="ex: anderson" autocapitalize="none"></div>
     <div class="fg"><label class="flbl">Mot de passe</label><input class="fInp" id="efPw" type="password" placeholder="Minimum 4 caractères"></div>
     <div class="fg"><label class="flbl">Rôle / Poste</label>
-      <select class="fSel" id="efRole"><option>Opérateur</option><option>Inspecteur</option><option>Technicien</option><option>Électricien</option><option>Superviseur</option><option>Direction</option><option>RH</option><option>Administrateur</option></select>
+      <select class="fSel" id="efRole"><option>Opérateur</option><option>Technicien</option><option>Direction</option><option>RH</option><option>Chef d'équipe</option><option>Responsable d'exploitation</option><option>RQHSE</option></select>
     </div>
     <div class="fg"><label class="flbl">Département</label><input class="fInp" id="efDept" placeholder="Montréal – Production"></div>
     <div class="fg"><label class="flbl">Type d'emploi</label>
@@ -741,9 +765,9 @@ var LOCAL_USERS = [
   {username:'martin',   pw:'pass123',  role:'employe', color:'#27c97a', empId:'e3'}
 ];
 var LOCAL_EMPS = [
-  {id:'e1',prenom:'Julia', nom:'Anderson', username:'anderson',pw:'pass123',role:'Électricien',  dept:'Montréal – Prod.',type:'Permanent',  s:94, c:'#4f8ef7'},
+  {id:'e1',prenom:'Julia', nom:'Anderson', username:'anderson',pw:'pass123',role:'Technicien',  dept:'Montréal – Prod.',type:'Permanent',  s:94, c:'#4f8ef7'},
   {id:'e2',prenom:'Maryse',nom:'Gauvin',   username:'gauvin',  pw:'pass123',role:'Direction',     dept:'Montréal',        type:'Permanent',  s:88, c:'#9b72f7'},
-  {id:'e3',prenom:'Jean',  nom:'Martin',   username:'martin',  pw:'pass123',role:'Administrateur',dept:'Montréal',        type:'Permanent',  s:97, c:'#27c97a'},
+  {id:'e3',prenom:'Jean',  nom:'Martin',   username:'martin',  pw:'pass123',role:'Chef d\'équipe',dept:'Montréal',        type:'Permanent',  s:97, c:'#27c97a'},
   {id:'e4',prenom:'Julia', nom:'Andersson',username:'andersson',pw:'pass123',role:'Technicien',  dept:'New York',        type:'Permanent',  s:79, c:'#f5c518'},
   {id:'e5',prenom:'Marc',  nom:'Leclerc',  username:'leclerc', pw:'pass123',role:'Opérateur',    dept:'Montréal – Prod.',type:'Temporaire', s:85, c:'#f04f5a'}
 ];
@@ -1137,18 +1161,78 @@ function populateAssign(sel) {
     + EMPS.map(function(e) { return '<option value="' + e.username + '">' + e.prenom + ' ' + e.nom + '</option>'; }).join('');
   if (sel) s.value = sel;
 }
+// ── SECTIONS EDITOR ──────────────────────────
+var editingSecs = []; // working copy of sections being edited
+
+function renderSectionsEditor() {
+  var container = G('sectionsEditor'); if (!container) return;
+  if (!editingSecs.length) {
+    container.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--white4);text-align:center;">Aucune section — appuyez sur "+ Section"</div>';
+    return;
+  }
+  var html = '';
+  editingSecs.forEach(function(sec, si) {
+    html += '<div class="secEditor">'
+      + '<div class="secEditorHead">'
+      + '<input class="secEditorTitle" data-si="' + si + '" placeholder="Nom de la section…" value="' + (sec.t||'').replace(/"/g,'&quot;') + '">'
+      + '<div class="secDelBtn" data-si="' + si + '" data-act="delsec">✕</div>'
+      + '</div>'
+      + (sec.qs||[]).map(function(q, qi) {
+          return '<div class="qEditor">'
+            + '<input class="qEditorInp" data-si="' + si + '" data-qi="' + qi + '" placeholder="Question…" value="' + (q||'').replace(/"/g,'&quot;') + '">'
+            + '<div class="qDelBtn" data-si="' + si + '" data-qi="' + qi + '" data-act="delq">✕</div>'
+            + '</div>';
+        }).join('')
+      + '<div class="addQBtn" data-si="' + si + '" data-act="addq">＋ Ajouter une question</div>'
+      + '</div>';
+  });
+  container.innerHTML = html;
+
+  // Bind inputs
+  container.querySelectorAll('.secEditorTitle').forEach(function(inp) {
+    inp.addEventListener('input', function() {
+      editingSecs[parseInt(this.getAttribute('data-si'))].t = this.value;
+    });
+  });
+  container.querySelectorAll('.qEditorInp').forEach(function(inp) {
+    inp.addEventListener('input', function() {
+      editingSecs[parseInt(this.getAttribute('data-si'))].qs[parseInt(this.getAttribute('data-qi'))] = this.value;
+    });
+  });
+  container.querySelectorAll('[data-act]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var si = parseInt(this.getAttribute('data-si'));
+      var act = this.getAttribute('data-act');
+      if (act === 'delsec') {
+        editingSecs.splice(si, 1);
+      } else if (act === 'addq') {
+        editingSecs[si].qs.push('');
+      } else if (act === 'delq') {
+        editingSecs[si].qs.splice(parseInt(this.getAttribute('data-qi')), 1);
+      }
+      renderSectionsEditor();
+    });
+  });
+}
+
 function openNewForm() {
   G('shFormTitle').textContent = 'NOUVEAU FORMULAIRE';
   G('ffTitle').value = ''; G('ffCat').value = 'inspection';
   G('ffFreq').value = 'Quotidienne'; G('ffDesc').value = ''; G('ffId').value = '';
-  populateAssign('all'); openSheet('shForm');
+  editingSecs = JSON.parse(JSON.stringify(DEFAULT_SECS));
+  populateAssign('all');
+  renderSectionsEditor();
+  openSheet('shForm');
 }
 function openEditForm(id) {
   var f = FORMS.find(function(x) { return x.id === id; }); if (!f) return;
   G('shFormTitle').textContent = 'MODIFIER LE FORMULAIRE';
   G('ffTitle').value = f.nm; G('ffCat').value = f.cat;
   G('ffFreq').value = f.freq; G('ffDesc').value = f.desc || ''; G('ffId').value = f.id;
-  populateAssign(f.assign); openSheet('shForm');
+  editingSecs = f.secs ? JSON.parse(JSON.stringify(f.secs)) : JSON.parse(JSON.stringify(DEFAULT_SECS));
+  populateAssign(f.assign);
+  renderSectionsEditor();
+  openSheet('shForm');
 }
 function openConfirmDelForm(id) {
   var f = FORMS.find(function(x) { return x.id === id; }); if (!f) return;
@@ -1169,6 +1253,12 @@ function saveForm() {
   if (!title) { G('ffTitle').focus(); showToast('⚠ Entrez un titre'); return; }
   var id = G('ffId').value;
   var data = {nm:title, cat:G('ffCat').value, freq:G('ffFreq').value, assign:G('ffAssign').value, desc:G('ffDesc').value, p:0, r:1, code:''};
+
+  // Save sections (filter empty)
+  data.secs = editingSecs.map(function(sec) {
+    return {t: sec.t||'Section', qs: (sec.qs||[]).filter(function(q){return q.trim();})};
+  }).filter(function(sec){ return sec.qs.length > 0; });
+  if (!data.secs.length) data.secs = DEFAULT_SECS;
 
   if (id) {
     var existing = FORMS.find(function(x) { return x.id === id; });
@@ -1192,6 +1282,10 @@ function saveForm() {
 }
 on('shFormCancel', 'click', function() { closeSheet('shForm'); });
 on('shFormSave',   'click', saveForm);
+on('btnAddSection', 'click', function() {
+  editingSecs.push({t:'', qs:['']});
+  renderSectionsEditor();
+});
 
 /* ════════════════════════════════════
    INSPECTION
@@ -1199,7 +1293,7 @@ on('shFormSave',   'click', saveForm);
 function startInspection(fid) {
   var f = FORMS.find(function(x) { return x.id === fid; }); if (!f) return;
   activeFormId = fid;
-  activeFormSecs = DEFAULT_SECS;
+  activeFormSecs = f.secs && f.secs.length ? f.secs : DEFAULT_SECS;
   answers = {}; photos = {};
   if (G('inspTitle')) G('inspTitle').textContent = f.nm;
   if (G('inspCode'))  G('inspCode').textContent  = '📋 ' + f.code;
