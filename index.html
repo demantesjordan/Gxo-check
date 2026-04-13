@@ -467,6 +467,20 @@ input[type=file] { display:none; }
 .spinner { width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--orange); border-radius:50%; animation:spin .7s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg);} }
 
+/* ── COMMENT FIELD ─────────── */
+.qComment {
+  width:100%; margin-top:8px;
+  padding:9px 12px;
+  background:var(--black4); border:1px solid var(--border);
+  border-radius:var(--r2); color:var(--txt,var(--white));
+  font-family:'DM Sans',sans-serif; font-size:13px;
+  resize:none; outline:none; min-height:60px;
+  transition:border-color .15s;
+  -webkit-appearance:none;
+}
+.qComment:focus { border-color:var(--orange); }
+.qComment::placeholder { color:var(--white4); }
+
 /* ── RAPPORT CARDS ──────────── */
 .rCard { background:var(--black2); border:1px solid var(--border); border-radius:var(--r); margin-bottom:12px; overflow:hidden; cursor:pointer; transition:border-color .15s; }
 .rCard:active { border-color:var(--orange); }
@@ -1340,19 +1354,22 @@ function buildInsp() {
       qn++;
       html += '<div class="qRow' + (ans ? ' ans' : '') + '" id="qRow_' + key + '">'
         + '<div class="qNum' + (ans ? ' done' : '') + '" id="qNum_' + key + '">' + (ans ? '✓' : qn) + '</div>'
-        + '<div class="qBody"><div class="qTxt">' + q + '</div>'
+        + '<div class="qBody">'
+        + '<div class="qTxt">' + q + '</div>'
         + '<div class="qBtns">'
-        + '<button class="qBtn' + (ans==='yes'?' yes':'') + '" data-key="' + key + '" data-val="yes">✓ Conforme</button>'
-        + '<button class="qBtn' + (ans==='no'?' no':'')   + '" data-key="' + key + '" data-val="no">✗ Non conforme</button>'
-        + '<button class="qBtn' + (ans==='na'?' na':'')   + '" data-key="' + key + '" data-val="na">— N/A</button>'
+        + '<button class="qBtn' + (ans==='yes' ? ' yes' : '') + '" data-key="' + key + '" data-val="yes">✓ Conforme</button>'
+        + '<button class="qBtn' + (ans==='no'  ? ' no'  : '') + '" data-key="' + key + '" data-val="no">✗ Non conforme</button>'
+        + '<button class="qBtn' + (ans==='na'  ? ' na'  : '') + '" data-key="' + key + '" data-val="na">— N/A</button>'
         + '</div>'
+        + '<textarea class="qComment" id="qc_' + key + '" placeholder="Ajouter un commentaire…"></textarea>'
         + '<div class="pZone"><div class="pZTop">'
         + '<span class="pZLbl">📷 Photos</span>'
         + '<label class="addPBtn" for="pf_' + key + '">＋ Ajouter</label>'
         + '<input type="file" id="pf_' + key + '" accept="image/*" capture="environment" multiple>'
         + '</div>'
         + '<div class="pThumbs" id="pTh_' + key + '"><span class="pEmpty">Aucune photo</span></div>'
-        + '</div></div></div>';
+        + '</div>'
+        + '</div></div>';
     });
     html += '</div>';
   });
@@ -1387,6 +1404,7 @@ function buildInsp() {
     this.value = '';
   });
 }
+
 
 function renderThumbs(key) {
   var el = G('pTh_' + key); if (!el) return;
@@ -1440,6 +1458,13 @@ on('btnSaveInsp', 'click', function() {
     total: total,
     photoCount: pc,
     answers: Object.assign({}, answers),
+    comments: (function() {
+      var c = {};
+      document.querySelectorAll('.qComment').forEach(function(t) {
+        if (t.value.trim()) c[t.id.replace('qc_','')] = t.value.trim();
+      });
+      return c;
+    })(),
     photos: Object.assign({}, photos),
     secs: secs
   };
@@ -1758,6 +1783,7 @@ function openRapportDetail(id) {
       qn++;
       var ansColor = ans==='yes' ? 'var(--green)' : ans==='no' ? 'var(--red)' : 'var(--white4)';
       var ansLabel = ans==='yes' ? '&#10003; Conforme' : ans==='no' ? '&#10007; Non conforme' : ans==='na' ? '&mdash; N/A' : 'Non r&eacute;pondu';
+      var comment = (r.comments||{})[key] || '';
       var qPhotos = (r.photos||{})[key] || [];
       parts.push('<div style="padding:10px 0;border-bottom:1px solid var(--border);">');
       parts.push('<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:' + (qPhotos.length ? '8' : '0') + 'px;">');
@@ -1765,6 +1791,9 @@ function openRapportDetail(id) {
       parts.push('<div style="flex:1;font-size:13.5px;">' + q + '</div>');
       parts.push('<div style="font-size:12px;font-weight:700;color:' + ansColor + ';white-space:nowrap;flex-shrink:0;">' + ansLabel + '</div>');
       parts.push('</div>');
+      if (comment) {
+        parts.push('<div style="margin:6px 0 6px 32px;padding:8px 10px;background:var(--black3);border-left:3px solid var(--orange);border-radius:0 6px 6px 0;font-size:12.5px;color:var(--white2);font-style:italic;">' + comment + '</div>');
+      }
       if (qPhotos.length) {
         parts.push('<div style="display:flex;gap:6px;flex-wrap:wrap;padding-left:32px;">');
         qPhotos.forEach(function(p) {
