@@ -544,6 +544,57 @@ input[type=file] { display:none; }
 .addQBtn { display:flex; align-items:center; gap:6px; padding:8px 12px; border-top:1px solid var(--border); font-size:12px; color:var(--orange); cursor:pointer; -webkit-user-select:none; user-select:none; }
 .addQBtn:active { opacity:.7; }
 
+/* ── NON-CONFORMITE CARDS ───── */
+.ncCard { background:var(--black2); border:1px solid var(--border); border-radius:var(--r); margin-bottom:10px; overflow:hidden; transition:border-color .15s; }
+.ncCard.open  { border-left:3px solid var(--red); }
+.ncCard.closed{ border-left:3px solid var(--green); opacity:.7; }
+.ncHead { padding:12px 16px; display:flex; align-items:flex-start; gap:10px; }
+.ncIco  { width:36px; height:36px; min-width:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#fff; flex-shrink:0; }
+.ncInfo { flex:1; min-width:0; }
+.ncQ    { font-size:13.5px; font-weight:600; line-height:1.4; margin-bottom:4px; }
+.ncMeta { font-size:11.5px; color:var(--white3); }
+.ncDesc { margin:0 16px 12px; padding:10px 12px; background:var(--black3); border-left:3px solid var(--red); border-radius:0 var(--r2) var(--r2) 0; font-size:13px; color:var(--white2); font-style:italic; }
+.ncFoot { padding:10px 16px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.ncStatus { font-size:11px; font-weight:700; }
+.btnClose { padding:7px 16px; border-radius:var(--r2); background:var(--green); color:#000; font-size:12px; font-weight:700; border:none; cursor:pointer; -webkit-user-select:none; user-select:none; }
+.btnClose:active { opacity:.7; }
+.btnReopen { padding:7px 16px; border-radius:var(--r2); background:var(--black3); color:var(--white3); font-size:12px; font-weight:700; border:1px solid var(--border); cursor:pointer; -webkit-user-select:none; user-select:none; }
+
+/* ── SIGNATURE PAD ───────────── */
+.sigPad { background:var(--black3); border:1.5px dashed var(--border); border-radius:var(--r2); touch-action:none; cursor:crosshair; display:block; }
+.sigWrap { margin-top:12px; }
+.sigLbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--white3); margin-bottom:6px; display:block; }
+
+/* ── OVERDUE BADGES ─────────── */
+.fItem.overdue { border-left: 3px solid var(--red); }
+.fItem.due-soon { border-left: 3px solid var(--yellow); }
+.overdue-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:2px 8px; border-radius:10px;
+  font-size:10px; font-weight:700;
+  background:#f04f5a22; color:var(--red);
+  margin-left:6px;
+}
+.soon-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:2px 8px; border-radius:10px;
+  font-size:10px; font-weight:700;
+  background:#f5c51822; color:var(--yellow);
+  margin-left:6px;
+}
+.overdue-banner {
+  background: linear-gradient(135deg, #f04f5a18, #f04f5a08);
+  border: 1px solid #f04f5a40;
+  border-radius: var(--r);
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 12px;
+}
+.overdue-banner-icon { font-size:24px; flex-shrink:0; }
+.overdue-banner-txt { flex:1; }
+.overdue-banner-title { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; color:var(--red); margin-bottom:2px; }
+.overdue-banner-sub { font-size:12px; color:var(--white3); }
+
 /* ── DESKTOP ────────────────── */
 @media(min-width:700px) { .sGrid{grid-template-columns:repeat(4,1fr);} }
 @media(min-width:1024px) {
@@ -624,6 +675,7 @@ input[type=file] { display:none; }
     <div class="nTab" data-page="rapports"><div class="nI">📄</div><div class="nL">Rapports</div><div class="nBdg" id="rBdg" style="background:var(--orange);display:none;">0</div><div class="nDot"></div></div>
     <div class="nTab adminOnly" data-page="employes"><div class="nI">👥</div><div class="nL">Employés</div><div class="nBdg" id="eBdg" style="background:#9b72f7">0</div><div class="nDot"></div></div>
     <div class="nTab adminOnly" data-page="stats"><div class="nI">📊</div><div class="nL">Stats</div><div class="nDot"></div></div>
+    <div class="nTab" data-page="nonconf"><div class="nI">⚠️</div><div class="nL">NC</div><div class="nBdg" id="ncBdg" style="background:var(--red);display:none;">0</div><div class="nDot"></div></div>
   </nav>
 
   <div class="mWrap">
@@ -642,6 +694,7 @@ input[type=file] { display:none; }
 
       <!-- DASHBOARD -->
       <div class="page active" id="page-dashboard">
+        <div id="overdueBanner" class="overdue-banner" style="display:none;"></div>
         <div class="fbStatus" id="fbStatus"><div class="fbDot" id="fbDot"></div><span id="fbTxt">Connexion à la base de données…</span></div>
         <div class="sGrid" id="dashGrid"></div>
         <div class="card"><div class="cH"><div class="cT">📈 COMPLÉTIONS MENSUELLES</div></div>
@@ -692,6 +745,15 @@ input[type=file] { display:none; }
           <div class="empty"><div class="emIco">🔍</div><div class="emTxt">Allez dans Formulaires<br>et appuyez sur ▶ Démarrer</div></div>
         </div>
         <div style="height:70px;"></div><!-- spacer for sticky btn -->
+        <!-- SIGNATURE -->
+        <div id="sigWrapDiv" style="display:none;background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <label class="sigLbl" style="margin-bottom:0;">✍️ Signature de l'opérateur</label>
+            <button class="btnS btn" style="flex:0;padding:6px 12px;font-size:12px;" onclick="clearSignature()">Effacer</button>
+          </div>
+          <canvas id="sigCanvas" class="sigPad" style="width:100%;height:120px;"></canvas>
+          <div style="font-size:11px;color:var(--white4);margin-top:6px;">Signez ci-dessus avec votre doigt</div>
+        </div>
         <div id="btnSaveInspWrap" style="display:none;position:fixed;bottom:calc(var(--nav) + 10px);left:0;right:0;padding:0 13px;z-index:15;">
           <button class="btn btnP" style="width:100%;padding:16px;font-size:16px;box-shadow:0 4px 24px #ff620050;" id="btnSaveInsp">💾 ENREGISTRER L'INSPECTION</button>
         </div>
@@ -726,6 +788,18 @@ input[type=file] { display:none; }
           </div>
         </div>
         <div class="card"><div class="cH"><div class="cT">🏆 TOP FORMULAIRES</div></div><div class="cB" id="topList2" style="padding-top:6px;padding-bottom:6px;"></div></div>
+      </div>
+
+      <!-- NON-CONFORMITES -->
+      <div class="page" id="page-nonconf">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:.3px;">NON-CONFORMITES</div>
+          <div style="display:flex;gap:8px;">
+            <div class="pill active" id="ncFilterOpen" style="font-size:11px;padding:5px 12px;">Ouvertes</div>
+            <div class="pill" id="ncFilterAll" style="font-size:11px;padding:5px 12px;">Toutes</div>
+          </div>
+        </div>
+        <div class="card" id="ncList"><div class="empty"><div class="emIco">✅</div><div class="emTxt">Aucune non-conformité ouverte</div></div></div>
       </div>
 
     </div><!-- /scroll -->
@@ -1144,7 +1218,27 @@ function buildDash() {
   var taux=total>0?Math.round(conf/total*100):0;
 
   if(isAdmin){
-    G('dashGrid').innerHTML=
+    // Overdue banner
+  var _overdueCount = buildOverdueBanner();
+  var _isAdmin = currentUser && currentUser.role === 'admin';
+  var _myF = _isAdmin ? FORMS : FORMS.filter(function(f){return f.assign===currentUser.username||f.assign==='all';});
+  var _overdue = _myF.filter(function(f){var s=getFormStatus(f);return s==='overdue'||s==='never';});
+  var _banEl = G('overdueBanner');
+  if (_banEl) {
+    if (_overdue.length) {
+      _banEl.style.display='flex';
+      var _msg = _overdue.length===1 ? '1 formulaire en retard : '+_overdue[0].nm : _overdue.length+' formulaires en retard ou jamais complétés';
+      _banEl.innerHTML='<div class="overdue-banner-icon">🚨</div>'
+        +'<div class="overdue-banner-txt"><div class="overdue-banner-title">Formulaires en retard</div>'
+        +'<div class="overdue-banner-sub">'+_msg+'</div></div>'
+        +'<div class="bdg brd" style="cursor:pointer;" id="bannerGoForms">Voir</div>';
+      setTimeout(function(){var b=G('bannerGoForms');if(b)b.addEventListener('click',function(){goPage('formulaires');});},50);
+    } else {
+      _banEl.style.display='none';
+    }
+  }
+
+  G('dashGrid').innerHTML=
       mkStat('📋',FORMS.length,'Formulaires actifs',FORMS.length+' formulaires','var(--orange)')+
       mkStat('📄',myRapports.length,'Rapports soumis',rapportsCeMois+' ce mois','#ff9a50')+
       mkStat('✅',taux+'%','Taux conformité',total+' réponses','var(--green)')+
@@ -1235,10 +1329,21 @@ function renderForms() {
   list.forEach(function(f) {
     var assignEmp = EMPS.find(function(e) { return e.username === f.assign; });
     var assignNm = f.assign === 'all' ? 'Tous' : (assignEmp ? assignEmp.prenom + ' ' + assignEmp.nom : f.assign);
-    html += '<div class="fItem">'
+    var fStatus = getFormStatus(f);
+    var daysSince = getDaysSince(f.id);
+    var statusBadge = '';
+    if (fStatus === 'overdue') {
+      statusBadge = '<span class="overdue-badge">⚠ En retard' + (daysSince !== null ? ' ('+daysSince+'j)' : '') + '</span>';
+    } else if (fStatus === 'never') {
+      statusBadge = '<span class="overdue-badge">⚠ Jamais fait</span>';
+    } else if (fStatus === 'due-soon') {
+      statusBadge = '<span class="soon-badge">⏰ Bientôt dû</span>';
+    }
+    var fItemClass = 'fItem' + (fStatus==='overdue'||fStatus==='never' ? ' overdue' : fStatus==='due-soon' ? ' due-soon' : '');
+    html += '<div class="' + fItemClass + '">'
       + '<div class="fTop"><div>'
-      + '<div class="fNm">' + f.nm + '</div>'
-      + '<div class="fCd">' + f.code + ' · Rév. ' + f.r + ' · ' + f.freq + (isAdmin ? ' · 👤 ' + assignNm : '') + '</div>'
+      + '<div class="fNm">' + f.nm + statusBadge + '</div>'
+      + '<div class="fCd">' + f.code + ' · Rév. ' + f.r + ' · ' + f.freq + (isAdmin ? ' · 👤 ' + assignNm : '') + (daysSince!==null?' · Dernier: '+daysSince+'j':'') + '</div>'
       + '</div><div class="catTag ' + (CAT_C[f.cat]||'ctI') + '">' + (CAT_N[f.cat]||f.cat) + '</div></div>'
       + '<div class="fFoot"><div class="pb" style="flex:1;"><div class="pf" style="width:' + f.p + '%"></div></div><div class="fPl">' + f.p + '%</div></div>'
       + '<div class="fActs">'
@@ -1413,6 +1518,8 @@ function startInspection(fid) {
   if (G('inspCode'))  G('inspCode').textContent  = '📋 ' + f.code;
   buildInsp();
   G('btnSaveInspWrap').style.display = 'block';
+  var sw = G('sigWrapDiv'); if(sw) sw.style.display='block';
+  setTimeout(initSignature, 100);
   goPage('inspection');
 }
 
@@ -1584,8 +1691,21 @@ on('btnSaveInsp', 'click', function() {
     secs: secs
   };
 
+  // Save signature
+  var sigData = getSignatureData();
+  if (sigData) rapport.signature = sigData;
+
   // Save to local rapports array
   RAPPORTS.unshift(rapport);
+
+  // Extract non-conformites
+  extractNCFromRapport(rapport);
+  if (useFirebase && db) {
+    NC_ITEMS.filter(function(nc){return nc.rapportId===rapport.id;}).forEach(function(nc){
+      fbSet('nonconf/'+nc.id, nc);
+    });
+  }
+  renderNC();
 
   // Save to Firebase
   if (useFirebase && db) {
@@ -1816,12 +1936,13 @@ function buildAll() {
   renderEmps();
   buildStats();
   renderRapports();
+  renderNC();
   updateBadges();
   if (useFirebase) loadRapportsFromFirebase();
 }
 // Refresh all live data
 function refreshAll() {
-  buildDash(); buildStats(); renderRapports(); updateBadges();
+  buildDash(); buildStats(); renderRapports(); renderNC(); updateBadges(); buildOverdueBanner();
 }
 
 /* ════════════════════════════════════
@@ -2014,8 +2135,249 @@ function loadRapportsFromFirebase() {
     } else { RAPPORTS = []; }
     if (currentUser) refreshAll();
   });
+  // Load non-conformites
+  db.ref('nonconf').on('value', function(snap) {
+    var data = snap.val();
+    if (data) {
+      NC_ITEMS = Object.values(data);
+    }
+    if (currentUser) renderNC();
+  });
 }
 
+
+/* ════════════════════════════════════
+   OVERDUE / REMINDERS
+════════════════════════════════════ */
+var FREQ_DAYS = {
+  'Quotidienne': 1,
+  'Hebdomadaire': 7,
+  'Mensuelle': 30,
+  'Annuelle': 365
+};
+
+function getLastRapportDate(formId) {
+  var raps = RAPPORTS.filter(function(r){ return r.formId === formId; });
+  if (!raps.length) return null;
+  raps.sort(function(a,b){ return (b.timestamp||0)-(a.timestamp||0); });
+  return new Date(raps[0].timestamp||0);
+}
+
+function getFormStatus(form) {
+  // Returns: 'overdue', 'due-soon', 'ok', 'never'
+  var days = FREQ_DAYS[form.freq] || 30;
+  var lastDate = getLastRapportDate(form.id);
+  if (!lastDate) return 'never'; // never been done
+  var now = new Date();
+  var diffMs = now - lastDate;
+  var diffDays = diffMs / (1000 * 60 * 60 * 24);
+  if (diffDays > days) return 'overdue';
+  if (diffDays > days * 0.75) return 'due-soon'; // 75% of frequency passed
+  return 'ok';
+}
+
+function getDaysSince(formId) {
+  var lastDate = getLastRapportDate(formId);
+  if (!lastDate) return null;
+  var diffMs = new Date() - lastDate;
+  return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+}
+
+function getOverdueForms(forUser) {
+  var forms = forUser ? FORMS.filter(function(f){
+    return f.assign === forUser || f.assign === 'all';
+  }) : FORMS;
+  return forms.filter(function(f){
+    var s = getFormStatus(f);
+    return s === 'overdue' || s === 'never';
+  });
+}
+
+function buildOverdueBanner() {
+  var isAdmin = currentUser && currentUser.role === 'admin';
+  var myForms = isAdmin ? FORMS : FORMS.filter(function(f){
+    return f.assign === currentUser.username || f.assign === 'all';
+  });
+  var overdue = myForms.filter(function(f){ return getFormStatus(f) === 'overdue'; });
+  var never   = myForms.filter(function(f){ return getFormStatus(f) === 'never'; });
+  var total   = overdue.length + never.length;
+
+  // Update nav badge on formulaires tab
+  var fBdg = G('fBdg');
+  if (fBdg) {
+    fBdg.textContent = myForms.length;
+    if (total > 0) {
+      fBdg.style.background = 'var(--red)';
+      fBdg.style.color = '#fff';
+    } else {
+      fBdg.style.background = 'var(--teal,#00d9be)';
+      fBdg.style.color = '#000';
+    }
+  }
+
+  return total;
+}
+
+/* ════════════════════════════════════
+   NON-CONFORMITES
+════════════════════════════════════ */
+var NC_ITEMS = []; // {id, formId, formNm, empId, empNm, empColor, date, timestamp, question, description, photos, status:'open'|'closed', closedBy, closedAt}
+var ncShowAll = false;
+
+function extractNCFromRapport(rapport) {
+  var secs = rapport.secs || DEFAULT_SECS;
+  var qn = 0;
+  secs.forEach(function(sec, si) {
+    (sec.qs||[]).forEach(function(q, qi) {
+      qn++;
+      var key = si + '_' + qi;
+      if ((rapport.answers||{})[key] === 'no') {
+        var desc = (rapport.comments||{})[key] || '';
+        var photos = (rapport.photos||{})[key] || [];
+        // Check if already exists
+        var exists = NC_ITEMS.find(function(nc) {
+          return nc.rapportId === rapport.id && nc.questionKey === key;
+        });
+        if (!exists) {
+          NC_ITEMS.push({
+            id: 'nc_' + rapport.id + '_' + key,
+            rapportId: rapport.id,
+            formId: rapport.formId,
+            formNm: rapport.formNm,
+            formCode: rapport.formCode,
+            empId: rapport.empId,
+            empNm: rapport.empNm,
+            empColor: rapport.empColor || '#ff6200',
+            date: rapport.date,
+            timestamp: rapport.timestamp || Date.now(),
+            questionKey: key,
+            questionNum: qn,
+            question: q,
+            description: desc,
+            photos: photos,
+            status: 'open',
+            closedBy: null,
+            closedAt: null
+          });
+        }
+      }
+    });
+  });
+}
+
+function renderNC() {
+  var isAdmin = currentUser && currentUser.role === 'admin';
+  var list = ncShowAll ? NC_ITEMS : NC_ITEMS.filter(function(nc){return nc.status==='open';});
+  // Employees only see their own
+  if (!isAdmin) list = list.filter(function(nc){return nc.empId===currentUser.empId;});
+  list.sort(function(a,b){return (b.timestamp||0)-(a.timestamp||0);});
+
+  // Update badge — open NC count
+  var openCount = NC_ITEMS.filter(function(nc){return nc.status==='open';});
+  var myOpen = isAdmin ? openCount : openCount.filter(function(nc){return nc.empId===currentUser.empId;});
+  var bdg = G('ncBdg');
+  if (bdg) { bdg.textContent = myOpen.length; bdg.style.display = myOpen.length ? '' : 'none'; }
+
+  var el = G('ncList'); if (!el) return;
+  if (!list.length) {
+    el.innerHTML = '<div class="empty"><div class="emIco">' + (ncShowAll?'📋':'✅') + '</div><div class="emTxt">' + (ncShowAll?'Aucune non-conformité':'Aucune non-conformité ouverte') + '</div></div>';
+    return;
+  }
+
+  var html = '';
+  list.forEach(function(nc) {
+    var ini = nc.empNm.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
+    var isOpen = nc.status === 'open';
+    var firstPhoto = nc.photos && nc.photos[0] ? nc.photos[0] : null;
+    html += '<div class="ncCard ' + (isOpen?'open':'closed') + '">'
+      + '<div class="ncHead">'
+      + '<div class="ncIco" style="background:linear-gradient(135deg,'+nc.empColor+','+nc.empColor+'88)">'+ini+'</div>'
+      + '<div class="ncInfo">'
+      + '<div class="ncQ">'+nc.questionNum+'. '+nc.question+'</div>'
+      + '<div class="ncMeta">📋 '+nc.formNm+' &nbsp;·&nbsp; 👤 '+nc.empNm+' &nbsp;·&nbsp; 📅 '+nc.date+'</div>'
+      + '</div>'
+      + '<div class="bdg ' + (isOpen?'brd':'bgr') + '">' + (isOpen?'Ouverte':'Clôturée') + '</div>'
+      + '</div>'
+      + (nc.description ? '<div class="ncDesc">💬 ' + nc.description + '</div>' : '')
+      + (firstPhoto ? '<div style="padding:0 16px 10px;"><img src="'+firstPhoto+'" style="width:80px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border);"></div>' : '')
+      + '<div class="ncFoot">'
+      + '<div class="ncStatus" style="color:' + (isOpen?'var(--red)':'var(--green)') + '">' + (isOpen?'🔴 En attente':'🟢 Clôturée le '+nc.closedAt+' par '+nc.closedBy) + '</div>'
+      + (isAdmin && isOpen ? '<button class="btnClose" data-ncid="'+nc.id+'">✓ Clôturer</button>' : '')
+      + (isAdmin && !isOpen ? '<button class="btnReopen" data-ncid="'+nc.id+'">Réouvrir</button>' : '')
+      + '</div>'
+      + '</div>';
+  });
+  el.innerHTML = html;
+
+  // Bind close/reopen buttons
+  el.querySelectorAll('.btnClose').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var ncid = this.getAttribute('data-ncid');
+      var nc = NC_ITEMS.find(function(x){return x.id===ncid;});
+      if (!nc) return;
+      var now = new Date();
+      var dateStr = now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
+      var adminName = currentUser && currentUser.empId ? (EMPS.find(function(e){return e.id===currentUser.empId;})||{prenom:'Admin',nom:''}) : {prenom:'Admin',nom:''};
+      nc.status = 'closed';
+      nc.closedBy = adminName.prenom + ' ' + adminName.nom;
+      nc.closedAt = dateStr;
+      if (useFirebase && db) fbSet('nonconf/'+ncid, nc);
+      renderNC(); buildDash();
+      showToast('✅ Non-conformité clôturée');
+    });
+  });
+  el.querySelectorAll('.btnReopen').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var nc = NC_ITEMS.find(function(x){return x.id===this.getAttribute('data-ncid');}.bind(this));
+      if (!nc) return;
+      nc.status='open'; nc.closedBy=null; nc.closedAt=null;
+      if (useFirebase && db) fbSet('nonconf/'+nc.id, nc);
+      renderNC(); buildDash();
+      showToast('🔴 Non-conformité réouverte');
+    });
+  });
+}
+
+// NC filter pills
+on('ncFilterOpen', 'click', function() {
+  ncShowAll=false;
+  this.classList.add('active'); G('ncFilterAll').classList.remove('active');
+  renderNC();
+});
+on('ncFilterAll', 'click', function() {
+  ncShowAll=true;
+  this.classList.add('active'); G('ncFilterOpen').classList.remove('active');
+  renderNC();
+});
+
+/* ════════════════════════════════════
+   SIGNATURE
+════════════════════════════════════ */
+var sigCanvas=null, sigCtx=null, sigDrawing=false, sigHasData=false;
+
+function initSignature() {
+  sigCanvas = G('sigCanvas'); if(!sigCanvas) return;
+  sigCtx = sigCanvas.getContext('2d');
+  sigCanvas.width = sigCanvas.offsetWidth || 300;
+  sigCanvas.height = 120;
+  sigCtx.strokeStyle = '#ffffff'; sigCtx.lineWidth = 2; sigCtx.lineCap = 'round';
+  sigDrawing = false; sigHasData = false;
+
+  function getPos(e) {
+    var rect = sigCanvas.getBoundingClientRect();
+    var src = e.touches ? e.touches[0] : e;
+    return {x: src.clientX-rect.left, y: src.clientY-rect.top};
+  }
+  function start(e) { e.preventDefault(); sigDrawing=true; sigHasData=true; var p=getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x,p.y); }
+  function move(e)  { e.preventDefault(); if(!sigDrawing)return; var p=getPos(e); sigCtx.lineTo(p.x,p.y); sigCtx.stroke(); }
+  function end(e)   { e.preventDefault(); sigDrawing=false; }
+
+  sigCanvas.addEventListener('mousedown',start); sigCanvas.addEventListener('mousemove',move); sigCanvas.addEventListener('mouseup',end);
+  sigCanvas.addEventListener('touchstart',start,{passive:false}); sigCanvas.addEventListener('touchmove',move,{passive:false}); sigCanvas.addEventListener('touchend',end,{passive:false});
+}
+
+function clearSignature() { if(sigCtx&&sigCanvas){sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);sigHasData=false;} }
+function getSignatureData() { return sigHasData && sigCanvas ? sigCanvas.toDataURL('image/png') : null; }
 
 /* ════════════════════════════════════
    PDF GENERATION
