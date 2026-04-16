@@ -7,12 +7,36 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
 <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
+// Firebase loader with fallback
+(function() {
+  function loadScript(url, cb) {
+    var s = document.createElement('script');
+    s.src = url;
+    s.crossOrigin = 'anonymous';
+    s.onload = function() { if(cb) cb(true); };
+    s.onerror = function() { console.log('Firebase CDN failed, running offline mode'); if(cb) cb(false); };
+    document.head.appendChild(s);
+  }
+  // Try Firebase 9 compat (more iOS compatible)
+  loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js', function(ok1) {
+    if (ok1) {
+      loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js', function(ok2) {
+        window.__firebaseReady = ok1 && ok2;
+      });
+    } else {
+      window.__firebaseReady = false;
+    }
+  });
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
 <!-- EmailJS -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" crossorigin="anonymous"></script>
+<!-- QR Code generator -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" crossorigin="anonymous"></script>
 <!-- jsPDF for PDF generation -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
 
 <style>
 /* ════════════════════════════════
@@ -595,7 +619,84 @@ input[type=file] { display:none; }
 .overdue-banner-title { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; color:var(--red); margin-bottom:2px; }
 .overdue-banner-sub { font-size:12px; color:var(--white3); }
 
+
+/* ════════ SLIDING PANEL ════════ */
+.side-panel{position:fixed;top:0;left:0;bottom:0;width:280px;background:var(--black2);border-right:2px solid var(--orange);z-index:300;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:4px 0 32px #00000080;}
+.side-panel.open{transform:translateX(0);}
+.panel-overlay{display:none;position:fixed;inset:0;background:#00000070;z-index:299;}
+.panel-overlay.open{display:block;}
+.panel-header{display:flex;align-items:center;gap:10px;padding:14px;border-bottom:1px solid var(--border);background:var(--black3);flex-shrink:0;}
+.panel-close{margin-left:auto;width:30px;height:30px;border-radius:7px;background:var(--black4);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;color:var(--white2);-webkit-user-select:none;user-select:none;}
+.panel-close:active{opacity:.7;}
+.panel-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+.panel-tab{flex:1;padding:11px 6px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.3px;cursor:pointer;color:var(--white3);border-bottom:3px solid transparent;transition:all .15s;-webkit-user-select:none;user-select:none;}
+.panel-tab.active{color:var(--orange);border-bottom-color:var(--orange);background:var(--orangeGl);}
+.panel-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px;}
+.pni-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;cursor:pointer;color:var(--white2);font-size:13.5px;font-weight:500;transition:all .15s;margin-bottom:2px;-webkit-user-select:none;user-select:none;}
+.pni-item:active{opacity:.7;}
+.pni-item.active{background:var(--orangeGl);color:var(--orange);}
+.pni-ico{font-size:18px;width:24px;text-align:center;}
+.pni-bdg{margin-left:auto;background:var(--orange);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:20px;}
+.pni-section{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--white4);padding:10px 12px 4px;}
+.ham-btn{width:38px;height:38px;border-radius:9px;background:var(--black3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;-webkit-user-select:none;user-select:none;transition:background .12s;}
+.ham-btn:active{background:var(--border);}
+/* ════════ CHARIOT MODULE ════════ */
+.ch-page{display:none;padding:14px 13px 80px;}
+.ch-page.active{display:block;animation:fu .2s ease;}
+.ch-kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.ch-kcard{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:15px 14px;cursor:pointer;transition:border-color .15s;position:relative;overflow:hidden;}
+.ch-kcard:active{border-color:var(--orange);}
+.ch-kcard-top{position:absolute;top:0;left:0;right:0;height:3px;}
+.ch-kval{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;line-height:1;margin-bottom:3px;}
+.ch-klbl{font-size:12px;color:var(--white3);}
+.ch-ksub{font-size:11px;color:var(--white4);margin-top:3px;}
+.ch-section{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:.3px;margin:14px 0 10px;display:flex;align-items:center;gap:8px;}
+.ch-table-wrap{overflow-x:auto;margin-bottom:14px;border-radius:var(--r);border:1px solid var(--border);}
+.ch-table{width:100%;border-collapse:collapse;min-width:500px;}
+.ch-table th{background:var(--black3);padding:10px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--white3);border-bottom:1px solid var(--border);white-space:nowrap;}
+.ch-table td{padding:10px 12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.ch-table tr:last-child td{border-bottom:none;}
+.ch-table tr:active td{background:var(--black3);}
+.ch-filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;}
+.ch-filter{padding:6px 13px;border-radius:20px;border:1px solid var(--border);font-size:12px;font-weight:600;background:var(--black2);color:var(--white3);cursor:pointer;-webkit-user-select:none;user-select:none;transition:all .15s;}
+.ch-filter:active{opacity:.7;}
+.ch-filter.active{background:var(--orange);color:#fff;border-color:var(--orange);}
+.ch-sbadge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.ch-s-dispo{background:#27c97a22;color:var(--green);}
+.ch-s-maint{background:#f5c51822;color:var(--yellow);}
+.ch-s-panne{background:#f04f5a22;color:var(--red);}
+.ch-panne-card{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s;}
+.ch-panne-card:active{border-color:var(--orange);}
+.ch-panne-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;}
+.ch-panne-id{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;}
+.ch-panne-sub{font-size:12px;color:var(--white3);margin-top:2px;}
+.ch-panne-desc{font-size:13px;margin-bottom:8px;line-height:1.4;}
+.ch-panne-footer{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--white4);}
+.ch-id-card{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px;}
+.ch-id-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px;}
+.ch-id-sub{font-size:12px;color:var(--white3);margin-bottom:14px;}
+.ch-id-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.ch-id-stat{background:var(--black3);border-radius:var(--r2);padding:10px;text-align:center;}
+.ch-id-stat-val{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--orange);}
+.ch-id-stat-lbl{font-size:10px;color:var(--white3);}
+.ch-inter-kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.doc-attach{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--black3);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:6px;}
+.doc-ico{font-size:18px;}
+.doc-name{flex:1;font-size:13px;font-weight:500;}
+.doc-del{color:var(--red);font-size:13px;cursor:pointer;padding:4px;-webkit-user-select:none;user-select:none;}
+
 /* ── DESKTOP ────────────────── */
+
+/* -- QR MODAL -------------- */
+.qrModal{display:none;position:fixed;inset:0;background:#00000095;z-index:80;align-items:center;justify-content:center;padding:20px;}
+.qrModal.open{display:flex;}
+.qrBox{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:28px 22px;width:100%;max-width:340px;text-align:center;position:relative;}
+.qrBox::before{content:'';position:absolute;top:0;left:20px;right:20px;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);}
+.qrTitle{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px;text-align:left;}
+.qrSub{font-size:11px;color:var(--white3);margin-bottom:16px;text-align:left;}
+.qrImg{background:#fff;border-radius:8px;padding:12px;display:inline-block;margin-bottom:14px;}
+.qrUrlBox{font-size:10px;color:var(--white4);word-break:break-all;margin-bottom:14px;padding:8px;background:var(--black3);border-radius:6px;text-align:left;}
+
 @media(min-width:700px) { .sGrid{grid-template-columns:repeat(4,1fr);} }
 @media(min-width:1024px) {
   #app { flex-direction:row; }
@@ -614,8 +715,31 @@ input[type=file] { display:none; }
 .dkTop { display:none; height:58px; flex-shrink:0; background:var(--black2); border-bottom:1px solid var(--border); align-items:center; padding:0 24px; gap:14px; }
 .dkLogo { display:none; }
 </style>
+
+<script>
+// CDN error detection
+window.__cdnErrors = [];
+window.addEventListener('error', function(e) {
+  if (e.target && e.target.src) {
+    window.__cdnErrors.push(e.target.src);
+    console.log('CDN failed:', e.target.src);
+  }
+}, true);
+</script>
 </head>
 <body>
+<script>
+window.onerror = function(msg, src, line, col, err) {
+  var d = document.createElement('div');
+  d.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#f04f5a;color:#fff;padding:8px 16px;font-size:11px;font-family:monospace;z-index:9999;word-break:break-all;';
+  var srcShort = src ? src.replace('https://','').substring(0,50) : 'unknown';
+  d.textContent = (line===0?'CDN ERROR':'CODE ERROR') + ': ' + msg + ' | src:' + srcShort + ' L:' + line;
+  var show = function(){ document.body.appendChild(d); };
+  document.body ? show() : document.addEventListener('DOMContentLoaded', show);
+  return false;
+};
+</script>
+
 
 <!-- ════════ LOGIN ════════ -->
 <div id="loginScreen">
@@ -653,6 +777,7 @@ input[type=file] { display:none; }
       <div class="topWord"><span>Check</span></div>
     </div>
     <div class="topR">
+      <div class="ham-btn" id="hamBtn" style="margin-right:4px;">☰</div>
       <div class="iBtn" id="tBell">🔔</div>
       <div class="uChip" id="tChip">
         <div class="uChipAv" id="tAv" style="background:var(--orange)">?</div>
@@ -679,10 +804,11 @@ input[type=file] { display:none; }
   </nav>
 
   <div class="mWrap">
-    <div class="dkTop" id="dkTop">
+    <div class="dkTop" id="dkTop"><div class="ham-btn" id="hamBtnDk" style="margin-right:4px;">☰</div>
       <span id="dkTitle" style="font-weight:800;font-size:19px;font-weight:800;letter-spacing:.3px;">Tableau de bord</span>
       <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
-        <div class="iBtn" id="dkBell">🔔</div>
+        <div class="ham-btn" id="hamBtnDk" style="margin-right:4px;">☰</div>
+      <div class="iBtn" id="dkBell">🔔</div>
         <div class="uChip" id="dkChip">
           <div class="uChipAv" id="dkAv" style="background:var(--orange)">?</div>
           <span class="uChipNm" id="dkNm">–</span>
@@ -780,7 +906,7 @@ input[type=file] { display:none; }
       </div>
 
       <!-- STATS (admin only) -->
-      <div class="page adminOnly" id="page-stats">
+      <div class="page" id="page-stats">
         <div class="sGrid" id="statsGrid"></div>
         <div class="card"><div class="cH"><div class="cT">📊 RAPPORTS PAR MOIS — ANNÉE EN COURS</div></div>
           <div class="cB"><div class="chrt" id="chart2"></div>
@@ -802,6 +928,74 @@ input[type=file] { display:none; }
         <div class="card" id="ncList"><div class="empty"><div class="emIco">✅</div><div class="emTxt">Aucune non-conformité ouverte</div></div></div>
       </div>
 
+
+<!-- ════════ CHARIOT PAGES ════════ -->
+<!-- CH: DASHBOARD -->
+<div class="ch-page" id="page-ch-dashboard">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+    <div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;">Parc Chariots</div>
+      <div style="font-size:12px;color:var(--white3);" id="ch-dash-date"></div>
+    </div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--orange);" id="ch-clock"></div>
+  </div>
+  <div class="ch-kpi" id="ch-kpi-grid"></div>
+  <div class="ch-section">📊 Répartition par client</div>
+  <div class="card" id="ch-client-breakdown"></div>
+  <div class="ch-section">⚠️ Pannes récentes</div>
+  <div id="ch-recent-pannes"></div>
+</div>
+
+<!-- CH: PARC -->
+<div class="ch-page" id="page-ch-parc">
+  <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;margin-bottom:12px;">🚜 Parc complet</div>
+  <div class="ch-filters" id="ch-parc-filters"></div>
+  <div class="sw" style="margin-bottom:12px;"><span class="swIco">🔍</span><input id="ch-search" placeholder="Rechercher série, interne, type…"></div>
+  <div class="ch-table-wrap">
+    <table class="ch-table">
+      <thead><tr>
+        <th>N° Interne</th><th>N° Série</th><th>Type</th><th>Client</th><th>Secteur</th><th>Statut</th><th>Actions</th>
+      </tr></thead>
+      <tbody id="ch-parc-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CH: PANNES -->
+<div class="ch-page" id="page-ch-pannes">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;">⚠️ Pannes</div>
+    <button class="btn btnP" style="flex:0;padding:8px 14px;font-size:12px;" onclick="openNewPanne()">+ Déclarer</button>
+  </div>
+  <div class="ch-kpi" id="ch-panne-kpi"></div>
+  <div class="ch-filters" id="ch-panne-filters"></div>
+  <div id="ch-pannes-list"></div>
+</div>
+
+<!-- CH: INTERVENTIONS -->
+<div class="ch-page" id="page-ch-interventions">
+  <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;margin-bottom:12px;">🔧 Interventions</div>
+  <div class="ch-kpi" id="ch-inter-kpi"></div>
+  <div class="ch-filters" id="ch-inter-filters"></div>
+  <div class="ch-table-wrap">
+    <table class="ch-table">
+      <thead><tr>
+        <th>N° Série</th><th>Type</th><th>Client</th><th>Type inter.</th><th>Objet</th><th>Mois</th><th>Statut</th><th>Docs</th>
+      </tr></thead>
+      <tbody id="ch-inter-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CH: CLIENTS -->
+<div class="ch-page adminChPage" id="page-ch-clients">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;">🏭 Clients / Zones</div>
+    <button class="btn btnP" style="flex:0;padding:8px 14px;font-size:12px;" onclick="openAddClient()">+ Ajouter</button>
+  </div>
+  <div class="card" id="ch-clients-list"></div>
+</div>
+
     </div><!-- /scroll -->
   </div><!-- /mWrap -->
 </div><!-- /app -->
@@ -818,7 +1012,29 @@ input[type=file] { display:none; }
     <div class="fg"><label class="flbl">Fréquence</label>
       <select class="fSel" id="ffFreq"><option>Quotidienne</option><option>Hebdomadaire</option><option>Mensuelle</option><option>Annuelle</option></select>
     </div>
-    <div class="fg"><label class="flbl">Assigné à</label><select class="fSel" id="ffAssign"></select></div>
+    <div class="fg">
+      <label class="flbl">Rôle ciblé</label>
+      <select class="fSel" id="ffTargetRole">
+        <option value="all">Tous les employés</option>
+        <option value="Opérateur">Opérateur</option>
+        <option value="Technicien">Technicien</option>
+        <option value="Direction">Direction</option>
+        <option value="RH">RH</option>
+        <option value="Chef d'équipe">Chef d'équipe</option>
+        <option value="Responsable d'exploitation">Responsable d'exploitation</option>
+        <option value="RQHSE">RQHSE</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="flbl">Zone d'affectation ciblée</label>
+      <select class="fSel" id="ffTargetZone">
+        <option value="">Toutes les zones</option>
+        <option value="samsung blanc">Samsung Blanc</option>
+        <option value="samsung btob">Samsung BtoB</option>
+        <option value="samsung btoc">Samsung BtoC</option>
+        <option value="pole boisson">Pôle Boisson</option>
+      </select>
+    </div>
     <div class="fg"><label class="flbl">Description</label><input class="fInp" id="ffDesc" placeholder="Optionnel…"></div>
     
     <!-- SECTIONS & QUESTIONS -->
@@ -849,7 +1065,17 @@ input[type=file] { display:none; }
     <div class="fg"><label class="flbl">Rôle / Poste</label>
       <select class="fSel" id="efRole"><option>Opérateur</option><option>Technicien</option><option>Direction</option><option>RH</option><option>Chef d'équipe</option><option>Responsable d'exploitation</option><option>RQHSE</option></select>
     </div>
-    <div class="fg"><label class="flbl">Département</label><input class="fInp" id="efDept" placeholder="Montréal – Production"></div>
+    <div class="fg"><label class="flbl">Département / Site</label><input class="fInp" id="efDept" placeholder="ex: Montréal – Production"></div>
+    <div class="fg">
+      <label class="flbl">Zone d'affectation</label>
+      <select class="fSel" id="efZone">
+        <option value="">-- Sélectionner une zone --</option>
+        <option value="samsung blanc">Samsung Blanc</option>
+        <option value="samsung btob">Samsung BtoB</option>
+        <option value="samsung btoc">Samsung BtoC</option>
+        <option value="pole boisson">Pôle Boisson</option>
+      </select>
+    </div>
     <div class="fg"><label class="flbl">Type d'emploi</label>
       <select class="fSel" id="efType"><option>Permanent</option><option>Temporaire</option><option>Contractuel</option></select>
     </div>
@@ -890,11 +1116,91 @@ input[type=file] { display:none; }
   <div class="rDetailBody" id="rDetailBody"></div>
 </div>
 
+<!-- QR CODE MODAL -->
+<div class="mBg" id="shQr">
+  <div class="mSh" style="text-align:center;">
+    <div class="mHandle"></div>
+    <div class="mTitle" id="qrTitle" style="text-align:center;">QR Code</div>
+    <div style="font-size:13px;color:var(--white3);margin-bottom:20px;" id="qrSubtitle">Scannez pour accéder au formulaire</div>
+    <div style="display:flex;justify-content:center;margin-bottom:20px;">
+      <canvas id="qrCanvas" style="border-radius:12px;border:4px solid var(--orange);"></canvas>
+    </div>
+    <div style="font-size:11px;color:var(--white4);margin-bottom:16px;" id="qrUrl"></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btnS" id="shQrClose">Fermer</button>
+      <button class="btn btnP" id="btnDownloadQr">⬇ Télécharger</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toastEl"></div>
 
 <script>
 (function() {
 "use strict";
+
+/* ── iOS POLYFILLS ─────────────────────── */
+if (!Object.values) {
+  Object.values = function(obj) {
+    return Object.keys(obj).map(function(k) { return obj[k]; });
+  };
+}
+if (!Object.entries) {
+  Object.entries = function(obj) {
+    return Object.keys(obj).map(function(k) { return [k, obj[k]]; });
+  };
+}
+if (!Object.assign) {
+  Object.assign = function(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var src = arguments[i];
+      if (src) {
+        var keys = Object.keys(src);
+        for (var j = 0; j < keys.length; j++) {
+          target[keys[j]] = src[keys[j]];
+        }
+      }
+    }
+    return target;
+  };
+}
+if (!Array.prototype.find) {
+  Array.prototype.find = function(fn) {
+    for (var i = 0; i < this.length; i++) {
+      if (fn(this[i], i, this)) return this[i];
+    }
+    return undefined;
+  };
+}
+if (!Array.prototype.findIndex) {
+  Array.prototype.findIndex = function(fn) {
+    for (var i = 0; i < this.length; i++) {
+      if (fn(this[i], i, this)) return i;
+    }
+    return -1;
+  };
+}
+if (!Array.prototype.includes) {
+  Array.prototype.includes = function(v) {
+    return this.indexOf(v) > -1;
+  };
+}
+if (!String.prototype.includes) {
+  String.prototype.includes = function(v) {
+    return this.indexOf(v) > -1;
+  };
+}
+if (!String.prototype.startsWith) {
+  String.prototype.startsWith = function(v) {
+    return this.indexOf(v) === 0;
+  };
+}
+if (!String.prototype.endsWith) {
+  String.prototype.endsWith = function(v) {
+    return this.slice(-v.length) === v;
+  };
+}
+
 
 /* ════════════════════════════════════
    FIREBASE CONFIG
@@ -935,6 +1241,34 @@ var CAT_C= {inspection:'ctI',audit:'ctA',examen:'ctE',securite:'ctS'};
 var CAT_N= {inspection:'Inspection',audit:'Audit',examen:'Examen',securite:'Sécurité'};
 var PT   = {dashboard:'Tableau de bord',formulaires:'Formulaires',inspection:'Inspection',rapports:'Rapports',employes:'Employés',stats:'Statistiques'};
 var COLORS=['#ff6200','#4f8ef7','#9b72f7','#27c97a','#f5c518','#f04f5a','#ff9a50','#06b6d4'];
+
+// ── ROLE PERMISSIONS ─────────────────────
+// canManageForms: create/edit/delete forms
+// canManageEmps:  create/edit/delete employees
+// canSeeStats:    access stats page
+// isAdmin:        full access (all of the above)
+var ROLE_PERMS = {
+  'admin':                    {isAdmin:true,  canManageForms:true,  canManageEmps:true,  canSeeStats:true},
+  'direction':                {isAdmin:true,  canManageForms:true,  canManageEmps:true,  canSeeStats:true},
+  'rqhse':                    {isAdmin:false, canManageForms:false, canManageEmps:false, canSeeStats:true},
+  'responsable d\'exploitation':{isAdmin:false,canManageForms:false, canManageEmps:false, canSeeStats:true},
+  'chef d\'équipe':           {isAdmin:false, canManageForms:false, canManageEmps:false, canSeeStats:true},
+  'operateur':                {isAdmin:false, canManageForms:false, canManageEmps:false, canSeeStats:false},
+  'technicien':               {isAdmin:false, canManageForms:false, canManageEmps:false, canSeeStats:false},
+  'rh':                       {isAdmin:false, canManageForms:false, canManageEmps:false, canSeeStats:false},
+  'employe':                  {isAdmin:false, canManageForms:false, canManageEmps:false, canSeeStats:false}
+};
+
+function getPerms() {
+  if (!currentUser) return ROLE_PERMS['employe'];
+  // Admin account always has full rights
+  if (currentUser.role === 'admin') return ROLE_PERMS['admin'];
+  // Get employee role
+  var emp = currentUser.empId ? EMPS.find(function(e){return e.id===currentUser.empId;}) : null;
+  if (!emp) return ROLE_PERMS['employe'];
+  var roleKey = emp.role.toLowerCase();
+  return ROLE_PERMS[roleKey] || ROLE_PERMS['employe'];
+}
 
 /* ── STATE ─────── */
 var nxtId = 200;
@@ -978,10 +1312,12 @@ function initFirebase() {
     });
   } catch(e) {
     var dot = G('fbDot'), txt = G('fbTxt');
-    dot.className = 'fbDot error';
-    txt.textContent = '⚠ Firebase non configuré — mode démo local';
+    if (dot) dot.className = 'fbDot error';
+    if (txt) txt.textContent = 'Mode local (Firebase non disponible)';
     useFirebase = false;
   }
+  // Start app after Firebase init
+  buildAll();
 }
 
 function loadFirebaseData() {
@@ -1042,6 +1378,14 @@ function fbRemove(path, cb) {
 ════════════════════════════════════ */
 function G(id) { return document.getElementById(id); }
 function on(id, ev, fn) { var el = G(id); if (el) el.addEventListener(ev, fn); }
+function onSafe(id, ev, fn) {
+  // Deferred - waits for DOM ready
+  document.addEventListener('DOMContentLoaded', function() {
+    var el = G(id); if (el) el.addEventListener(ev, fn);
+  });
+  // Also try immediately in case DOM already loaded
+  var el = G(id); if (el) el.addEventListener(ev, fn);
+}
 function onAll(root, sel, ev, fn) { root.querySelectorAll(sel).forEach(function(n) { n.addEventListener(ev, fn); }); }
 
 function showToast(msg) {
@@ -1093,7 +1437,7 @@ function doLogout() {
 ════════════════════════════════════ */
 function applyRoleUI() {
   if (!currentUser) return;
-  var isAdmin = currentUser.role === 'admin';
+  var perms = getPerms();
   var emp = currentUser.empId ? EMPS.find(function(e) { return e.id === currentUser.empId; }) : null;
   var name = emp ? (emp.prenom + ' ' + emp.nom) : 'Admin';
   var ini  = emp ? (emp.prenom[0] + (emp.nom[0] || '')).toUpperCase() : 'AD';
@@ -1106,22 +1450,32 @@ function applyRoleUI() {
   });
   ['tNm','dkNm'].forEach(function(id) { var el = G(id); if (el) el.textContent = name; });
   G('umNm').textContent = name;
-  G('umRl').textContent = isAdmin ? '🔑 Administrateur' : (emp ? emp.role : 'Employé');
+  var roleLabel = perms.isAdmin ? '🔑 Administrateur' : (emp ? emp.role : 'Employé');
+  G('umRl').textContent = roleLabel;
 
-  // Show/hide admin-only nav tabs
+  // Stats tab — visible if canSeeStats
   document.querySelectorAll('.adminOnly').forEach(function(el) {
-    el.style.display = isAdmin ? '' : 'none';
+    el.style.display = perms.isAdmin ? '' : 'none';
   });
+  // Stats tab specifically
+  var statsTab = document.querySelector('.nTab[data-page="stats"]');
+  if (statsTab) statsTab.style.display = perms.canSeeStats ? '' : 'none';
+  var statsPage = G('page-stats');
+  // Stats nav item in sidebar
   document.querySelectorAll('.adminOnly2').forEach(function(el) {
-    el.style.display = isAdmin ? '' : 'none';
+    el.style.display = perms.canManageForms ? '' : 'none';
   });
-  // Admin add buttons
-  if (G('btnAddForm')) G('btnAddForm').style.display = isAdmin ? 'flex' : 'none';
-  if (G('btnAddEmp'))  G('btnAddEmp').style.display  = isAdmin ? 'flex' : 'none';
+
+  // Add form button — canManageForms
+  if (G('btnAddForm')) G('btnAddForm').style.display = perms.canManageForms ? 'flex' : 'none';
+  // Add employee button — canManageEmps only (admin)
+  if (G('btnAddEmp'))  G('btnAddEmp').style.display  = perms.canManageEmps  ? 'flex' : 'none';
+  // Employees tab — admin only
+  var empTab = document.querySelector('.nTab[data-page="employes"]');
+  if (empTab) empTab.style.display = perms.canManageEmps ? '' : 'none';
 
   // Inspection user label
   if (G('inspUser')) G('inspUser').textContent = '👤 ' + name;
-  // Update today's date on inspection
   var today = new Date();
   var dateStr = today.getDate() + ' ' + ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'][today.getMonth()] + ' ' + today.getFullYear();
   if (G('inspDate')) G('inspDate').textContent = '📅 ' + dateStr;
@@ -1308,10 +1662,38 @@ function buildRecentActivity() {
 
 
 function getVisibleForms() {
-  var isAdmin = currentUser && currentUser.role === 'admin';
+  var perms = getPerms();
+  var isAdmin = perms.isAdmin;
+  var canManageForms = perms.canManageForms;
   var q = fSearch.toLowerCase();
   return FORMS.filter(function(f) {
-    var mine = isAdmin || f.assign === currentUser.username || f.assign === 'all';
+    var mine = false;
+    if (isAdmin) {
+      mine = true;
+    } else if (f.targetRole === 'all' || !f.targetRole) {
+      // No zone filter = everyone sees it
+      mine = !f.targetZone || f.targetZone === '';
+      if (!mine) {
+        // Check employee zone
+        var emp = currentUser.empId ? EMPS.find(function(e){return e.id===currentUser.empId;}) : null;
+        var empZone = emp ? (emp.zone || '').toLowerCase() : '';
+        mine = empZone && f.targetZone && empZone.indexOf(f.targetZone) > -1;
+      }
+    } else {
+      // Role-targeted form
+      var emp = currentUser.empId ? EMPS.find(function(e){return e.id===currentUser.empId;}) : null;
+      if (emp) {
+        var roleMatch = f.targetRole === emp.role;
+        if (roleMatch) {
+          if (!f.targetZone || f.targetZone === '') {
+            mine = true; // Role matches, no zone restriction
+          } else {
+            var empZone = (emp.zone || '').toLowerCase();
+            mine = empZone && empZone.indexOf(f.targetZone.toLowerCase()) > -1;
+          }
+        }
+      }
+    }
     var matchTxt = f.nm.toLowerCase().indexOf(q) > -1 || f.code.toLowerCase().indexOf(q) > -1;
     var matchCat = fCat === '' || f.cat === fCat;
     return mine && matchTxt && matchCat;
@@ -1327,8 +1709,9 @@ function renderForms() {
   }
   var html = '';
   list.forEach(function(f) {
-    var assignEmp = EMPS.find(function(e) { return e.username === f.assign; });
-    var assignNm = f.assign === 'all' ? 'Tous' : (assignEmp ? assignEmp.prenom + ' ' + assignEmp.nom : f.assign);
+    var roleNm = (!f.targetRole || f.targetRole === 'all') ? 'Tous' : f.targetRole;
+    var zoneNm = f.targetZone ? f.targetZone : '';
+    var assignNm = roleNm + (zoneNm ? ' — ' + zoneNm : '');
     var fStatus = getFormStatus(f);
     var daysSince = getDaysSince(f.id);
     var statusBadge = '';
@@ -1348,8 +1731,10 @@ function renderForms() {
       + '<div class="fFoot"><div class="pb" style="flex:1;"><div class="pf" style="width:' + f.p + '%"></div></div><div class="fPl">' + f.p + '%</div></div>'
       + '<div class="fActs">'
       + '<div class="fAct go" data-fid="' + f.id + '" data-act="start">▶ Démarrer</div>'
-      + (isAdmin ? '<div class="fAct ed" data-fid="' + f.id + '" data-act="edit">✏ Modifier</div>' : '')
-      + (isAdmin ? '<div class="fAct dl" data-fid="' + f.id + '" data-act="del">🗑 Supprimer</div>' : '')
+      + '<div class="fAct" data-fid="' + f.id + '" data-act="qr" style="color:var(--orange);border-color:var(--orange);background:var(--orangeGl);">&#x2B1B; QR</div>'
+      + '<div class="fAct" data-fid="' + f.id + '" data-act="qr" style="color:var(--orange);border-color:var(--orange);background:var(--orangeGl);">⬛ QR</div>'
+      + (canManageForms ? '<div class="fAct ed" data-fid="' + f.id + '" data-act="edit">✏ Modifier</div>' : '')
+      + (canManageForms ? '<div class="fAct dl" data-fid="' + f.id + '" data-act="del">🗑 Supprimer</div>' : '')
       + '</div></div>';
   });
   G('fList').innerHTML = html;
@@ -1357,6 +1742,8 @@ function renderForms() {
     var fid = this.getAttribute('data-fid');
     var act = this.getAttribute('data-act');
     if (act === 'start') { startInspection(fid); }
+    else if (act === 'qr') { showQrForForm(fid); }
+    else if (act === 'qr')    { openQrModal(fid); }
     else if (act === 'edit') { openEditForm(fid); }
     else if (act === 'del') { openConfirmDelForm(fid); }
   });
@@ -1394,12 +1781,12 @@ function renderSectionsEditor() {
     html += '<div class="secEditor">'
       + '<div class="secEditorHead">'
       + '<input class="secEditorTitle" data-si="' + si + '" placeholder="Nom de la section…" value="' + (sec.t||'').replace(/"/g,'&quot;') + '">'
-      + '<div class="secDelBtn" data-si="' + si + '" data-act="delsec">✕</div>'
+      + '<div class="secDelBtn" data-si="' + si + '" data-act="delsec">x</div>'
       + '</div>'
       + (sec.qs||[]).map(function(q, qi) {
           return '<div class="qEditor">'
             + '<input class="qEditorInp" data-si="' + si + '" data-qi="' + qi + '" placeholder="Question…" value="' + (q||'').replace(/"/g,'&quot;') + '">'
-            + '<div class="qDelBtn" data-si="' + si + '" data-qi="' + qi + '" data-act="delq">✕</div>'
+            + '<div class="qDelBtn" data-si="' + si + '" data-qi="' + qi + '" data-act="delq">x</div>'
             + '</div>';
         }).join('')
       + '<div class="addQBtn" data-si="' + si + '" data-act="addq">＋ Ajouter une question</div>'
@@ -1438,8 +1825,9 @@ function openNewForm() {
   G('shFormTitle').textContent = 'NOUVEAU FORMULAIRE';
   G('ffTitle').value = ''; G('ffCat').value = 'inspection';
   G('ffFreq').value = 'Quotidienne'; G('ffDesc').value = ''; G('ffId').value = '';
+  if (G('ffTargetRole')) G('ffTargetRole').value = 'all';
+  if (G('ffTargetZone')) G('ffTargetZone').value = '';
   editingSecs = JSON.parse(JSON.stringify(DEFAULT_SECS));
-  populateAssign('all');
   renderSectionsEditor();
   openSheet('shForm');
 }
@@ -1448,8 +1836,9 @@ function openEditForm(id) {
   G('shFormTitle').textContent = 'MODIFIER LE FORMULAIRE';
   G('ffTitle').value = f.nm; G('ffCat').value = f.cat;
   G('ffFreq').value = f.freq; G('ffDesc').value = f.desc || ''; G('ffId').value = f.id;
+  if (G('ffTargetRole')) G('ffTargetRole').value = f.targetRole || 'all';
+  if (G('ffTargetZone')) G('ffTargetZone').value = f.targetZone || '';
   editingSecs = f.secs ? JSON.parse(JSON.stringify(f.secs)) : JSON.parse(JSON.stringify(DEFAULT_SECS));
-  populateAssign(f.assign);
   renderSectionsEditor();
   openSheet('shForm');
 }
@@ -1468,10 +1857,13 @@ function openConfirmDelForm(id) {
   openConf();
 }
 function saveForm() {
+  if (!getPerms().canManageForms) { showToast('⛔ Accès refusé'); return; }
   var title = G('ffTitle').value.trim();
   if (!title) { G('ffTitle').focus(); showToast('⚠ Entrez un titre'); return; }
   var id = G('ffId').value;
-  var data = {nm:title, cat:G('ffCat').value, freq:G('ffFreq').value, assign:G('ffAssign').value, desc:G('ffDesc').value, p:0, r:1, code:''};
+  var tRole = G('ffTargetRole') ? G('ffTargetRole').value : 'all';
+  var tZone = G('ffTargetZone') ? G('ffTargetZone').value.trim().toLowerCase() : '';
+  var data = {nm:title, cat:G('ffCat').value, freq:G('ffFreq').value, assign:tRole, targetRole:tRole, targetZone:tZone, desc:G('ffDesc').value, p:0, r:1, code:''};
 
   // Save sections (filter empty)
   data.secs = editingSecs.map(function(sec) {
@@ -1583,7 +1975,7 @@ function buildInsp() {
 
   onAll(G('inspSections'), 'input[type=file]', 'change', function() {
     var key = this.id.replace('pf_', '');
-    var files = Array.from(this.files);
+    var files = Array.prototype.slice.call(this.files);
     if (!photos[key]) photos[key] = [];
     Promise.all(files.map(function(f) {
       return new Promise(function(res) {
@@ -1604,7 +1996,7 @@ function renderThumbs(key) {
   var arr = photos[key] || [];
   if (!arr.length) { el.innerHTML = '<span class="pEmpty">Aucune photo</span>'; return; }
   var h = arr.map(function(url, i) {
-    return '<div class="pThumb"><img src="' + url + '" alt=""><div class="pDel" data-key="' + key + '" data-idx="' + i + '">✕</div></div>';
+    return '<div class="pThumb"><img src="' + url + '" alt=""><div class="pDel" data-key="' + key + '" data-idx="' + i + '">x</div></div>';
   }).join('');
   el.innerHTML = h;
   onAll(el, '.pDel', 'click', function() {
@@ -1751,7 +2143,7 @@ function renderEmps() {
     html += '<div class="eItem">'
       + '<div class="eAv" style="background:linear-gradient(135deg,' + (e.c||'#ff6200') + ',' + (e.c||'#ff6200') + '88)">' + ini + '</div>'
       + '<div style="flex:1;min-width:0;"><div class="eNm">' + e.prenom + ' ' + e.nom + '</div>'
-      + '<div class="eRl">' + e.role + ' · ' + e.dept + '</div>'
+      + '<div class="eRl">' + e.role + ' · ' + e.dept + (e.zone ? ' · <span style="color:var(--orange)">📍 ' + e.zone + '</span>' : '') + '</div>'
       + '<div style="font-size:11px;color:var(--white4);margin-top:2px;">🔑 ' + (e.username || '–') + '</div></div>'
       + '<div class="eR"><div><div class="eSc">' + (e.s || 0) + '%</div><div class="eScL">Score</div></div>'
       + '<div class="eBtns"><div class="eBtn ed" data-eid="' + e.id + '" data-act="edit">✏</div>'
@@ -1782,7 +2174,9 @@ function openEditEmp(id) {
   G('efPrenom').value = e.prenom; G('efNom').value = e.nom;
   G('efUser').value = e.username || ''; G('efPw').value = '';
   G('efRole').value = e.role; G('efDept').value = e.dept || '';
-  G('efType').value = e.type || 'Permanent'; G('efId').value = e.id;
+  G('efType').value = e.type || 'Permanent';
+  if (G('efZone')) G('efZone').value = e.zone || '';
+  G('efId').value = e.id;
   openSheet('shEmp');
 }
 function openConfirmDelEmp(id) {
@@ -1800,13 +2194,14 @@ function openConfirmDelEmp(id) {
   openConf();
 }
 function saveEmp() {
+  if (!getPerms().canManageEmps) { showToast('⛔ Accès refusé'); return; }
   var prenom = G('efPrenom').value.trim();
   var nom    = G('efNom').value.trim();
   var uname  = G('efUser').value.trim().toLowerCase();
   var pw     = G('efPw').value.trim();
   if (!prenom || !nom) { showToast('⚠ Entrez prénom et nom'); return; }
   var id = G('efId').value;
-  var data = {prenom:prenom, nom:nom, role:G('efRole').value, dept:G('efDept').value, type:G('efType').value, s:0, c:COLORS[EMPS.length % COLORS.length]};
+  var data = {prenom:prenom, nom:nom, role:G('efRole').value, dept:G('efDept').value, type:G('efType').value, zone:G('efZone').value.trim(), s:0, c:COLORS[EMPS.length % COLORS.length]};
   if (uname) data.username = uname;
 
   if (id) {
@@ -1926,6 +2321,105 @@ on('lBtnGo', 'click', doLogin);
 on('lPass',  'keydown', function(e) { if (e.key === 'Enter') doLogin(); });
 on('lUser',  'keydown', function(e) { if (e.key === 'Enter') G('lPass').focus(); });
 
+
+/* ---- QR CODE -------------------------------- */
+var APP_URL = 'https://demantesjordan.github.io/Gxo-check';
+
+function showQrForForm(fid) {
+  var f = FORMS.find(function(x){ return x.id === fid; });
+  if (!f) return;
+  var url = APP_URL + '?form=' + fid;
+  G('qrT').textContent = f.nm;
+  G('qrS').textContent = f.code + ' - ' + f.freq;
+  G('qrUrl').textContent = url;
+  G('qrDiv').innerHTML = '';
+  try {
+    new QRCode(G('qrDiv'), {
+      text: url, width: 180, height: 180,
+      colorDark: '#000000', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  } catch(e) {
+    G('qrDiv').innerHTML = '<p style="font-size:10px;padding:10px;word-break:break-all;">' + url + '</p>';
+  }
+  G('qrModal').classList.add('open');
+}
+
+window.addEventListener('load', function() {
+  var qrCloseEl = G('qrClose');
+  if (qrCloseEl) qrCloseEl.addEventListener('click', function(){ G('qrModal').classList.remove('open'); });
+  var qrModalEl = G('qrModal');
+  if (qrModalEl) qrModalEl.addEventListener('click', function(e){ if(e.target===this) this.classList.remove('open'); });
+  var qrDlEl = G('qrDl');
+  if (qrDlEl) qrDlEl.addEventListener('click', function(){
+  var canvas = G('qrDiv').querySelector('canvas');
+  if (!canvas) { showToast('QR non disponible'); return; }
+  var url = G('qrUrl').textContent;
+  var fid = url.split('form=')[1];
+  var f = FORMS.find(function(x){ return x.id === fid; });
+  var a = document.createElement('a');
+  a.download = 'QR_' + (f ? f.code : 'form') + '.png';
+  a.href = canvas.toDataURL();
+  a.click();
+  showToast('QR telecharge !');
+  });
+});
+
+/* QR SCAN: check URL param on load */
+function checkQrParam() {
+  try {
+    var fid = (function() {
+      var q = window.location.search.substring(1);
+      var pairs = q.split('&');
+      for (var pi = 0; pi < pairs.length; pi++) {
+        var pair = pairs[pi].split('=');
+        if (decodeURIComponent(pair[0]) === 'form') return decodeURIComponent(pair[1] || '');
+      }
+      return null;
+    })();
+    if (!fid) return false;
+    var attempts = 0;
+    var tryFind = function() {
+      attempts++;
+      var f = FORMS.find(function(x){ return x.id === fid; });
+      if (!f && attempts < 10) { setTimeout(tryFind, 500); return; }
+      if (!f) { return; }
+      // Fill scan login
+      G('qlFName').textContent = f.nm;
+      G('qlFCode').textContent = f.code + ' - ' + f.freq;
+      var sel = G('qlEmp');
+      sel.innerHTML = '<option value="">-- Selectionnez votre nom --</option>'
+        + EMPS.map(function(e){
+            return '<option value="'+e.id+'">'+e.prenom+' '+e.nom+' ('+e.role+')</option>';
+          }).join('');
+      G('qlErr').textContent = '';
+      G('qlPw').value = '';
+      G('qrScanLogin').style.display = 'flex';
+
+      function doQrLoginFn() {
+        var eid = sel.value;
+        var pw = G('qlPw').value;
+        if (!eid) { G('qlErr').textContent = 'Selectionnez votre nom'; return; }
+        var emp = EMPS.find(function(e){ return e.id === eid; });
+        if (!emp) { G('qlErr').textContent = 'Employe introuvable'; return; }
+        if (emp.pw !== pw) { G('qlErr').textContent = 'Mot de passe incorrect'; return; }
+        currentUser = {username:emp.username, pw:emp.pw, role:'employe', color:emp.c||'#ff6200', empId:emp.id};
+        G('qrScanLogin').style.display = 'none';
+        G('loginScreen').style.display = 'none';
+        G('app').style.display = 'flex';
+        applyRoleUI();
+        buildAll();
+        setTimeout(function(){ startInspection(f.id); }, 300);
+        showToast('Bonjour ' + emp.prenom + ' !');
+      }
+      G('qlBtn').onclick = doQrLoginFn;
+      G('qlPw').onkeydown = function(e){ if(e.key==='Enter') doQrLoginFn(); };
+    };
+    setTimeout(tryFind, 600);
+    return true;
+  } catch(e) { return false; }
+}
+
 /* ════════════════════════════════════
    BUILD ALL
 ════════════════════════════════════ */
@@ -1976,11 +2470,11 @@ function sendRapportEmail(rapport) {
         var key = si + '_' + qi;
         if ((rapport.answers||{})[key] === 'no') {
           var desc = (rapport.comments||{})[key] || '(aucune description)';
-          ncDetails += qnEmail + '. ' + q + ' -- ' + desc + ' | ';
+          ncDetails += '<p style="margin:6px 0;"><strong>' + qnEmail + '. ' + q + '</strong><br>&#8594; ' + desc + '</p>';
         }
       });
     });
-    if (!ncDetails) ncDetails = 'Aucune non-conformite';
+    if (!ncDetails) ncDetails = '<p style="color:green;">✅ Aucune non-conformité</p>';
 
     emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
       to_email:     ADMIN_EMAIL,
@@ -2402,7 +2896,7 @@ function generatePDF(rapport) {
     doc.setFontSize(18);doc.setFont('helvetica','bold');
     txt('GXO Check',M,11);
     doc.setFontSize(9);doc.setFont('helvetica','normal');
-    txt("Rapport d'inspection",M,19);
+    txt('Rapport inspection',M,19);
     txt(rapport.pct+'%  |  '+rapport.date, W-M, 11, {align:'right'});
     txt(rapport.empNm+' - '+rapport.formCode, W-M, 19, {align:'right'});
     y=32;
@@ -2517,11 +3011,992 @@ function generatePDF(rapport) {
 }
 
 /* ════════════════════════════════════
+   QR CODE
+════════════════════════════════════ */
+var BASE_URL = 'https://demantesjordan.github.io/Gxo-check';
+
+function openQrModal(fid) {
+  var f = FORMS.find(function(x){return x.id===fid;}); if(!f) return;
+  // URL that deep-links to the form
+  var url = BASE_URL + '?form=' + encodeURIComponent(fid);
+  G('qrTitle').textContent = f.nm;
+  G('qrSubtitle').textContent = f.code + ' · ' + f.freq;
+  G('qrUrl').textContent = url;
+  // Generate QR
+  var canvas = G('qrCanvas');
+  QRCode.toCanvas(canvas, url, {
+    width: 220,
+    margin: 2,
+    color: { dark: '#000000', light: '#ffffff' }
+  }, function(err) {
+    if (err) { showToast('Erreur QR: ' + err); return; }
+  });
+  openSheet('shQr');
+}
+
+function downloadQr() {
+  var canvas = G('qrCanvas');
+  var title = G('qrTitle').textContent.replace(/[^a-zA-Z0-9]/g, '_');
+  var link = document.createElement('a');
+  link.download = 'QR_' + title + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  showToast('📥 QR Code téléchargé !');
+}
+
+// Handle deep link on page load — ?form=ID
+function checkDeepLink() {
+  var formId = (function() {
+    var q = window.location.search.substring(1);
+    var pairs = q.split('&');
+    for (var pi = 0; pi < pairs.length; pi++) {
+      var kv = pairs[pi].split('=');
+      if (decodeURIComponent(kv[0]) === 'form') return decodeURIComponent(kv[1] || '');
+    }
+    return null;
+  })();
+  if (!formId) return;
+  // Store for after login
+  window._pendingFormId = formId;
+}
+
+function handlePendingForm() {
+  if (!window._pendingFormId) return;
+  var fid = window._pendingFormId;
+  window._pendingFormId = null;
+  // Check if this form is accessible to current user
+  var f = FORMS.find(function(x){return x.id===fid;});
+  if (!f) { showToast('⚠ Formulaire introuvable'); return; }
+  var perms = getPerms();
+  var mine = perms.isAdmin || f.assign === currentUser.username || f.assign === 'all';
+  if (!mine) { showToast('⚠ Ce formulaire ne vous est pas assigné'); return; }
+  // Auto-start the inspection
+  setTimeout(function() {
+    startInspection(fid);
+    showToast('📋 Formulaire chargé via QR Code !');
+  }, 500);
+}
+
+// Wire up QR modal buttons
+on('shQrClose',     'click', function(){ closeSheet('shQr'); });
+on('btnDownloadQr', 'click', downloadQr);
+G('shQr').addEventListener('click', function(e){ if(e.target===this) closeSheet('shQr'); });
+
+// Check deep link on load
+checkDeepLink();
+
+/* ════════════════════════════════════
    INIT
 ════════════════════════════════════ */
-initFirebase();
+// Wait for Firebase to load dynamically
+(function tryInitFirebase(attempts) {
+  if (typeof firebase !== 'undefined') {
+    initFirebase();
+  } else if (attempts > 0) {
+    setTimeout(function() { tryInitFirebase(attempts - 1); }, 300);
+  } else {
+    console.log('Firebase not available - offline mode');
+    useFirebase = false;
+    buildAll();
+  }
+})(20); // buildAll called by initFirebase or above
+checkQrParam();
+
+/* ════════════════════════════════════════
+   PANEL SYSTEM
+════════════════════════════════════════ */
+function openPanel() {
+  var sp = G('sidePanel'), po = G('panelOverlay');
+  if (sp) sp.classList.add('open');
+  if (po) po.classList.add('open');
+}
+function closePanel() {
+  var sp = G('sidePanel'), po = G('panelOverlay');
+  if (sp) sp.classList.remove('open');
+  if (po) po.classList.remove('open');
+}
+function switchPanelTab(tab) {
+  G('ptab-forms').classList.toggle('active', tab==='forms');
+  G('ptab-chariots').classList.toggle('active', tab==='chariots');
+  G('panel-forms-nav').style.display = tab==='forms'?'block':'none';
+  G('panel-chariots-nav').style.display = tab==='chariots'?'block':'none';
+}
+function chGoPage(id) {
+  document.querySelectorAll('.ch-page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nTab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('#pni-ch-dash,#pni-ch-parc,#pni-ch-pannes,#pni-ch-inter,#pni-ch-clients').forEach(function(el){el.classList.remove('active');});
+  var pg = G('page-'+id); if (pg) pg.classList.add('active');
+  var pni = G('pni-'+id); if (pni) pni.classList.add('active');
+  G('scrollArea').scrollTop = 0;
+  var dt = G('dkTitle');
+  var titles = {'ch-dashboard':'Parc Chariots','ch-parc':'Parc complet','ch-pannes':'Pannes',
+                'ch-interventions':'Interventions','ch-clients':'Clients / Zones'};
+  if (dt) dt.textContent = titles[id] || id;
+  closePanel();
+  if (typeof chRenderDashboard !== 'undefined') {
+    if (id==='ch-dashboard') chRenderDashboard();
+    else if (id==='ch-parc') chRenderParc();
+    else if (id==='ch-pannes') chRenderPannes();
+    else if (id==='ch-interventions') chRenderInterventions();
+    else if (id==='ch-clients') chRenderClients();
+  }
+}
+function panelGoPage(id) {
+  goPage(id);
+  document.querySelectorAll('#pni-dashboard,#pni-formulaires,#pni-inspection,#pni-employes,#pni-stats').forEach(function(el){el.classList.remove('active');});
+  var pni = G('pni-'+id); if (pni) pni.classList.add('active');
+  document.querySelectorAll('.ch-page').forEach(function(p){p.classList.remove('active');});
+  closePanel();
+}
+function updatePanelBadges() {
+  var fb=G('pni-fBdg'); if(fb&&typeof FORMS!=='undefined') fb.textContent=FORMS.length;
+  var eb=G('pni-eBdg'); if(eb&&typeof EMPS!=='undefined') eb.textContent=EMPS.length;
+  if (typeof chariots !== 'undefined') {
+    var ct=G('pni-chTotal'); if(ct) ct.textContent=chariots.length;
+    var cp=G('pni-chPannes'); if(cp) cp.textContent=chariots.filter(function(c){return c.statut==='panne';}).length;
+  }
+}
+window.addEventListener('load', function() {
+  var hb=G('hamBtn'); if(hb) hb.addEventListener('click',openPanel);
+  var hbd=G('hamBtnDk'); if(hbd) hbd.addEventListener('click',openPanel);
+  var pc=G('panelClose'); if(pc) pc.addEventListener('click',closePanel);
+  var po=G('panelOverlay'); if(po) po.addEventListener('click',closePanel);
+  updatePanelBadges();
+});
+
 
 })();
 </script>
+
+<!-- QR MODAL -->
+<div class="qrModal" id="qrModal">
+  <div class="qrBox">
+    <div class="qrTitle" id="qrT">QR Code</div>
+    <div class="qrSub" id="qrS">Scanner pour ouvrir le formulaire</div>
+    <div class="qrImg"><div id="qrDiv"></div></div>
+    <div class="qrUrlBox" id="qrUrl"></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btnS" id="qrClose">Fermer</button>
+      <button class="btn btnP" id="qrDl">&#11015; Telecharger</button>
+    </div>
+  </div>
+</div>
+
+<!-- QR SCAN LOGIN -->
+<div id="qrScanLogin" style="display:none;position:fixed;inset:0;z-index:210;background:var(--black);align-items:center;justify-content:center;padding:20px;flex-direction:column;">
+  <div style="position:relative;background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:28px 22px;width:100%;max-width:380px;">
+    <div style="position:absolute;top:0;left:20px;right:20px;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);"></div>
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="width:48px;height:48px;background:var(--orange);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:#000;">GX</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;">GXO <span style="color:var(--orange)">Check</span></div>
+    </div>
+    <div style="background:var(--orangeGl);border:1px solid var(--orange);border-radius:var(--r2);padding:14px;margin-bottom:20px;text-align:center;">
+      <div style="font-size:11px;color:var(--white3);margin-bottom:4px;">Formulaire a remplir</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:var(--orange);" id="qlFName"></div>
+      <div style="font-size:11px;color:var(--white4);margin-top:2px;" id="qlFCode"></div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <label class="lLbl">Qui etes-vous ?</label>
+      <select class="lInp" id="qlEmp" style="margin-top:6px;"></select>
+    </div>
+    <div style="margin-bottom:6px;">
+      <label class="lLbl">Mot de passe</label>
+      <input class="lInp" id="qlPw" type="password" placeholder="..." style="margin-top:6px;">
+    </div>
+    <div class="lErr" id="qlErr"></div>
+    <button class="lBtn" id="qlBtn" style="margin-top:14px;">ACCEDER AU FORMULAIRE</button>
+  </div>
+</div>
+
+
+<!-- PANEL OVERLAY -->
+<div class="panel-overlay" id="panelOverlay"></div>
+
+<!-- SLIDING SIDE PANEL -->
+<div class="side-panel" id="sidePanel">
+  <div class="panel-header">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="width:30px;height:30px;background:var(--orange);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;color:#000;">GX</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:#fff;">GXO <span style="color:var(--orange)">Check</span></div>
+    </div>
+    <div class="panel-close" id="panelClose">✕</div>
+  </div>
+  <div class="panel-tabs">
+    <div class="panel-tab active" id="ptab-forms" onclick="switchPanelTab('forms')">📋 Formulaires</div>
+    <div class="panel-tab" id="ptab-chariots" onclick="switchPanelTab('chariots')">🚜 Chariots</div>
+  </div>
+  <div class="panel-content">
+    <!-- FORMULAIRES NAV -->
+    <div id="panel-forms-nav">
+      <div class="pni-section">Navigation</div>
+      <div class="pni-item active" id="pni-dashboard" onclick="panelGoPage('dashboard')"><span class="pni-ico">⊞</span>Tableau de bord</div>
+      <div class="pni-item" id="pni-formulaires" onclick="panelGoPage('formulaires')"><span class="pni-ico">📋</span>Formulaires<span class="pni-bdg" id="pni-fBdg">0</span></div>
+      <div class="pni-item" id="pni-inspection" onclick="panelGoPage('inspection')"><span class="pni-ico">🔍</span>Inspection</div>
+      <div class="pni-item adminPanelItem" id="pni-employes" onclick="panelGoPage('employes')"><span class="pni-ico">👥</span>Employés<span class="pni-bdg" style="background:var(--purple);" id="pni-eBdg">0</span></div>
+      <div class="pni-item adminPanelItem" id="pni-stats" onclick="panelGoPage('stats')"><span class="pni-ico">📊</span>Statistiques</div>
+      <div class="pni-section adminPanelItem">Actions rapides</div>
+      <div class="pni-item adminPanelItem" onclick="openNewForm();closePanel();"><span class="pni-ico">➕</span>Nouveau formulaire</div>
+      <div class="pni-item adminPanelItem" onclick="openNewEmp();closePanel();"><span class="pni-ico">👤</span>Nouvel employé</div>
+    </div>
+    <!-- CHARIOTS NAV -->
+    <div id="panel-chariots-nav" style="display:none;">
+      <div class="pni-section">Parc & Suivi</div>
+      <div class="pni-item active" id="pni-ch-dash" onclick="chGoPage('ch-dashboard')"><span class="pni-ico">📊</span>Tableau de bord</div>
+      <div class="pni-item" id="pni-ch-parc" onclick="chGoPage('ch-parc')"><span class="pni-ico">🚜</span>Parc chariots<span class="pni-bdg" id="pni-chTotal">0</span></div>
+      <div class="pni-item" id="pni-ch-pannes" onclick="chGoPage('ch-pannes')"><span class="pni-ico">⚠️</span>Pannes<span class="pni-bdg" style="background:var(--red);" id="pni-chPannes">0</span></div>
+      <div class="pni-item" id="pni-ch-inter" onclick="chGoPage('ch-interventions')"><span class="pni-ico">🔧</span>Interventions</div>
+      <div class="pni-section adminPanelItem">Administration</div>
+      <div class="pni-item adminPanelItem" id="pni-ch-clients" onclick="chGoPage('ch-clients')"><span class="pni-ico">🏭</span>Clients / Zones</div>
+      <div class="pni-item adminPanelItem" onclick="openAddChariot();closePanel();"><span class="pni-ico">➕</span>Ajouter chariot</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ADD CHARIOT SHEET -->
+<div class="mBg" id="ch-add-sheet">
+  <div class="mSh">
+    <div class="mHandle"></div>
+    <div class="mTitle">🚜 Ajouter un chariot</div>
+    <div class="fg"><label class="flbl">N° Série</label><input class="fInp" id="ch-new-serie" placeholder="ex: P21120M05230"></div>
+    <div class="fg"><label class="flbl">N° Interne</label><input class="fInp" id="ch-new-interne" placeholder="ex: 3621RE21"></div>
+    <div class="fg"><label class="flbl">Type</label><input class="fInp" id="ch-new-type" placeholder="ex: R14, T20SP…"></div>
+    <div class="fg"><label class="flbl">Client</label>
+      <select class="fSel" id="ch-new-client">
+        <option>BARRY</option><option>PEPSI</option><option>SAMSUNG</option><option>SODIAAL</option>
+      </select>
+    </div>
+    <div class="fg"><label class="flbl">Secteur</label><input class="fInp" id="ch-new-secteur" placeholder="ex: Secteur 2"></div>
+    <div class="fg"><label class="flbl">Statut initial</label>
+      <select class="fSel" id="ch-new-statut">
+        <option value="disponible">En service</option>
+        <option value="maintenance">Maintenance</option>
+        <option value="panne">Panne</option>
+      </select>
+    </div>
+    <div class="mAct">
+      <button class="btn btnS" onclick="G('ch-add-sheet').classList.remove('open')">Annuler</button>
+      <button class="btn btnP" onclick="chSaveNewChariot()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL CHARIOT ─── -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)chCloseModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-title">Chariot</div>
+        <div class="modal-subtitle" id="modal-subtitle"></div>
+      </div>
+      <div class="modal-close" onclick="chCloseModal()">✕</div>
+    </div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- ─── TOAST ─── -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════
+   CHARIOT MODULE - Wrapped for iOS safety
+═══════════════════════════════════════ */
+try {
+
+// ══════════════════════════════════════════
+//  DATA — parc complet extrait du fichier
+// ══════════════════════════════════════════
+var parcInitial = [
+  // BARRY
+  { serie: 'W41152V07411', interne: '1094TA17', type: 'TUGGER', client: 'BARRY', secteur: 'Secteur 2' },
+  { serie: 'P21173X01877', interne: '1126GB17', type: 'L14I', client: 'BARRY', secteur: 'Secteur 2' },
+  { serie: 'W4X133Y01562', interne: '2121GB17', type: 'D12AP', client: 'BARRY', secteur: 'Secteur 2' },
+  { serie: 'P21120M05230', interne: '3621RE21', type: 'R14', client: 'BARRY', secteur: 'Secteur 2' },
+  { serie: 'P21120M05201', interne: '3622RE21', type: 'R14', client: 'BARRY', secteur: 'Secteur 2' },
+  { serie: 'P21120M05216', interne: '3675RE21', type: 'R14', client: 'BARRY', secteur: 'Secteur 2' },
+  { serie: 'P21120M05180', interne: '3677RE21', type: 'R14', client: 'BARRY', secteur: 'Secteur 2' },
+  { serie: 'P21120M05197', interne: '3680RE21', type: 'R14', client: 'BARRY', secteur: 'Secteur 2' },
+  { serie: 'P21120M05193', interne: '3684RE21', type: 'R14', client: 'BARRY', secteur: 'Secteur 2' },
+  { serie: 'F21172J03008', interne: '9701GB17', type: 'L12I', client: 'BARRY', secteur: 'Secteur 2' },
+  { serie: 'W4X131J06498', interne: '9707TP17', type: 'T20SP', client: 'BARRY', secteur: 'Secteur 2' },
+  { serie: 'W4X131J06502', interne: '9716TP17', type: 'T20SP', client: 'BARRY', secteur: 'Secteur 2' },
+  { serie: 'W4X131J06489', interne: '9721TP17', type: 'T25SP', client: 'BARRY', secteur: 'Secteur 2' },
+  { serie: 'W4X132J02539', interne: '9725PC17', type: 'N20', client: 'BARRY', secteur: 'Secteur 2' },
+  { serie: 'W4X132J02370', interne: '9730PC17', type: 'N20', client: 'BARRY', secteur: 'Secteur 2' },
+  { serie: 'H2X386J08239', interne: '9755FE17', type: 'E16', client: 'BARRY', secteur: 'Secteur 2' },
+  // PEPSI
+  { serie: 'H2Y386M02740', interne: '3269FE21', type: 'E16C', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'P21120M03619', interne: '3613RE21', type: 'R14', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'P21120M03996', interne: '3614RE21', type: 'R14', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'P21120M05213', interne: '3615RE21', type: 'R14', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'P21120M05012', interne: '3617RE21', type: 'R14', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'P21120M05223', interne: '3620RE21', type: 'R14', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'P21120M03995', interne: '3678RE21', type: 'R14', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'P21120M05199', interne: '3681RE21', type: 'R14', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'P21120M05191', interne: '3683RE21', type: 'R14', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'P21120M05239', interne: '3705RE21', type: 'R14', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'P21120M05220', interne: '3707RE21', type: 'R14', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'W4X131J06488', interne: '9702TP17', type: 'T20SP', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'W4X131V04914', interne: '0994TP17', type: 'T20SP', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'W4X131V02126', interne: '0760TP17', type: 'T20SP', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'W4X131J06490', interne: '9720TP17', type: 'T25SP', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'W4Y131L06786', interne: '3317TP21', type: 'T25SPFL', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'W4Y131L06790', interne: '6790', type: 'T25SPFL', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'W4Y131L06854', interne: '3313TP21', type: 'T25SPFL', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'W4Y131L06913', interne: '3314TP21', type: 'T25SPFL', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'W4Y131M02326', interne: '3315TP21', type: 'T25SPFL', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'W4Y133L00223', interne: '2755GB21', type: 'D12SP', client: 'PEPSI', secteur: 'Secteur 3' },
+  { serie: 'W4Y133L00878', interne: '2757GB21', type: 'D12SP', client: 'PEPSI', secteur: 'Secteur 3' },
+  // SAMSUNG
+  { serie: 'H21252M11250', interne: '3270FE21', type: 'E25', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'H21252M11281', interne: '3266FE21', type: 'E25', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'H2X387J03630', interne: '9757FE17', type: 'E25/PINCE', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'PKY391L02204', interne: '3267FG21', type: 'H16T', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'P21120M05015', interne: '3706RE21', type: 'R14', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'P21120M05180', interne: '3677RE21', type: 'R14', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'P21120M05189', interne: '3623RE21', type: 'R14', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'P21120M05195', interne: '3676RE21', type: 'R14', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'P21120M05218', interne: '3708RE21', type: 'R14', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'P21120M05241', interne: '3689RE21', type: 'R14', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'P21120M05243', interne: '3682RE21', type: 'R14', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'P21120M05267', interne: '3616RE21', type: 'R14', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'W4X131J05617', interne: '0563TP17', type: 'T20SP', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'W4X131J06491', interne: '9711TP17', type: 'T20SP', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'W4X131J06495', interne: '9710TP17', type: 'T20SP', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'W4X131J06496', interne: '9709TP17', type: 'T20SP', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'W4X131J06499', interne: '9708TP17', type: 'T20SP', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'W4X131J06506', interne: '9714TP17', type: 'T20SP', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'W4X131J06511', interne: '9718TP17', type: 'T20SP', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'W4X133Y00438', interne: '1878GB17', type: 'D12AP', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'W4X133Y00585', interne: '1874GB17', type: 'D12AP', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  { serie: 'W4X133Y01535', interne: '2124GB17', type: 'D12AP', client: 'SAMSUNG', secteur: 'Secteur 4' },
+  // SODIAAL
+  { serie: 'P21120L02902', interne: '2758RE21', type: 'R14', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'P21120L02909', interne: '2759RE21', type: 'R14', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'P21120L02918', interne: '2760RE21', type: 'R14', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'P21120L02920', interne: '2765RE21', type: 'R14', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'P21120L04502', interne: '2762RE21', type: 'R14', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'P21120L04504', interne: '2763RE21', type: 'R14', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'P21120L04505', interne: '2761RE21', type: 'R14', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'P21120M05177', interne: '3679RE21', type: 'R14', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'W4X131J05617', interne: '0563TP17', type: 'T20SP', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'W4X131J06488', interne: '9702TP17', type: 'T20SP', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'W4X131J06503', interne: '9715TP17', type: 'T20SP', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'W4X131J06490', interne: '9720TP17', type: 'T25SP', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'W4Y131L00735', interne: '2764TP21', type: 'T20SP', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'W4Y131L01107', interne: '2767TP21', type: 'T25SP', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'W4Y131L01115', interne: '2768TP21', type: 'T25SP', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'W4Y131M02326', interne: '3315TP21', type: 'T25SPFL', client: 'SODIAAL', secteur: 'Secteur 1' },
+  { serie: 'W4Y133L00859', interne: '2756GB21', type: 'D12SP', client: 'SODIAAL', secteur: 'Secteur 1' },
+];
+
+// Pannes initiales (extraites du fichier)
+var pannesInitiales = [
+  { id: 'P001', serie: 'P21120L02909', type: 'R14', client: 'SODIAAL', desc: 'Fuite huile + URGENT', date: '29/11/2024', urgence: 'haute', statut: 'cours', ref: '651801' },
+  { id: 'P002', serie: 'P21120M05180', type: 'R14', client: 'BARRY', desc: 'Défaut L370 - ne lève plus', date: '11/12/2024', urgence: 'haute', statut: 'cours', ref: '986' },
+  { id: 'P003', serie: 'W4X131J06495', type: 'T20SP', client: 'SAMSUNG', desc: 'Perte de puissance - s\'arrête en roulant', date: '16/01/2025', urgence: 'haute', statut: 'cours', ref: '705903' },
+  { id: 'P004', serie: 'H21252M11281', type: 'E25', client: 'SAMSUNG', desc: 'Perte de pinçage au niveau des fourches', date: '22/01/2025', urgence: 'normale', statut: 'cours', ref: '728460' },
+  { id: 'P005', serie: 'W4Y131L01115', type: 'T25SP', client: 'SODIAAL', desc: 'Fourches HS', date: '23/01/2025', urgence: 'haute', statut: 'cours', ref: '730301' },
+  { id: 'P006', serie: 'W4Y131L06913', type: 'T25SPFL', client: 'PEPSI', desc: 'Problème non bloquant - risque immobilisation', date: '11/02/2025', urgence: 'normale', statut: 'cours', ref: '771063' },
+  { id: 'P007', serie: 'W4Y131L06854', type: 'T25SPFL', client: 'PEPSI', desc: 'Code T226', date: '14/02/2025', urgence: 'normale', statut: 'cours', ref: '773666' },
+];
+
+// Interventions récentes (échantillon)
+var interventions = [
+  { serie: 'P21120L02902', type: 'R14', client: 'SODIAAL', type_inter: 'Réparation', objet: 'Code erreur T239 + L445 + L561', mois: 'Janvier', statut: 'Terminé' },
+  { serie: 'P21120M05218', type: 'R14', client: 'SAMSUNG', type_inter: 'Réparation', objet: 'Mat claque fort en changeant d\'échelle', mois: 'Janvier', statut: 'Terminé' },
+  { serie: 'W4Y131L06854', type: 'T25SPFL', client: 'PEPSI', type_inter: 'Réparation', objet: 'Remplacement roues stabilisatrices', mois: 'Décembre', statut: 'Terminé' },
+  { serie: 'P21120L04502', type: 'R14', client: 'SODIAAL', type_inter: 'Entretien', objet: 'Entretien 1000H nettoyage graissage', mois: 'Janvier', statut: 'Terminé' },
+  { serie: 'P21120L04504', type: 'R14', client: 'SODIAAL', type_inter: 'Réparation', objet: 'Flexibles hydraulique de mat arraché', mois: 'Décembre', statut: 'Terminé' },
+  { serie: 'P21120M05180', type: 'R14', client: 'BARRY', type_inter: 'Réparation', objet: 'Chariot défaut L370 - ne lève plus', mois: 'Décembre', statut: 'En cours' },
+  { serie: 'W4X131J06498', type: 'T20SP', client: 'BARRY', type_inter: 'Réparation', objet: 'Mise en eau batterie', mois: 'Octobre', statut: 'Terminé' },
+  { serie: 'P21120M05239', type: 'R14', client: 'PEPSI', type_inter: 'Réparation', objet: 'Remplacer roues porteuses', mois: 'Décembre', statut: 'Terminé' },
+  { serie: 'W4X131J05617', type: 'T20SP', client: 'SODIAAL', type_inter: 'Réparation', objet: 'Fuite hydraulique + arret urgence', mois: 'Novembre', statut: 'Terminé' },
+  { serie: 'P21120M05243', type: 'R14', client: 'SAMSUNG', type_inter: 'Réparation', objet: 'Problème de levée - devis', mois: 'Décembre', statut: 'Terminé' },
+  { serie: 'W4Y131L01107', type: 'T25SP', client: 'SODIAAL', type_inter: 'Entretien', objet: 'Entretien 4000H', mois: 'Octobre', statut: 'Terminé' },
+  { serie: 'P21120M05191', type: 'R14', client: 'PEPSI', type_inter: 'Réparation', objet: 'Capteur table batterie cassé', mois: 'Décembre', statut: 'Terminé' },
+  { serie: 'W4X131J06490', type: 'T25SP', client: 'SODIAAL', type_inter: 'Réparation', objet: 'Problème chassis + PJ', mois: 'Décembre', statut: 'Terminé' },
+  { serie: 'P21120L02920', type: 'R14', client: 'SODIAAL', type_inter: 'Réparation', objet: 'Les fourches ne lèvent plus', mois: 'Décembre', statut: 'En cours' },
+  { serie: 'H21252M11250', type: 'E25', client: 'SAMSUNG', type_inter: 'Entretien', objet: 'Entretien 1000H', mois: 'Décembre', statut: 'Terminé' },
+  { serie: 'W4Y131L06854', type: 'T25SPFL', client: 'PEPSI', type_inter: 'Devis', objet: 'Établissement devis remplacement bandages', mois: 'Décembre', statut: 'En cours' },
+  { serie: 'W4X131V04914', type: 'T20SP', client: 'PEPSI', type_inter: 'Réparation', objet: 'Vis sort de son logement', mois: 'Décembre', statut: 'Terminé' },
+  { serie: 'W4X132J02539', type: 'N20', client: 'BARRY', type_inter: 'Réparation', objet: 'Bruit anormal et blocage lors de la marche', mois: 'Décembre', statut: 'Terminé' },
+  { serie: 'P21120L04504', type: 'R14', client: 'SODIAAL', type_inter: 'Réparation', objet: 'Flexibles hydraulique de mat arraché', mois: 'Décembre', statut: 'Terminé' },
+  { serie: 'P21120M05243', type: 'R14', client: 'SAMSUNG', type_inter: 'Réparation', objet: 'Klaxon HS', mois: 'Décembre', statut: 'Terminé' },
+];
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+var chariots = [];
+var pannes = [];
+var currentFilter = 'all';
+var currentChariotIdx = null;
+
+function loadState() {
+  var saved = localStorage.getItem('gxo_chariots_v2');
+  if (saved) {
+    chariots = JSON.parse(saved);
+  } else {
+    // Initialiser avec statuts par défaut + quelques pannes pré-chargées
+    chariots = parcInitial.map((c, i) => ({
+      ...c,
+      id: i,
+      statut: 'disponible',
+      panneDesc: '',
+      lastUpdate: new Date().toISOString(),
+      horametre: Math.floor(Math.random() * 5000) + 100,
+    }));
+    // Marquer certains chariots comme en panne ou maintenance (depuis les données Excel)
+    var pannesSeries = ['P21120L02909', 'P21120M05180', 'W4X131J06495', 'H21252M11281', 'W4Y131L06913', 'W4Y131L06854'];
+    var maintenanceSeries = ['P21120L02920', 'W4Y131L01115', 'P21120M05239', 'W4X131J06490'];
+    chariots.forEach(c => {
+      if (pannesSeries.includes(c.serie)) c.statut = 'panne';
+      else if (maintenanceSeries.includes(c.serie)) c.statut = 'maintenance';
+    });
+    saveState();
+  }
+
+  var savedPannes = localStorage.getItem('gxo_pannes_v2');
+  if (savedPannes) {
+    pannes = JSON.parse(savedPannes);
+  } else {
+    pannes = pannesInitiales;
+    savePannes();
+  }
+}
+
+function saveState() {
+  localStorage.setItem('gxo_chariots_v2', JSON.stringify(chariots));
+}
+function savePannes() {
+  localStorage.setItem('gxo_pannes_v2', JSON.stringify(pannes));
+}
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  var navEl = document.getElementById('nav-' + name);
+  if (navEl) navEl.classList.add('active');
+
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'parc') renderParc();
+  if (name === 'pannes') renderPannes();
+  if (name === 'interventions') renderInterventions();
+}
+
+// ══════════════════════════════════════════
+//  CLOCK
+// ══════════════════════════════════════════
+function updateClock() {
+  var now = new Date();
+  document.getElementById('live-clock').textContent = now.toLocaleTimeString('fr-FR');
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ══════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════
+function renderDashboard() {
+  var now = new Date();
+  document.getElementById('dash-date').textContent =
+    now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  var total = chariots.length;
+  var enService = chariots.filter(c => c.statut === 'disponible').length;
+  var enMaintenance = chariots.filter(c => c.statut === 'maintenance').length;
+  var enPanne = chariots.filter(c => c.statut === 'panne').length;
+  var pannesActives = pannes.filter(p => p.statut === 'cours').length;
+
+  document.getElementById('badge-parc').textContent = total;
+  document.getElementById('badge-pannes').textContent = pannesActives;
+
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi" style="--kpi-color:var(--accent2)">
+      <div class="kpi-value">${total}</div>
+      <div class="kpi-label">Chariots total</div>
+      <div class="kpi-sub">dans le parc</div>
+    </div>
+    <div class="kpi" style="--kpi-color:var(--green)">
+      <div class="kpi-value">${enService}</div>
+      <div class="kpi-label">En service</div>
+      <div class="kpi-sub">${Math.round(enService/total*100)}% du parc</div>
+    </div>
+    <div class="kpi" style="--kpi-color:var(--orange)">
+      <div class="kpi-value">${enMaintenance}</div>
+      <div class="kpi-label">Maintenance</div>
+      <div class="kpi-sub">en cours</div>
+    </div>
+    <div class="kpi" style="--kpi-color:var(--red)">
+      <div class="kpi-value">${enPanne}</div>
+      <div class="kpi-label">En panne</div>
+      <div class="kpi-sub">${pannesActives} pannes actives</div>
+    </div>
+  `;
+
+  // Secteurs
+  var clients = ['BARRY', 'PEPSI', 'SAMSUNG', 'SODIAAL'];
+  var colors = { BARRY: '#6699ff', PEPSI: '#8877ff', SAMSUNG: '#ff8866', SODIAAL: '#66cc66' };
+  document.getElementById('secteur-grid').innerHTML = clients.map(cl => {
+    var cl_chariots = chariots.filter(c => c.client === cl);
+    var ok = cl_chariots.filter(c => c.statut === 'disponible').length;
+    var maint = cl_chariots.filter(c => c.statut === 'maintenance').length;
+    var panne = cl_chariots.filter(c => c.statut === 'panne').length;
+    return `
+    <div class="secteur-card">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${colors[cl]}"></div>
+      <div class="secteur-name" style="color:${colors[cl]}">${cl}</div>
+      <div class="secteur-client">${cl_chariots.length} chariots</div>
+      <div class="secteur-stats">
+        <div class="secteur-stat">
+          <div>
+            <div class="num" style="color:var(--green)">${ok}</div>
+            <div class="lbl">Service</div>
+          </div>
+        </div>
+        <div class="secteur-stat">
+          <div>
+            <div class="num" style="color:var(--orange)">${maint}</div>
+            <div class="lbl">Maint.</div>
+          </div>
+        </div>
+        <div class="secteur-stat">
+          <div>
+            <div class="num" style="color:var(--red)">${panne}</div>
+            <div class="lbl">Panne</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Pannes actives
+  var activeP = pannes.filter(p => p.statut === 'cours').slice(0, 5);
+  document.getElementById('dash-pannes').innerHTML = activeP.length ? activeP.map(p =>
+    `<div class="panne-card" onclick="showPage('pannes')">
+      <div class="panne-icon">⚠️</div>
+      <div class="panne-info">
+        <h3>${p.serie}</h3>
+        <p>${p.type} · ${p.client} · ${p.desc}</p>
+      </div>
+      <div class="panne-meta">
+        <div class="date">${p.date}</div>
+        <div class="urgence urgence-${p.urgence}">${p.urgence === 'haute' ? '🔴 Urgent' : '🟡 Normal'}</div>
+      </div>
+    </div>`
+  ).join('') : '<div class="empty-state"><div class="icon">✅</div><p>Aucune panne active</p></div>';
+}
+
+// ══════════════════════════════════════════
+//  PARC CHARIOTS
+// ══════════════════════════════════════════
+function renderParc() {
+  document.getElementById('parc-count').textContent =
+    `${chariots.length} chariots · Cliquez sur un chariot pour modifier son statut`;
+
+  var grid = document.getElementById('chariot-grid');
+  var search = document.getElementById('search-input').value.toLowerCase();
+
+  grid.innerHTML = chariots.map((c, i) => {
+    var statusClass = `status-${c.statut}`;
+    var statusLabel = { disponible: 'En service', panne: 'En panne', maintenance: 'Maintenance' }[c.statut] || c.statut;
+    var show = filterTest(c, search);
+
+    return `
+    <div class="chariot-card ${statusClass} ${show ? '' : 'hidden'}" onclick="openChariotModal(${i})"
+         style="animation-delay:${i*0.02}s">
+      <div class="chariot-header">
+        <div class="chariot-id">${c.interne || c.serie.slice(-6)}</div>
+        <div class="chariot-status-label">${statusLabel}</div>
+      </div>
+      <div class="chariot-type">${c.type}</div>
+      <div class="chariot-client">
+        <span class="client-badge client-${c.client}">${c.client}</span>
+        ${c.secteur}
+      </div>
+      <div class="chariot-info">
+        <div class="info-item">
+          <label>Série</label>
+          <value>${c.serie.slice(-7)}</value>
+        </div>
+        <div class="info-item">
+          <label>Horamètre</label>
+          <value>${(c.horametre||'—')}h</value>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterTest(c, search) {
+  var matchSearch = !search ||
+    c.serie.toLowerCase().includes(search) ||
+    c.type.toLowerCase().includes(search) ||
+    c.client.toLowerCase().includes(search) ||
+    (c.interne && c.interne.toLowerCase().includes(search));
+
+  var matchFilter =
+    currentFilter === 'all' ||
+    c.statut === currentFilter ||
+    c.client === currentFilter;
+
+  return matchSearch && matchFilter;
+}
+
+function filterChariots() { renderParc(); }
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('#filter-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderParc();
+}
+
+// ══════════════════════════════════════════
+//  MODAL CHARIOT
+// ══════════════════════════════════════════
+function openChariotModal(idx) {
+  currentChariotIdx = idx;
+  var c = chariots[idx];
+  var statusLabel = { disponible: 'En service', panne: 'En panne', maintenance: 'Maintenance' }[c.statut];
+  var statusColor = { disponible: 'var(--green)', panne: 'var(--red)', maintenance: 'var(--orange)' }[c.statut];
+
+  document.getElementById('modal-title').textContent = `${c.type} · ${c.serie.slice(-8)}`;
+  document.getElementById('modal-subtitle').textContent = `${c.client} · ${c.secteur} · ${c.interne || '—'}`;
+
+  document.getElementById('modal-content').innerHTML = `
+    <div class="modal-section">
+      <div class="modal-section-title">Informations</div>
+      <div class="modal-grid">
+        <div class="modal-field"><label>N° Série</label><value>${c.serie}</value></div>
+        <div class="modal-field"><label>N° Interne</label><value>${c.interne || '—'}</value></div>
+        <div class="modal-field"><label>Type</label><value>${c.type}</value></div>
+        <div class="modal-field"><label>Client</label><value>${c.client}</value></div>
+        <div class="modal-field"><label>Secteur</label><value>${c.secteur}</value></div>
+        <div class="modal-field"><label>Horamètre</label><value>${c.horametre || '—'}h</value></div>
+        <div class="modal-field"><label>Statut actuel</label><value style="color:${statusColor};font-weight:700">${statusLabel}</value></div>
+        <div class="modal-field"><label>Mis à jour</label><value>${new Date(c.lastUpdate).toLocaleDateString('fr-FR')}</value></div>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Changer le statut</div>
+      <div class="status-select-grid">
+        <button class="status-btn btn-green ${c.statut==='disponible'?'selected':''}"
+          onclick="setChariotStatus('disponible', this)">✅ En service</button>
+        <button class="status-btn btn-orange ${c.statut==='maintenance'?'selected':''}"
+          onclick="setChariotStatus('maintenance', this)">🔧 Maintenance</button>
+        <button class="status-btn btn-red ${c.statut==='panne'?'selected':''}"
+          onclick="setChariotStatus('panne', this)">🔴 En panne</button>
+      </div>
+    </div>
+
+    <div class="modal-section" id="panne-section" style="${c.statut==='panne'?'':'display:none'}">
+      <div class="modal-section-title">Détail panne</div>
+      <div class="panne-form">
+        <div>
+          <label class="form-label">Description de la panne</label>
+          <textarea class="form-textarea" id="panne-desc" placeholder="Décrivez le problème...">${c.panneDesc || ''}</textarea>
+        </div>
+        <div>
+          <label class="form-label">Horamètre (h)</label>
+          <input class="form-input" id="panne-hora" type="number" value="${c.horametre||''}" placeholder="ex: 3500">
+        </div>
+        <button class="btn-primary" onclick="savePanneDetail()">💾 Enregistrer</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('modal').classList.add('open');
+}
+
+function setChariotStatus(statut, btn) {
+  var c = chariots[currentChariotIdx];
+  c.statut = statut;
+  c.lastUpdate = new Date().toISOString();
+  saveState();
+
+  document.querySelectorAll('.status-select-grid .status-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  var pSection = document.getElementById('panne-section');
+  if (pSection) pSection.style.display = statut === 'panne' ? 'block' : 'none';
+
+  // Ajouter/retirer panne
+  if (statut === 'panne') {
+    var existe = pannes.find(p => p.serie === c.serie && p.statut === 'cours');
+    if (!existe) {
+      pannes.unshift({
+        id: 'P' + Date.now(),
+        serie: c.serie,
+        type: c.type,
+        client: c.client,
+        desc: 'Panne signalée',
+        date: new Date().toLocaleDateString('fr-FR'),
+        urgence: 'normale',
+        statut: 'cours'
+      });
+      savePannes();
+    }
+  } else if (statut === 'disponible') {
+    pannes = pannes.map(p => p.serie === c.serie && p.statut === 'cours' ? {...p, statut: 'resolu'} : p);
+    savePannes();
+  }
+
+  chShowToast(`Statut mis à jour : ${c.type} → ${statut === 'disponible' ? '✅ En service' : statut === 'panne' ? '🔴 En panne' : '🔧 Maintenance'}`, 'success');
+  renderDashboard();
+}
+
+function savePanneDetail() {
+  var c = chariots[currentChariotIdx];
+  c.panneDesc = document.getElementById('panne-desc').value;
+  c.horametre = parseInt(document.getElementById('panne-hora').value) || c.horametre;
+  c.lastUpdate = new Date().toISOString();
+
+  var p = pannes.find(p => p.serie === c.serie && p.statut === 'cours');
+  if (p) p.desc = c.panneDesc || p.desc;
+
+  saveState();
+  savePannes();
+  chShowToast('Détails panne enregistrés', 'success');
+  chCloseModal();
+  renderParc();
+}
+
+function chCloseModal() {
+  document.getElementById('modal').classList.remove('open');
+  renderParc();
+}
+
+// ══════════════════════════════════════════
+//  PANNES
+// ══════════════════════════════════════════
+function renderPannes() {
+  var list = document.getElementById('pannes-list');
+  var actives = pannes.filter(p => p.statut === 'cours');
+  var resolues = pannes.filter(p => p.statut !== 'cours').slice(0, 10);
+
+  var html = `<div class="section-header"><div class="section-title">Pannes actives (${actives.length})</div></div>`;
+  html += actives.length ? actives.map(p => renderPanneCard(p)).join('') :
+    '<div class="empty-state"><div class="icon">✅</div><p>Aucune panne active — tout est OK !</p></div>';
+
+  html += `<div class="section-header" style="margin-top:28px"><div class="section-title">Récemment résolues</div></div>`;
+  html += resolues.length ? resolues.map(p => renderPanneCard(p, true)).join('') :
+    '<p style="color:var(--muted);font-size:13px">Aucune panne résolue</p>';
+
+  list.innerHTML = html;
+}
+
+function renderPanneCard(p, resolved = false) {
+  return `
+  <div class="panne-card" style="opacity:${resolved ? 0.6 : 1}">
+    <div class="panne-icon" style="${resolved ? 'background:var(--green-dim)' : ''}">${resolved ? '✅' : '⚠️'}</div>
+    <div class="panne-info">
+      <h3>${p.serie} <span style="font-size:11px;color:var(--muted);font-weight:400">${p.type} · ${p.client}</span></h3>
+      <p>${p.desc}</p>
+      ${p.ref ? `<p style="font-family:var(--font-mono);font-size:10px;color:var(--muted)">Réf: ${p.ref}</p>` : ''}
+    </div>
+    <div class="panne-meta">
+      <div class="date">${p.date}</div>
+      ${!resolved ? `<div class="urgence urgence-${p.urgence}">${p.urgence === 'haute' ? '🔴 Urgent' : '🟡 Normal'}</div>` : '<div style="color:var(--green);font-size:10px;font-weight:700">RÉSOLU</div>'}
+    </div>
+  </div>`;
+}
+
+function openNewPanne() {
+  document.getElementById('modal-title').textContent = 'Déclarer une panne';
+  document.getElementById('modal-subtitle').textContent = '';
+  document.getElementById('modal-content').innerHTML = `
+    <div class="panne-form">
+      <div>
+        <label class="form-label">Numéro de série</label>
+        <input class="form-input" id="np-serie" list="serie-list" placeholder="Saisir ou choisir...">
+        <datalist id="serie-list">
+          ${chariots.map(c => `<option value="${c.serie}">${c.type} · ${c.client}</option>`).join('')}
+        </datalist>
+      </div>
+      <div>
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="np-desc" placeholder="Décrivez le problème..."></textarea>
+      </div>
+      <div>
+        <label class="form-label">Urgence</label>
+        <select class="form-select" id="np-urgence">
+          <option value="normale">🟡 Normale</option>
+          <option value="haute">🔴 Haute — chariot à l'arrêt</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="submitNouveauPanne()">⚠️ Déclarer la panne</button>
+    </div>`;
+  document.getElementById('modal').classList.add('open');
+}
+
+function submitNouveauPanne() {
+  var serie = document.getElementById('np-serie').value.trim();
+  var desc = document.getElementById('np-desc').value.trim();
+  var urgence = document.getElementById('np-urgence').value;
+
+  if (!serie || !desc) { chShowToast('Remplissez tous les champs requis', 'error'); return; }
+
+  var c = chariots.find(ch => ch.serie === serie || ch.interne === serie);
+  pannes.unshift({
+    id: 'P' + Date.now(),
+    serie: serie,
+    type: c?.type || '—',
+    client: c?.client || '—',
+    desc: desc,
+    date: new Date().toLocaleDateString('fr-FR'),
+    urgence: urgence,
+    statut: 'cours'
+  });
+  if (c) { c.statut = 'panne'; c.lastUpdate = new Date().toISOString(); saveState(); }
+  savePannes();
+  chCloseModal();
+  renderPannes();
+  renderDashboard();
+  chShowToast('Panne déclarée avec succès', 'success');
+}
+
+// ══════════════════════════════════════════
+//  INTERVENTIONS
+// ══════════════════════════════════════════
+function renderInterventions() {
+  var statutBadge = { 'Terminé': 'badge-termine', 'En cours': 'badge-cours', 'Non traité': 'badge-attente', 'Devis': 'badge-devis' };
+
+  document.getElementById('interventions-tbody').innerHTML = interventions.map(i => `
+    <tr>
+      <td class="mono">${i.serie.slice(-8)}</td>
+      <td style="font-weight:600">${i.type}</td>
+      <td><span class="client-badge client-${i.client}">${i.client}</span></td>
+      <td>${i.type_inter}</td>
+      <td style="max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${i.objet}">${i.objet}</td>
+      <td class="mono">${i.mois}</td>
+      <td><span class="badge-status ${statutBadge[i.statut] || 'badge-cours'}">${i.statut}</span></td>
+    </tr>`
+  ).join('');
+}
+
+// ══════════════════════════════════════════
+//  AJOUTER CHARIOT
+// ══════════════════════════════════════════
+function ajouterChariot() {
+  var serie = document.getElementById('new-serie').value.trim();
+  var interne = document.getElementById('new-interne').value.trim();
+  var type = document.getElementById('new-type').value;
+  var client = document.getElementById('new-client').value;
+  var secteur = document.getElementById('new-secteur').value;
+  var statut = document.getElementById('new-statut').value;
+
+  if (!serie || !type || !client) { chShowToast('Remplissez tous les champs obligatoires (*)', 'error'); return; }
+  if (chariots.find(c => c.serie === serie)) { chShowToast('Ce numéro de série existe déjà', 'error'); return; }
+
+  chariots.push({
+    id: chariots.length,
+    serie, interne, type, client,
+    secteur: secteur || 'Non défini',
+    statut: statut || 'disponible',
+    panneDesc: '',
+    lastUpdate: new Date().toISOString(),
+    horametre: 0,
+  });
+  saveState();
+
+  document.getElementById('new-serie').value = '';
+  document.getElementById('new-interne').value = '';
+  document.getElementById('new-type').value = '';
+  document.getElementById('new-client').value = '';
+  document.getElementById('new-secteur').value = '';
+
+  chShowToast(`✅ Chariot ${serie} ajouté au parc`, 'success');
+  renderDashboard();
+}
+
+// ══════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════
+function chShowToast(msg, type = 'success') {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+loadState();
+renderDashboard();
+
+
+
+/* Expose functions globally */
+window.chRenderDashboard = typeof renderDashboard !== 'undefined' ? renderDashboard : function(){};
+window.chRenderParc = typeof renderParc !== 'undefined' ? renderParc : function(){};
+window.chRenderPannes = typeof renderPannes !== 'undefined' ? renderPannes : function(){};
+window.chRenderInterventions = typeof renderInterventions !== 'undefined' ? renderInterventions : function(){};
+window.chRenderClients = function() {
+  var clients = {};
+  if (typeof chariots !== 'undefined') {
+    chariots.forEach(function(c){ clients[c.client]=(clients[c.client]||0)+1; });
+  }
+  var el = document.getElementById('ch-clients-list');
+  if (!el) return;
+  el.innerHTML = Object.keys(clients).map(function(name) {
+    var cnt = clients[name];
+    return '<div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid #2a3250;">'
+      +'<div style="flex:1;"><div style="font-weight:700;">'+name+'</div>'
+      +'<div style="font-size:12px;color:#888;">'+cnt+' chariot'+(cnt>1?'s':'')+'</div></div>'
+      +'<div style="display:flex;gap:6px;">'
+      +'<button style="padding:6px 12px;border-radius:7px;border:1px solid #00d9be;color:#00d9be;font-size:12px;background:transparent;cursor:pointer;" onclick="window.chEditClient(''+name+'')">Renommer</button>'
+      +'<button style="padding:6px 12px;border-radius:7px;border:1px solid #f04f5a;color:#f04f5a;font-size:12px;background:transparent;cursor:pointer;" onclick="window.chDeleteClient(''+name+'')">Supprimer</button>'
+      +'</div></div>';
+  }).join('');
+};
+window.chEditClient = function(old) {
+  var n = prompt('Nouveau nom:', old);
+  if (!n || n === old) return;
+  chariots.forEach(function(c){ if(c.client===old) c.client=n.toUpperCase(); });
+  saveState(); window.chRenderClients();
+};
+window.chDeleteClient = function(name) {
+  if (!confirm('Supprimer "'+name+'" ?')) return;
+  chariots = chariots.filter(function(c){ return c.client !== name; });
+  saveState(); window.chRenderClients();
+};
+window.openAddChariot = function() {
+  var sh = document.getElementById('ch-add-sheet');
+  if (sh) sh.classList.add('open');
+};
+window.chSaveNewChariot = function() {
+  var s = document.getElementById('ch-new-serie');
+  var intern = document.getElementById('ch-new-interne');
+  var t = document.getElementById('ch-new-type');
+  if (!s||!intern||!t||!s.value.trim()||!intern.value.trim()||!t.value.trim()) {
+    chShowToast('Remplissez tous les champs'); return;
+  }
+  chariots.push({
+    serie:s.value.trim(), interne:intern.value.trim(), type:t.value.trim(),
+    client:document.getElementById('ch-new-client').value,
+    secteur:(document.getElementById('ch-new-secteur').value||'-'),
+    statut:document.getElementById('ch-new-statut').value, pannes:[]
+  });
+  saveState();
+  document.getElementById('ch-add-sheet').classList.remove('open');
+  if (typeof updatePanelBadges === 'function') updatePanelBadges();
+  chShowToast('Chariot ajoute !');
+};
+
+} catch(e) {
+  console.error('Chariot module error:', e.message || e);
+  // GXO Check continues to work even if chariot module fails
+}
+</script>
+
 </body>
 </html>
