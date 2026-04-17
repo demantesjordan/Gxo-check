@@ -543,6 +543,62 @@ input[type=file] { display:none; }
 .mWrap { flex:1; display:flex; flex-direction:column; overflow:hidden; }
 .dkTop { display:none; height:58px; flex-shrink:0; background:var(--black2); border-bottom:1px solid var(--border); align-items:center; padding:0 24px; gap:14px; }
 .dkLogo { display:none; }
+/* ── Q COMMENT (description) ── */
+.qCommentWrap {
+  margin-top:10px;
+  background:var(--black3);
+  border:1px solid var(--border);
+  border-radius:var(--r2);
+  overflow:hidden;
+  transition:all .2s;
+}
+.qCommentWrap.nc-active {
+  border-color: var(--red);
+  background: #e74c3c0f;
+  box-shadow: 0 0 0 1px #e74c3c40;
+}
+.qCommentLabel {
+  display:flex; align-items:center; gap:6px;
+  padding:8px 12px 4px;
+  font-size:11px; font-weight:700;
+  color:var(--white3);
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+.qCommentWrap.nc-active .qCommentLabel {
+  color: var(--red);
+}
+.qCommentLabel .labelIcon {
+  font-size:13px;
+}
+.qComment {
+  width:100%;
+  padding:2px 12px 10px;
+  background:transparent;
+  border:none;
+  color:var(--white);
+  font-family:'DM Sans',sans-serif;
+  font-size:13.5px;
+  line-height:1.45;
+  resize:vertical;
+  outline:none;
+  min-height:54px;
+  -webkit-appearance:none;
+  box-sizing:border-box;
+}
+.qComment::placeholder {
+  color:var(--white4);
+  font-style:italic;
+}
+.qCommentWrap.nc-active .qComment::placeholder {
+  color: #e74c3c99;
+}
+.qCommentWrap.required-warn {
+  animation: shake .3s ease;
+  border-color: var(--red) !important;
+  box-shadow: 0 0 0 2px #e74c3c60 !important;
+}
+
 </style>
 <script>
 (function() {
@@ -1663,7 +1719,10 @@ function buildInsp() {
         + '<button class="qBtn' + (ans==='no'  ? ' no'  : '') + '" data-key="' + key + '" data-val="no">✗ Non conforme</button>'
         + '<button class="qBtn' + (ans==='na'  ? ' na'  : '') + '" data-key="' + key + '" data-val="na">— N/A</button>'
         + '</div>'
-        + '<textarea class="qComment" id="qc_' + key + '" placeholder="Ajouter un commentaire…" data-key="' + key + '"></textarea>'
+        + '<div class="qCommentWrap" id="qcw_' + key + '">'
+        +   '<div class="qCommentLabel"><span class="labelIcon">💬</span><span class="labelTxt" id="qcl_' + key + '">Commentaire (optionnel)</span></div>'
+        +   '<textarea class="qComment" id="qc_' + key + '" placeholder="Ajouter un commentaire…" data-key="' + key + '"></textarea>'
+        + '</div>'
         + '<div class="nc-warn" id="ncw_' + key + '">⚠ Description obligatoire si Non conforme</div>'
         + '<div class="pZone"><div class="pZTop">'
         + '<span class="pZLbl">📷 Photos</span>'
@@ -1688,16 +1747,20 @@ function buildInsp() {
     this.classList.add(val);
     row.classList.add('ans');
     var num = G('qNum_' + key); num.classList.add('done'); num.textContent = '✓';
-    // Show/hide non-conforme warning
+    // Show/hide non-conforme warning + toggle UI
     var warn = G('ncw_' + key);
     var textarea = G('qc_' + key);
+    var wrap = G('qcw_' + key);
+    var labelTxt = G('qcl_' + key);
     if (warn) warn.classList.toggle('show', val === 'no');
-    if (textarea && val === 'no') {
-      textarea.placeholder = '⚠ Description obligatoire — décrivez le problème…';
-      textarea.style.borderColor = 'var(--red)';
-    } else if (textarea) {
-      textarea.placeholder = 'Ajouter un commentaire…';
-      textarea.style.borderColor = '';
+    if (val === 'no') {
+      if (wrap) wrap.classList.add('nc-active');
+      if (textarea) textarea.placeholder = 'Décrivez précisément le problème observé…';
+      if (labelTxt) labelTxt.textContent = 'Description de la non-conformité *';
+    } else {
+      if (wrap) wrap.classList.remove('nc-active');
+      if (textarea) textarea.placeholder = 'Ajouter un commentaire…';
+      if (labelTxt) labelTxt.textContent = 'Commentaire (optionnel)';
     }
     updateRing();
   });
@@ -1760,7 +1823,8 @@ on('btnSaveInsp', 'click', function() {
     missingDesc.forEach(function(key) {
       var ta = G('qc_' + key);
       var warn = G('ncw_' + key);
-      if (ta) { ta.classList.add('required-warn'); ta.style.borderColor='var(--red)'; ta.focus(); }
+      if (ta) { ta.focus(); }
+      var wrap2 = G('qcw_' + key); if (wrap2) wrap2.classList.add('required-warn');
       if (warn) warn.classList.add('show');
     });
     showToast('⚠ Ajoutez une description pour chaque Non conforme');
@@ -1771,7 +1835,7 @@ on('btnSaveInsp', 'click', function() {
     return;
   }
   // Remove warnings
-  document.querySelectorAll('.qComment').forEach(function(t) { t.classList.remove('required-warn'); });
+  document.querySelectorAll('.qCommentWrap').forEach(function(w) { w.classList.remove('required-warn'); });
   var secs = activeFormSecs || DEFAULT_SECS;
   var total = secs.reduce(function(a, s) { return a + s.qs.length; }, 0);
   var done = Object.keys(answers).length;
@@ -2203,11 +2267,11 @@ function sendRapportEmail(rapport) {
         var key = si + '_' + qi;
         if ((rapport.answers||{})[key] === 'no') {
           var desc = (rapport.comments||{})[key] || '(aucune description)';
-          ncDetails += '<p style="margin:6px 0;"><strong>' + qnEmail + '. ' + q + '</strong><br>&#8594; ' + desc + '</p>';
+          ncDetails += qnEmail + ') ' + q + ' : ' + desc + '\n';
         }
       });
     });
-    if (!ncDetails) ncDetails = '<p style="color:green;">✅ Aucune non-conformité</p>';
+    if (!ncDetails) ncDetails = '✅ Aucune non-conformité';
 
     (typeof emailjs!=="undefined"?emailjs:{send:function(){return {then:function(f){},catch:function(){}}}}).send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
       to_email:     ADMIN_EMAIL,
