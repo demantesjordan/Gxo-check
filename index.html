@@ -1036,7 +1036,14 @@ input[type=file] { display:none; }
       <div><label class="flbl">Nom</label><input class="fInp" id="efNom" placeholder="Anderson"></div>
     </div>
     <div class="fg"><label class="flbl">Identifiant de connexion</label><input class="fInp" id="efUser" placeholder="ex: anderson" autocapitalize="none"></div>
-    <div class="fg"><label class="flbl">Mot de passe</label><input class="fInp" id="efPw" type="password" placeholder="Minimum 4 caractères"></div>
+    <div class="fg">
+      <label class="flbl">Mot de passe</label>
+      <div style="position:relative;">
+        <input class="fInp" id="efPw" type="password" placeholder="Minimum 4 caractères" style="padding-right:42px;">
+        <button type="button" id="efPwToggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:var(--white3);font-size:16px;cursor:pointer;padding:6px;line-height:1;">👁️</button>
+      </div>
+      <div id="efPwHint" style="font-size:11px;color:var(--white4);margin-top:4px;display:none;">Laisser vide pour conserver le mot de passe actuel</div>
+    </div>
     <div class="fg"><label class="flbl">Rôle / Poste</label>
       <select class="fSel" id="efRole"><option>Opérateur</option><option>Technicien</option><option>Direction</option><option>RH</option><option>Chef d'équipe</option><option>Responsable d'exploitation</option><option>RQHSE</option></select>
     </div>
@@ -2170,13 +2177,22 @@ function openNewEmp() {
   G('shEmpTitle').textContent = 'NOUVEL EMPLOYÉ';
   ['efPrenom','efNom','efUser','efDept'].forEach(function(id) { G(id).value = ''; });
   G('efPw').value = ''; G('efRole').value = 'Opérateur'; G('efType').value = 'Permanent'; G('efId').value = '';
+  if (G('efZone')) G('efZone').value = '';
+  var pwHint = G('efPwHint'); if (pwHint) pwHint.style.display = 'none';
+  var pwInput = G('efPw'); if (pwInput) pwInput.type = 'password';
+  var pwToggle = G('efPwToggle'); if (pwToggle) pwToggle.textContent = '👁️';
   openSheet('shEmp');
 }
 function openEditEmp(id) {
   var e = EMPS.find(function(x) { return x.id === id; }); if (!e) return;
   G('shEmpTitle').textContent = 'MODIFIER L\'EMPLOYÉ';
   G('efPrenom').value = e.prenom; G('efNom').value = e.nom;
-  G('efUser').value = e.username || ''; G('efPw').value = '';
+  G('efUser').value = e.username || '';
+  G('efPw').value = e.pw || '';
+  var pwHint = G('efPwHint'); if (pwHint) pwHint.style.display = 'block';
+  // Reset to hidden by default on open
+  var pwInput = G('efPw'); if (pwInput) pwInput.type = 'password';
+  var pwToggle = G('efPwToggle'); if (pwToggle) pwToggle.textContent = '👁️';
   G('efRole').value = e.role; G('efDept').value = e.dept || '';
   G('efType').value = e.type || 'Permanent';
   if (G('efZone')) G('efZone').value = e.zone || '';
@@ -2232,6 +2248,13 @@ function saveEmp() {
   }
 }
 on('shEmpCancel', 'click', function() { closeSheet('shEmp'); });
+on('efPwToggle', 'click', function() {
+  var inp = G('efPw');
+  var btn = G('efPwToggle');
+  if (!inp || !btn) return;
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁️'; }
+});
 on('shEmpSave',   'click', saveEmp);
 
 /* ════════════════════════════════════
