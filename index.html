@@ -599,6 +599,160 @@ input[type=file] { display:none; }
   box-shadow: 0 0 0 2px #e74c3c60 !important;
 }
 
+/* ── NC (Non-Conformités) ── */
+.ncCard {
+  background:var(--black2);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  margin-bottom:10px;
+  overflow:hidden;
+  transition:all .2s;
+}
+.ncCard.open {
+  border-left:3px solid var(--red);
+}
+.ncCard.closed {
+  border-left:3px solid var(--green);
+  opacity:.85;
+}
+.ncCard.closed .ncQ {
+  text-decoration: line-through;
+  opacity:.7;
+}
+.ncHead {
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:12px 14px 10px;
+}
+.ncIco {
+  width:34px; height:34px; min-width:34px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:800; color:#fff;
+  flex-shrink:0;
+}
+.ncInfo {
+  flex:1;
+  min-width:0;
+}
+.ncQ {
+  font-size:14px;
+  font-weight:700;
+  line-height:1.35;
+  margin-bottom:3px;
+}
+.ncMeta {
+  font-size:11.5px;
+  color:var(--white3);
+  line-height:1.4;
+}
+.ncDesc {
+  margin:0 14px 10px;
+  padding:10px 12px;
+  background:var(--black3);
+  border-left:3px solid var(--red);
+  border-radius:6px;
+  font-size:13px;
+  color:var(--white2);
+  line-height:1.45;
+}
+.ncFoot {
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:10px;
+  padding:12px 14px;
+  border-top:1px solid var(--border);
+  background:var(--black3);
+}
+.ncStatus {
+  font-size:12px;
+  font-weight:600;
+  line-height:1.35;
+  color:var(--white3);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+/* ── NC ACTION BUTTONS (redesigned) ── */
+.ncActions {
+  display:flex;
+  gap:8px;
+  width:100%;
+}
+.btnClose, .btnReopen {
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:12px 14px;
+  border-radius:10px;
+  font-size:13px;
+  font-weight:700;
+  font-family:'DM Sans',sans-serif;
+  letter-spacing:.2px;
+  cursor:pointer;
+  transition:all .18s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space:nowrap;
+  -webkit-user-select:none; user-select:none;
+  -webkit-appearance:none;
+  position:relative;
+  overflow:hidden;
+}
+.btnClose {
+  background:linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  color:#fff;
+  border:none;
+  box-shadow: 0 4px 14px #2ecc7140, inset 0 1px 0 #ffffff30;
+}
+.btnClose::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg, #fff20 0%, transparent 50%);
+  opacity:0;
+  transition:opacity .2s;
+}
+.btnClose:hover::before { opacity:1; }
+.btnClose:active {
+  transform:translateY(1px) scale(.98);
+  box-shadow: 0 2px 8px #2ecc7130;
+}
+.btnClose .btnIcon {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:20px; height:20px;
+  background:#ffffff25;
+  border-radius:50%;
+  font-size:11px;
+  font-weight:800;
+}
+.btnReopen {
+  background:var(--black3);
+  color:var(--white2);
+  border:1.5px solid var(--border2);
+}
+.btnReopen:hover {
+  border-color:var(--orange);
+  color:var(--orange);
+  background:var(--orangeGl);
+}
+.btnReopen:active {
+  transform:translateY(1px) scale(.98);
+  background:var(--orangeGl2);
+}
+.btnReopen .btnIcon {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:20px; height:20px;
+  font-size:14px;
+  font-weight:800;
+}
+
 </style>
 <script>
 (function() {
@@ -673,7 +827,7 @@ input[type=file] { display:none; }
     <div class="nTab" data-page="inspection"><div class="nI">🔍</div><div class="nL">Inspection</div><div class="nDot"></div></div>
     <div class="nTab" data-page="rapports"><div class="nI">📄</div><div class="nL">Rapports</div><div class="nBdg" id="rBdg" style="background:var(--orange);display:none;">0</div><div class="nDot"></div></div>
     <div class="nTab adminOnly" data-page="employes"><div class="nI">👥</div><div class="nL">Employés</div><div class="nBdg" id="eBdg" style="background:#9b72f7">0</div><div class="nDot"></div></div>
-    <div class="nTab adminOnly" data-page="stats"><div class="nI">📊</div><div class="nL">Stats</div><div class="nDot"></div></div>
+    <div class="nTab" data-page="stats"><div class="nI">📊</div><div class="nL">Stats</div><div class="nDot"></div></div>
     <div class="nTab adminOrChef" data-page="nc"><div class="nI">⚠️</div><div class="nL">NC</div><div class="nBdg" id="ncBdg" style="background:var(--red);display:none;">0</div><div class="nDot"></div></div>
   </nav>
 
@@ -697,7 +851,7 @@ input[type=file] { display:none; }
         <div class="sGrid" id="dashGrid"></div>
         <div class="card"><div class="cH"><div class="cT">📈 COMPLÉTIONS MENSUELLES</div></div>
           <div class="cB"><div class="chrt" id="chart1"></div>
-            <div class="legend"><div class="li"><div class="ld" style="background:var(--orange)"></div>2024</div><div class="li"><div class="ld" style="background:var(--orange);opacity:.3"></div>2023</div></div>
+            <div class="legend"><div class="li"><div class="ld" style="background:var(--orange)"></div>Rapports soumis</div></div>
           </div>
         </div>
         <div class="card adminOnly2"><div class="cH"><div class="cT">🏆 TOP 5 FORMULAIRES</div></div><div class="cB" id="topList1" style="padding-top:6px;padding-bottom:6px;"></div></div>
@@ -777,17 +931,44 @@ input[type=file] { display:none; }
             <div class="pill" id="ncFilterAll" style="font-size:11px;padding:5px 12px;">Toutes</div>
           </div>
         </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:11px;color:var(--white3);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">👤 Filtrer par employé</label>
+          <select class="fSel" id="ncEmpFilter" style="width:100%;">
+            <option value="">Tous les employés</option>
+          </select>
+        </div>
         <div class="card" id="ncList"><div class="empty"><div class="emIco">✅</div><div class="emTxt">Aucune non-conformité</div></div></div>
       </div>
 
-      <div class="page adminOnly" id="page-stats">
+      <div class="page" id="page-stats">
         <div class="sGrid" id="statsGrid"></div>
-        <div class="card"><div class="cH"><div class="cT">📊 ÉVOLUTION 2023 VS 2024</div></div>
+        <div class="card"><div class="cH"><div class="cT">📊 RAPPORTS PAR MOIS</div></div>
           <div class="cB"><div class="chrt" id="chart2"></div>
-            <div class="legend"><div class="li"><div class="ld" style="background:var(--orange)"></div>2024</div><div class="li"><div class="ld" style="background:var(--orange);opacity:.3"></div>2023</div></div>
+            <div class="legend"><div class="li"><div class="ld" style="background:var(--orange)"></div>Rapports soumis</div></div>
           </div>
         </div>
-        <div class="card"><div class="cH"><div class="cT">🏆 TOP FORMULAIRES</div></div><div class="cB" id="topList2" style="padding-top:6px;padding-bottom:6px;"></div></div>
+        <div class="card"><div class="cH"><div class="cT">🏆 TOP EMPLOYÉS</div><div class="bdg bor" style="font-size:10px;">Classement</div></div>
+          <div id="empRanking" style="padding:4px 0;"></div>
+        </div>
+        <div class="card adminOnly2"><div class="cH"><div class="cT">🏆 TOP FORMULAIRES</div></div><div class="cB" id="topList2" style="padding-top:6px;padding-bottom:6px;"></div></div>
+        
+        <!-- Employee explorer -->
+        <div class="card">
+          <div class="cH"><div class="cT">🔍 EXPLORER UN EMPLOYÉ</div></div>
+          <div class="cB" style="padding:12px 14px;">
+            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+              <select class="fSel" id="empExplorerSelect" style="flex:2;min-width:150px;">
+                <option value="">-- Sélectionner un employé --</option>
+              </select>
+              <select class="fSel" id="empExplorerPeriod" style="flex:1;min-width:100px;">
+                <option value="all">Tout</option>
+                <option value="month">Ce mois</option>
+                <option value="year">Cette année</option>
+              </select>
+            </div>
+            <div id="empExplorerResult" style="margin-top:8px;"></div>
+          </div>
+        </div>
       </div>
 
     </div><!-- /scroll -->
@@ -1009,9 +1190,7 @@ var DEFAULT_SECS = [
   {t:'🔧 Infrastructure',         qs:["Les équipements et plancher sont en bon état","Les portes ferment correctement","L'éclairage est suffisant"]},
   {t:'🛡 Équipements de protection',qs:['Les extincteurs sont identifiés et dégagés','Les équipements de sécurité sont accessibles']}
 ];
-var MO   = ['Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct'];
-var D24  = [42,68,55,38,44,20,15,122];
-var D23  = [18,22,28,15,20,18,25,28];
+var MO = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
 var TOP  = [{n:'Approbation de produits',c:8},{n:'Inspection Chariot',c:7},{n:'Évaluation des risques',c:6},{n:'Audit cadenassage',c:5},{n:'Prog. sécurité',c:4}];
 var CAT_C= {inspection:'ctI',audit:'ctA',examen:'ctE',securite:'ctS'};
 var CAT_N= {inspection:'Inspection',audit:'Audit',examen:'Examen',securite:'Sécurité'};
@@ -1306,14 +1485,22 @@ function mkStat(ico, val, lbl, delta, col) {
 /* ════════════════════════════════════
    CHART
 ════════════════════════════════════ */
-function buildChart(id, c1, c2) {
+function buildChart(id, c1) {
   var el = G(id); if (!el) return;
-  var mx = Math.max.apply(null, D24.concat(D23));
+  var thisYear = new Date().getFullYear();
+  var monthCounts = new Array(12).fill(0);
+  var sourceRaps = (typeof currentUser !== 'undefined' && currentUser && currentUser.role !== 'admin')
+    ? (RAPPORTS || []).filter(function(r){return r.empId === currentUser.empId;})
+    : (RAPPORTS || []);
+  sourceRaps.forEach(function(r) {
+    var d = new Date(r.timestamp || 0);
+    if (d.getFullYear() === thisYear) monthCounts[d.getMonth()]++;
+  });
+  var mx = Math.max(1, Math.max.apply(null, monthCounts));
   el.innerHTML = MO.map(function(m, i) {
     return '<div class="cCol"><div class="cBrs">'
-      + '<div class="bar ' + c2 + '" style="height:' + Math.round(D23[i]/mx*100) + '%"></div>'
-      + '<div class="bar ' + c1 + '" style="height:' + Math.round(D24[i]/mx*100) + '%"></div>'
-      + '</div><div class="cLbl">' + m + '</div></div>';
+      + '<div class="bar ' + c1 + '" style="height:' + Math.round(monthCounts[i]/mx*100) + '%"></div>'
+      + '</div><div class="cLbl">' + m + '</div><div style="font-size:9px;color:var(--white4);margin-top:2px;">' + monthCounts[i] + '</div></div>';
   }).join('');
 }
 
@@ -1351,9 +1538,21 @@ function buildDash() {
   var myRapports = isAdmin ? RAPPORTS : RAPPORTS.filter(function(r){return r.empId===currentUser.empId;});
   var thisMonth=new Date().getMonth(), thisYear=new Date().getFullYear();
   var rapportsCeMois=myRapports.filter(function(r){var d=new Date(r.timestamp||0);return d.getMonth()===thisMonth&&d.getFullYear()===thisYear;}).length;
-  var conf=0, total=0;
-  myRapports.forEach(function(r){Object.values(r.answers||{}).forEach(function(v){total++;if(v==='yes')conf++;});});
-  var taux=total>0?Math.round(conf/total*100):0;
+  // Conformity: yes / (yes + no), excludes N/A
+  // Filling rate: answered / total questions
+  var conf=0, nonConf=0, na=0, answered=0, totalQ=0;
+  myRapports.forEach(function(r){
+    Object.values(r.answers||{}).forEach(function(v){
+      answered++;
+      if(v==='yes') conf++;
+      else if(v==='no') nonConf++;
+      else if(v==='na') na++;
+    });
+    totalQ += r.total || 0;
+  });
+  var confBase = conf + nonConf; // exclude N/A
+  var taux = confBase>0 ? Math.round(conf/confBase*100) : 0;
+  var tauxRempl = totalQ>0 ? Math.round(answered/totalQ*100) : 0;
 
   if(isAdmin){
     // Overdue banner
@@ -1379,13 +1578,15 @@ function buildDash() {
   G('dashGrid').innerHTML=
       mkStat('📋',FORMS.length,'Formulaires actifs',FORMS.length+' formulaires','var(--orange)')+
       mkStat('📄',myRapports.length,'Rapports soumis',rapportsCeMois+' ce mois','#ff9a50')+
-      mkStat('✅',taux+'%','Taux conformité',total+' réponses','var(--green)')+
+      mkStat('✅',taux+'%','Taux conformité',conf+' / '+confBase+' (hors N/A)','var(--green)')+
+      mkStat('📝',tauxRempl+'%','Taux remplissage',answered+' / '+totalQ+' questions','#4f8ef7')+
       mkStat('👥',EMPS.length,'Employés actifs',EMPS.length+' membres','var(--blue)');
   } else {
     G('dashGrid').innerHTML=
       mkStat('📋',myForms.length,'Mes formulaires','Assignés à moi','var(--orange)')+
       mkStat('📄',myRapports.length,'Mes rapports',rapportsCeMois+' ce mois','#ff9a50')+
-      mkStat('✅',taux+'%','Mon taux conf.',total+' réponses','var(--green)')+
+      mkStat('✅',taux+'%','Mon taux conf.',conf+' / '+confBase+' (hors N/A)','var(--green)')+
+      mkStat('📝',tauxRempl+'%','Mon taux rempl.',answered+' / '+totalQ+' questions','#4f8ef7')+
       mkStat('🔍',myForms.filter(function(f){return f.p===0;}).length,'À démarrer',myForms.filter(function(f){return f.p===100;}).length+' complétés','var(--blue)');
   }
   setTimeout(function(){
@@ -1393,7 +1594,7 @@ function buildDash() {
     var pages=isAdmin?['formulaires','rapports','stats','employes']:['formulaires','rapports','inspection','formulaires'];
     cards.forEach(function(c,i){c.style.cursor='pointer';c.addEventListener('click',function(){goPage(pages[i]);});});
   },50);
-  buildChart('chart1','bOr','bOr2');
+  buildChart('chart1','bOr');
   buildTopListReal('topList1');
   buildRecentActivity();
   updateBadges();
@@ -1800,7 +2001,11 @@ function renderThumbs(key) {
 function updateRing() {
   var total = (activeFormSecs || DEFAULT_SECS).reduce(function(a, s) { return a + s.qs.length; }, 0);
   var done = Object.keys(answers).length;
-  var pct = total > 0 ? Math.round(done / total * 100) : 0;
+  // Conformity rate (excludes N/A)
+  var confY = 0, confN = 0;
+  Object.values(answers).forEach(function(v){ if(v==='yes') confY++; else if(v==='no') confN++; });
+  var confBase = confY + confN;
+  var pct = confBase > 0 ? Math.round(confY / confBase * 100) : 0;
   G('ringVal').textContent = pct + '%';
   G('ringStroke').setAttribute('stroke-dashoffset', 163.4 * (1 - pct / 100));
 }
@@ -1840,7 +2045,11 @@ on('btnSaveInsp', 'click', function() {
   var total = secs.reduce(function(a, s) { return a + s.qs.length; }, 0);
   var done = Object.keys(answers).length;
   var pc = Object.values(photos).reduce(function(a, arr) { return a + (arr ? arr.length : 0); }, 0);
-  var pct = total > 0 ? Math.round(done / total * 100) : 0;
+  // Conformity rate (excludes N/A)
+  var confY = 0, confN = 0;
+  Object.values(answers).forEach(function(v){ if(v==='yes') confY++; else if(v==='no') confN++; });
+  var confBase = confY + confN;
+  var pct = confBase > 0 ? Math.round(confY / confBase * 100) : 0;
 
   // Find current form
   var f = activeFormId ? FORMS.find(function(x) { return x.id === activeFormId; }) : null;
@@ -2027,50 +2236,216 @@ on('shEmpSave',   'click', saveEmp);
    STATS
 ════════════════════════════════════ */
 function buildStats() {
-  var total=RAPPORTS.length;
-  var conf=0,ans=0;
-  RAPPORTS.forEach(function(r){Object.values(r.answers||{}).forEach(function(v){ans++;if(v==='yes')conf++;});});
-  var taux=ans>0?Math.round(conf/ans*100):0;
-  var thisYear=new Date().getFullYear(), thisMonth=new Date().getMonth();
-  var ceMois=RAPPORTS.filter(function(r){var d=new Date(r.timestamp||0);return d.getMonth()===thisMonth&&d.getFullYear()===thisYear;}).length;
-  var nonConf=RAPPORTS.reduce(function(a,r){return a+Object.values(r.answers||{}).filter(function(v){return v==='no';}).length;},0);
+  var isAdmin = currentUser && currentUser.role === 'admin';
+  var myRaps = isAdmin ? RAPPORTS : RAPPORTS.filter(function(r){ return currentUser && r.empId === currentUser.empId; });
+  
+  var total = myRaps.length;
+  var conf=0, nonConfS=0, naS=0, ans=0, totalQs=0;
+  myRaps.forEach(function(r){
+    Object.values(r.answers||{}).forEach(function(v){
+      ans++;
+      if(v==='yes') conf++;
+      else if(v==='no') nonConfS++;
+      else if(v==='na') naS++;
+    });
+    totalQs += r.total || 0;
+  });
+  var confBase = conf + nonConfS;
+  var taux = confBase>0 ? Math.round(conf/confBase*100) : 0;
+  var tauxRemplS = totalQs>0 ? Math.round(ans/totalQs*100) : 0;
+  var thisYear = new Date().getFullYear(), thisMonth = new Date().getMonth();
+  var ceMois = myRaps.filter(function(r){var d=new Date(r.timestamp||0);return d.getMonth()===thisMonth&&d.getFullYear()===thisYear;}).length;
+  var nonConf = myRaps.reduce(function(a,r){return a+Object.values(r.answers||{}).filter(function(v){return v==='no';}).length;},0);
+  
   G('statsGrid').innerHTML=
     mkStat('📄',total,'Rapports soumis',ceMois+' ce mois','var(--orange)')+
-    mkStat('✅',taux+'%','Taux conformité',ans+' réponses','var(--green)')+
-    mkStat('⚠️',nonConf,'Non-conformités','À corriger','var(--red)')+
-    mkStat('📋',FORMS.length,'Formulaires actifs',FORMS.length+' actifs','var(--blue)');
-  // Real monthly chart
-  var months=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+    mkStat('✅',taux+'%','Taux conformité',conf+' / '+confBase+' (hors N/A)','var(--green)')+
+    mkStat('📝',tauxRemplS+'%','Taux remplissage',ans+' / '+totalQs+' questions','#4f8ef7')+
+    mkStat('⚠️',nonConf,'Non-conformités','À corriger','var(--red)');
+  
+  // Monthly chart
+  var months=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Août','Sep','Oct','Nov','Déc'];
   var mc=new Array(12).fill(0);
-  RAPPORTS.forEach(function(r){var d=new Date(r.timestamp||0);if(d.getFullYear()===thisYear)mc[d.getMonth()]++;});
+  myRaps.forEach(function(r){var d=new Date(r.timestamp||0);if(d.getFullYear()===thisYear)mc[d.getMonth()]++;});
   var mx2=Math.max(1,Math.max.apply(null,mc));
   var c2=G('chart2');
   if(c2) c2.innerHTML=months.map(function(m,i){
-    return '<div class="cCol"><div class="cBrs"><div class="bar bOr" style="height:'+Math.round(mc[i]/mx2*100)+'%"></div></div><div class="cLbl">'+m+'</div></div>';
+    return '<div class="cCol"><div class="cBrs"><div class="bar bOr" style="height:'+Math.round(mc[i]/mx2*100)+'%"></div></div><div class="cLbl">'+m+'</div><div style="font-size:9px;color:var(--white4);margin-top:2px;">'+mc[i]+'</div></div>';
   }).join('');
+  
   buildTopListReal('topList2');
-  // Employee ranking
-  var es={};
-  RAPPORTS.forEach(function(r){
-    if(!es[r.empId])es[r.empId]={nm:r.empNm,c:r.empColor,count:0,pts:0};
-    es[r.empId].count++;es[r.empId].pts+=r.pct;
-  });
-  var ranked=Object.values(es).sort(function(a,b){return b.count-a.count;});
-  var er=G('empRanking');
-  if(er){
-    er.innerHTML=ranked.length?ranked.map(function(e,i){
-      var avg=Math.round(e.pts/e.count);
-      var ini=e.nm.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
-      var bd=i<ranked.length-1?'border-bottom:1px solid var(--border)':'';
-      return '<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;'+bd+'">'
-        +'<div style="width:22px;font-size:13px;font-weight:800;color:var(--white4);text-align:center;">'+(i+1)+'</div>'
-        +'<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,'+e.c+','+e.c+'88);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">'+ini+'</div>'
-        +'<div style="flex:1;"><div style="font-size:14px;font-weight:600;">'+e.nm+'</div><div style="font-size:11.5px;color:var(--white3);">'+e.count+' rapport'+(e.count>1?'s':'')+'</div></div>'
-        +'<div style="text-align:right;"><div style="font-weight:800;font-size:18px;font-weight:800;color:var(--orange);">'+avg+'%</div><div style="font-size:10px;color:var(--white4);">moy.</div></div>'
-        +'</div>';
-    }).join(''):'<div style="padding:16px;text-align:center;font-size:13px;color:var(--white4);">Aucun rapport encore</div>';
-  }
+  buildEmpRanking();
+  populateEmpExplorer();
 }
+
+// ══ Top Employés: classés par nombre de rapports + taux conformité ══
+function buildEmpRanking() {
+  var er = G('empRanking');
+  if (!er) return;
+  
+  var stats = {};
+  RAPPORTS.forEach(function(r){
+    if (!stats[r.empId]) {
+      stats[r.empId] = { nm: r.empNm, c: r.empColor || '#ff6200', count: 0, conf: 0, nonConf: 0, ans: 0, totalQ: 0 };
+    }
+    var s = stats[r.empId];
+    s.count++;
+    Object.values(r.answers||{}).forEach(function(v){
+      s.ans++;
+      if (v==='yes') s.conf++;
+      else if (v==='no') s.nonConf++;
+    });
+    s.totalQ += r.total || 0;
+  });
+  
+  var arr = Object.keys(stats).map(function(id){
+    var s = stats[id];
+    var base = s.conf + s.nonConf;
+    s.tauxConf = base > 0 ? Math.round(s.conf / base * 100) : 0;
+    s.tauxRempl = s.totalQ > 0 ? Math.round(s.ans / s.totalQ * 100) : 0;
+    // Composite score: count * 0.5 + tauxConf * 0.3 + tauxRempl * 0.2
+    s.score = (s.count * 10) + (s.tauxConf * 0.5) + (s.tauxRempl * 0.3);
+    return s;
+  }).sort(function(a,b){ return b.score - a.score; });
+  
+  if (!arr.length) {
+    er.innerHTML = '<div style="padding:16px;text-align:center;font-size:13px;color:var(--white4);">Aucun rapport encore</div>';
+    return;
+  }
+  
+  var medals = ['🥇','🥈','🥉'];
+  er.innerHTML = arr.map(function(e,i){
+    var ini = e.nm.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
+    var bd = i < arr.length - 1 ? 'border-bottom:1px solid var(--border);' : '';
+    var medal = i < 3 ? medals[i] : (i+1);
+    var medalStyle = i < 3 ? 'font-size:18px;' : 'font-size:13px;font-weight:800;color:var(--white4);';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;'+bd+'">'
+      + '<div style="width:28px;text-align:center;'+medalStyle+'">'+medal+'</div>'
+      + '<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,'+e.c+','+e.c+'88);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;">'+ini+'</div>'
+      + '<div style="flex:1;min-width:0;">'
+      +   '<div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+e.nm+'</div>'
+      +   '<div style="font-size:11px;color:var(--white3);margin-top:2px;">'+e.count+' rapport'+(e.count>1?'s':'')+' · 📝 '+e.tauxRempl+'% rempli</div>'
+      + '</div>'
+      + '<div style="text-align:right;">'
+      +   '<div style="font-weight:800;font-size:18px;color:'+(e.tauxConf>=80?'var(--green)':e.tauxConf>=50?'var(--yellow)':'var(--red)')+';">'+e.tauxConf+'%</div>'
+      +   '<div style="font-size:10px;color:var(--white4);">conformité</div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+// ══ Populate employee explorer dropdown ══
+function populateEmpExplorer() {
+  var sel = G('empExplorerSelect');
+  if (!sel) return;
+  var curVal = sel.value;
+  var emps = {};
+  RAPPORTS.forEach(function(r){ if (r.empId) emps[r.empId] = r.empNm; });
+  var ids = Object.keys(emps).sort(function(a,b){ return emps[a].localeCompare(emps[b]); });
+  var opts = '<option value="">-- Sélectionner un employé --</option>';
+  ids.forEach(function(id){
+    opts += '<option value="'+id+'">'+emps[id]+'</option>';
+  });
+  sel.innerHTML = opts;
+  sel.value = curVal || '';
+  renderEmpExplorer();
+}
+
+// ══ Render employee explorer result ══
+function renderEmpExplorer() {
+  var sel = G('empExplorerSelect');
+  var per = G('empExplorerPeriod');
+  var out = G('empExplorerResult');
+  if (!sel || !out) return;
+  
+  var empId = sel.value;
+  var period = per ? per.value : 'all';
+  
+  if (!empId) {
+    out.innerHTML = '<div style="padding:16px;text-align:center;font-size:13px;color:var(--white4);">Sélectionnez un employé pour voir ses statistiques</div>';
+    return;
+  }
+  
+  var list = RAPPORTS.filter(function(r){ return r.empId === empId; });
+  var now = new Date();
+  if (period === 'month') {
+    list = list.filter(function(r){
+      var d = new Date(r.timestamp||0);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+  } else if (period === 'year') {
+    list = list.filter(function(r){
+      var d = new Date(r.timestamp||0);
+      return d.getFullYear() === now.getFullYear();
+    });
+  }
+  
+  if (!list.length) {
+    out.innerHTML = '<div style="padding:16px;text-align:center;font-size:13px;color:var(--white4);">Aucun rapport pour cette période</div>';
+    return;
+  }
+  
+  // Compute stats
+  var conf=0, nonC=0, ans=0, totalQ=0;
+  list.forEach(function(r){
+    Object.values(r.answers||{}).forEach(function(v){
+      ans++;
+      if (v==='yes') conf++;
+      else if (v==='no') nonC++;
+    });
+    totalQ += r.total || 0;
+  });
+  var base = conf + nonC;
+  var tauxC = base > 0 ? Math.round(conf/base*100) : 0;
+  var tauxR = totalQ > 0 ? Math.round(ans/totalQ*100) : 0;
+  var emp = list[0];
+  
+  var periodLabel = period === 'month' ? 'Ce mois' : period === 'year' ? 'Cette année' : 'Tous';
+  var html = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;">'
+    + '<div style="background:var(--black3);border:1px solid var(--border);border-radius:var(--r2);padding:10px;text-align:center;">'
+    +   '<div style="font-size:22px;font-weight:800;color:var(--orange);">'+list.length+'</div>'
+    +   '<div style="font-size:10px;color:var(--white3);text-transform:uppercase;letter-spacing:.5px;">Rapports</div>'
+    + '</div>'
+    + '<div style="background:var(--black3);border:1px solid var(--border);border-radius:var(--r2);padding:10px;text-align:center;">'
+    +   '<div style="font-size:22px;font-weight:800;color:'+(tauxC>=80?'var(--green)':tauxC>=50?'var(--yellow)':'var(--red)')+';">'+tauxC+'%</div>'
+    +   '<div style="font-size:10px;color:var(--white3);text-transform:uppercase;letter-spacing:.5px;">Conformité</div>'
+    + '</div>'
+    + '<div style="background:var(--black3);border:1px solid var(--border);border-radius:var(--r2);padding:10px;text-align:center;">'
+    +   '<div style="font-size:22px;font-weight:800;color:#4f8ef7;">'+tauxR+'%</div>'
+    +   '<div style="font-size:10px;color:var(--white3);text-transform:uppercase;letter-spacing:.5px;">Remplissage</div>'
+    + '</div>'
+    + '</div>';
+  
+  html += '<div style="font-size:11px;color:var(--white4);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;">'+periodLabel+' — '+list.length+' rapport'+(list.length>1?'s':'')+'</div>';
+  
+  list.sort(function(a,b){ return (b.timestamp||0) - (a.timestamp||0); });
+  list.slice(0, 20).forEach(function(r){
+    var pctColor = r.pct >= 80 ? 'var(--green)' : r.pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+    html += '<div class="rCard" data-rid="'+r.id+'" style="margin-bottom:6px;cursor:pointer;">'
+      + '<div style="padding:10px 12px;display:flex;align-items:center;gap:10px;">'
+      +   '<div style="flex:1;min-width:0;">'
+      +     '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.formNm+'</div>'
+      +     '<div style="font-size:11px;color:var(--white3);margin-top:2px;">📅 '+r.date+' · '+r.done+'/'+r.total+' répondus</div>'
+      +   '</div>'
+      +   '<div style="font-weight:800;font-size:16px;color:'+pctColor+';">'+r.pct+'%</div>'
+      + '</div>'
+      + '</div>';
+  });
+  if (list.length > 20) {
+    html += '<div style="padding:8px;text-align:center;font-size:11px;color:var(--white4);">... et '+(list.length-20)+' autres rapports</div>';
+  }
+  
+  out.innerHTML = html;
+  
+  // Bind click
+  out.querySelectorAll('.rCard').forEach(function(card){
+    card.addEventListener('click', function(){
+      openRapportDetail(this.getAttribute('data-rid'));
+    });
+  });
+}
+
+
 
 function openSheet(id)  { G(id).classList.add('open'); }
 function closeSheet(id) { G(id).classList.remove('open'); }
@@ -2255,8 +2630,12 @@ function sendRapportEmail(rapport) {
     Object.values(rapport.answers).forEach(function(v) {
       if (v==='yes') conforme++;
       else if (v==='no') nonConforme++;
-      else na++;
+      else if (v==='na') na++;
     });
+    var answered = conforme + nonConforme + na;
+    var confBaseEmail = conforme + nonConforme;
+    var tauxConf = confBaseEmail > 0 ? Math.round(conforme / confBaseEmail * 100) : 0;
+    var tauxRempl = rapport.total > 0 ? Math.round(answered / rapport.total * 100) : 0;
     // Build non-conforme details
     var ncDetails = '';
     var secsForEmail = rapport.secs || DEFAULT_SECS;
@@ -2277,12 +2656,9 @@ function sendRapportEmail(rapport) {
       to_email:     ADMIN_EMAIL,
       emp_name:     rapport.empNm,
       form_name:    rapport.formNm,
-      form_code:    rapport.formCode,
       date:         rapport.date,
-      score:        rapport.pct + '%',
-      done:         rapport.done + '/' + rapport.total,
-      conforme:     conforme,
-      non_conforme: nonConforme,
+      taux_rempl:   tauxRempl + '% (' + answered + '/' + rapport.total + ')',
+      taux_conf:    tauxConf + '% (' + conforme + '/' + confBaseEmail + ' hors N/A)',
       na:           na,
       photos:       rapport.photoCount,
       nc_details:   ncDetails,
@@ -2558,10 +2934,35 @@ function extractNCFromRapport(rapport) {
 
 function renderNC() {
   var isAdmin = currentUser && currentUser.role === 'admin';
+  var empFilter = G('ncEmpFilter') ? G('ncEmpFilter').value : '';
+  
   var list = ncShowAll ? NC_ITEMS : NC_ITEMS.filter(function(nc){return nc.status==='open';});
   // Employees only see their own
   if (!isAdmin) list = list.filter(function(nc){return nc.empId===currentUser.empId;});
+  // Apply employee filter (admin only)
+  if (isAdmin && empFilter) list = list.filter(function(nc){return nc.empId===empFilter;});
   list.sort(function(a,b){return (b.timestamp||0)-(a.timestamp||0);});
+
+  // Populate employee filter dropdown (admin only)
+  if (isAdmin) {
+    var empSel = G('ncEmpFilter');
+    if (empSel) {
+      var emps = {};
+      NC_ITEMS.forEach(function(nc){
+        if (nc.empId) emps[nc.empId] = nc.empNm;
+      });
+      var currentVal = empSel.value;
+      var empIds = Object.keys(emps).sort(function(a,b){return emps[a].localeCompare(emps[b]);});
+      var totalCount = NC_ITEMS.length;
+      var opts = '<option value="">Tous les employés (' + totalCount + ')</option>';
+      empIds.forEach(function(id){
+        var count = NC_ITEMS.filter(function(nc){return nc.empId===id;}).length;
+        opts += '<option value="' + id + '">' + emps[id] + ' (' + count + ')</option>';
+      });
+      empSel.innerHTML = opts;
+      empSel.value = currentVal || '';
+    }
+  }
 
   // Update badge — open NC count
   var openCount = NC_ITEMS.filter(function(nc){return nc.status==='open';});
@@ -2571,7 +2972,7 @@ function renderNC() {
 
   var el = G('ncList'); if (!el) return;
   if (!list.length) {
-    el.innerHTML = '<div class="empty"><div class="emIco">' + (ncShowAll?'📋':'✅') + '</div><div class="emTxt">' + (ncShowAll?'Aucune non-conformité':'Aucune non-conformité ouverte') + '</div></div>';
+    el.innerHTML = '<div class="empty"><div class="emIco">' + (ncShowAll?'📋':'✅') + '</div><div class="emTxt">' + (ncShowAll?(empFilter?'Aucune non-conformité pour cet employé':'Aucune non-conformité'):'Aucune non-conformité ouverte') + '</div></div>';
     return;
   }
 
@@ -2593,8 +2994,8 @@ function renderNC() {
       + (firstPhoto ? '<div style="padding:0 16px 10px;"><img src="'+firstPhoto+'" style="width:80px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border);"></div>' : '')
       + '<div class="ncFoot">'
       + '<div class="ncStatus" style="color:' + (isOpen?'var(--red)':'var(--green)') + '">' + (isOpen?'🔴 En attente':'🟢 Clôturée le '+nc.closedAt+' par '+nc.closedBy) + '</div>'
-      + (isAdmin && isOpen ? '<button class="btnClose" data-ncid="'+nc.id+'">✓ Clôturer</button>' : '')
-      + (isAdmin && !isOpen ? '<button class="btnReopen" data-ncid="'+nc.id+'">Réouvrir</button>' : '')
+      + (isAdmin && isOpen ? '<div class="ncActions"><button class="btnClose" data-ncid="'+nc.id+'"><span class="btnIcon">✓</span><span>Clôturer</span></button></div>' : '')
+      + (isAdmin && !isOpen ? '<div class="ncActions"><button class="btnReopen" data-ncid="'+nc.id+'"><span class="btnIcon">↻</span><span>Réouvrir</span></button></div>' : '')
       + '</div>'
       + '</div>';
   });
@@ -2628,13 +3029,15 @@ function renderNC() {
     });
   });
 }
-
 // NC filter pills
 on('ncFilterOpen', 'click', function() {
   ncShowAll=false;
   this.classList.add('active'); G('ncFilterAll').classList.remove('active');
   renderNC();
 });
+on('ncEmpFilter', 'change', function() { renderNC(); });
+on('empExplorerSelect', 'change', renderEmpExplorer);
+on('empExplorerPeriod', 'change', renderEmpExplorer);
 on('ncFilterAll', 'click', function() {
   ncShowAll=true;
   this.classList.add('active'); G('ncFilterOpen').classList.remove('active');
