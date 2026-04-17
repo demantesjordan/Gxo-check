@@ -2120,6 +2120,8 @@ on('btnSaveInsp', 'click', function() {
 
   renderForms();
   renderRapports();
+  buildDash();   // refresh dashboard chart with new rapport
+  buildStats();  // refresh stats page
   showToast('✅ Rapport enregistré — ' + done + '/' + total + ' · ' + pc + ' photo' + (pc !== 1 ? 's' : ''));
 
   // Redirect to rapports page after 1.5s
