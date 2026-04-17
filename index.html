@@ -6,14 +6,26 @@
 <title>GXO Check</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-<!-- EmailJS -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<!-- jsPDF for PDF generation -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- QRCode lib -->
 
+<!-- Firebase SDK -->
+<script>
+(function() {
+  function loadScript(url, cb) {
+    var s = document.createElement('script');
+    s.src = url; s.crossOrigin = 'anonymous';
+    s.onload = function() { cb(true); };
+    s.onerror = function() { cb(false); };
+    document.head.appendChild(s);
+  }
+  loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js', function(ok) {
+    if (ok) {
+      loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js', function(){});
+    }
+  });
+})();
+</script>
+<!-- EmailJS -->
 <style>
 /* ════════════════════════════════
    GXO DESIGN TOKENS — Black / Orange
@@ -79,7 +91,7 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
   box-shadow: 0 8px 32px #ff620040;
 }
 .loginMark svg { width:32px; height:32px; }
-.loginWord { font-weight:800; font-size:36px; font-weight:800; letter-spacing:-1px; color:#fff; }
+.loginWord { font-family:'Barlow Condensed',sans-serif; font-size:36px; font-weight:800; letter-spacing:-1px; color:#fff; }
 .loginWord span { color:var(--orange); }
 .loginTag { position:relative; font-size:13px; color:var(--white3); margin-bottom:36px; letter-spacing:.5px; }
 .loginBox {
@@ -92,7 +104,7 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
   content:''; position:absolute; top:0; left:20px; right:20px; height:1px;
   background: linear-gradient(90deg, transparent, var(--orange), transparent);
 }
-.loginTitle { font-weight:800; font-size:22px; font-weight:700; margin-bottom:22px; text-align:center; letter-spacing:.5px; }
+.loginTitle { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:700; margin-bottom:22px; text-align:center; letter-spacing:.5px; }
 .lFg { margin-bottom:14px; }
 .lLbl { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.8px; color:var(--white3); margin-bottom:6px; display:block; }
 .lInp {
@@ -108,7 +120,7 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
 .lBtn {
   width:100%; padding:15px; border-radius:var(--r2);
   font-size:16px; font-weight:700; border:none; cursor:pointer;
-  font-weight:800; letter-spacing:.8px; text-transform:uppercase;
+  font-family:'Barlow Condensed',sans-serif; letter-spacing:.8px; text-transform:uppercase;
   background: linear-gradient(135deg, var(--orange), var(--orangeD));
   color:#fff; margin-top:6px;
   box-shadow: 0 4px 20px #ff620030;
@@ -141,7 +153,7 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
   display:flex; align-items:center; justify-content:center;
 }
 .topMark svg { width:20px; height:20px; }
-.topWord { font-weight:800; font-size:22px; font-weight:800; letter-spacing:-.3px; color:#fff; }
+.topWord { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:800; letter-spacing:-.3px; color:#fff; }
 .topWord span { color:var(--orange); }
 .topR { margin-left:auto; display:flex; gap:8px; align-items:center; }
 .iBtn {
@@ -164,7 +176,7 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
   width:30px; height:30px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
   font-size:12px; font-weight:700; color:#fff; flex-shrink:0;
-  font-weight:800; letter-spacing:.5px;
+  font-family:'Barlow Condensed',sans-serif; letter-spacing:.5px;
 }
 .uChipNm { font-size:12px; font-weight:600; color:var(--white2); }
 
@@ -220,7 +232,7 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
   padding:13px 16px; border-bottom:1px solid var(--border);
   display:flex; align-items:center; justify-content:space-between;
 }
-.cT { font-weight:800; font-size:16px; font-weight:700; letter-spacing:.3px; }
+.cT { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:.3px; }
 .cB { padding:13px 16px; }
 
 /* ── STAT GRID ──────────────── */
@@ -234,7 +246,7 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
 .sCrd:active { border-color:var(--orange); }
 .sCrdBar { position:absolute; top:0; left:0; right:0; height:3px; }
 .sIco { font-size:24px; margin-bottom:8px; }
-.sVal { font-weight:800; font-size:32px; font-weight:800; line-height:1; margin-bottom:3px; letter-spacing:-.5px; }
+.sVal { font-family:'Barlow Condensed',sans-serif; font-size:32px; font-weight:800; line-height:1; margin-bottom:3px; letter-spacing:-.5px; }
 .sLbl { font-size:12px; color:var(--white3); margin-bottom:3px; }
 .sDlt { font-size:11px; font-weight:600; color:var(--green); }
 
@@ -337,13 +349,13 @@ html,body { height:100%; width:100%; font-family:'DM Sans',sans-serif; backgroun
 }
 .rWrap { position:relative; width:64px; height:64px; flex-shrink:0; }
 .rWrap svg { transform:rotate(-90deg); }
-.rVal { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px; font-weight:800; color:var(--orange); }
-.iMeta h3 { font-weight:800; font-size:17px; font-weight:800; margin-bottom:5px; letter-spacing:.3px; }
+.rVal { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; color:var(--orange); }
+.iMeta h3 { font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:800; margin-bottom:5px; letter-spacing:.3px; }
 .iMetaR { display:flex; flex-wrap:wrap; gap:5px 12px; }
 .iMI { font-size:11.5px; color:var(--white3); }
 
 .secCard { background:var(--black2); border:1px solid var(--border); border-radius:var(--r); margin-bottom:12px; overflow:hidden; }
-.secH { padding:12px 16px; background:var(--black3); font-weight:800; font-size:15px; font-weight:700; letter-spacing:.3px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+.secH { padding:12px 16px; background:var(--black3); font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:.3px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
 .qRow { display:flex; align-items:flex-start; gap:10px; padding:13px 16px; border-top:1px solid var(--border); transition:background .15s; }
 .qRow.ans { background:#ff620008; }
 .qNum { width:26px; height:26px; min-width:26px; border-radius:50%; background:var(--black3); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--white4); margin-top:1px; flex-shrink:0; transition:all .2s; }
@@ -383,11 +395,11 @@ input[type=file] { display:none; }
 /* ── EMPLOYEES ──────────────── */
 .eItem { display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:1px solid var(--border); }
 .eItem:last-child { border-bottom:none; }
-.eAv { width:46px; height:46px; min-width:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:#fff; flex-shrink:0; font-weight:800; letter-spacing:.5px; }
+.eAv { width:46px; height:46px; min-width:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:#fff; flex-shrink:0; font-family:'Barlow Condensed',sans-serif; letter-spacing:.5px; }
 .eNm { font-size:14px; font-weight:600; }
 .eRl { font-size:12px; color:var(--white3); margin-top:1px; }
 .eR { margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
-.eSc { font-weight:800; font-size:20px; font-weight:800; color:var(--orange); }
+.eSc { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; color:var(--orange); }
 .eScL { font-size:10px; color:var(--white4); }
 .eBtns { display:flex; gap:6px; }
 .eBtn { width:32px; height:32px; border-radius:var(--r2); display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer; border:1px solid var(--border); background:var(--black3); -webkit-user-select:none; user-select:none; }
@@ -409,7 +421,7 @@ input[type=file] { display:none; }
 }
 @keyframes slideUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
 .mHandle { width:40px; height:4px; background:var(--border); border-radius:2px; margin:0 auto 20px; }
-.mTitle { font-weight:800; font-size:22px; font-weight:800; margin-bottom:20px; letter-spacing:.5px; }
+.mTitle { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:800; margin-bottom:20px; letter-spacing:.5px; }
 .fg { margin-bottom:14px; }
 .flbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.7px; color:var(--white3); margin-bottom:6px; display:block; }
 .fInp,.fSel {
@@ -432,7 +444,7 @@ input[type=file] { display:none; }
 .confBg { display:none; position:fixed; inset:0; background:#00000095; z-index:60; align-items:center; justify-content:center; padding:20px; }
 .confBg.open { display:flex; }
 .confBox { background:var(--black2); border:1px solid var(--border); border-radius:var(--r); padding:26px 22px; width:100%; max-width:340px; animation:fadeUp .2s ease; }
-.confTtl { font-weight:800; font-size:20px; font-weight:800; margin-bottom:8px; letter-spacing:.3px; }
+.confTtl { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; margin-bottom:8px; letter-spacing:.3px; }
 .confMsg { font-size:14px; color:var(--white3); margin-bottom:22px; line-height:1.5; }
 .confAct { display:flex; gap:10px; }
 
@@ -441,7 +453,7 @@ input[type=file] { display:none; }
 .uMenu.open { display:flex; }
 .uMenuBox { background:var(--black2); border:1px solid var(--border); border-radius:var(--r); width:230px; overflow:hidden; animation:fadeUp .15s ease; box-shadow:0 16px 48px #00000080; }
 .uMHead { padding:16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; background:var(--black3); }
-.uMAv { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:#fff; flex-shrink:0; font-weight:800; letter-spacing:.5px; }
+.uMAv { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:#fff; flex-shrink:0; font-family:'Barlow Condensed',sans-serif; letter-spacing:.5px; }
 .uMNm { font-size:14px; font-weight:700; }
 .uMRl { font-size:11px; color:var(--white3); margin-top:2px; }
 .uMItem { padding:13px 16px; border-bottom:1px solid var(--border); font-size:14px; cursor:pointer; transition:background .1s; -webkit-user-select:none; user-select:none; display:flex; align-items:center; gap:10px; }
@@ -469,57 +481,15 @@ input[type=file] { display:none; }
 .spinner { width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--orange); border-radius:50%; animation:spin .7s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg);} }
 
-/* ── NON-CONFORME WARNING ───── */
-.qComment.required-warn {
-  border-color: var(--red) !important;
-  animation: shake .3s ease;
-}
-@keyframes shake {
-  0%,100%{transform:translateX(0);}
-  25%{transform:translateX(-6px);}
-  75%{transform:translateX(6px);}
-}
-.nc-warn {
-  font-size:11.5px; color:var(--red); margin-top:4px;
-  display:none; font-weight:600;
-}
-.nc-warn.show { display:block; }
-
-/* ── PDF BUTTON ─────────────── */
-.btn-pdf {
-  display:flex; align-items:center; justify-content:center; gap:8px;
-  width:100%; padding:13px; border-radius:var(--r2);
-  background:#00000000; border:1.5px solid var(--orange);
-  color:var(--orange); font-size:14px; font-weight:700;
-  cursor:pointer; margin-top:10px; transition:all .15s;
-  font-family:'DM Sans',sans-serif;
-  -webkit-user-select:none; user-select:none;
-}
-.btn-pdf:active { background:var(--orangeGl); transform:scale(.97); }
-
-/* ── COMMENT FIELD ─────────── */
-.qComment {
-  width:100%; margin-top:8px;
-  padding:9px 12px;
-  background:var(--black4); border:1px solid var(--border);
-  border-radius:var(--r2); color:var(--txt,var(--white));
-  font-family:'DM Sans',sans-serif; font-size:13px;
-  resize:none; outline:none; min-height:60px;
-  transition:border-color .15s;
-  -webkit-appearance:none;
-}
-.qComment:focus { border-color:var(--orange); }
-.qComment::placeholder { color:var(--white4); }
-
 /* ── RAPPORT CARDS ──────────── */
 .rCard { background:var(--black2); border:1px solid var(--border); border-radius:var(--r); margin-bottom:12px; overflow:hidden; cursor:pointer; transition:border-color .15s; }
 .rCard:active { border-color:var(--orange); }
 .rCardHead { padding:14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
-.rCardAv { width:40px; height:40px; min-width:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#fff; font-weight:800; }
+.rCardAv { width:40px; height:40px; min-width:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#fff; font-family:'Barlow Condensed',sans-serif; }
 .rCardInfo { flex:1; min-width:0; }
 .rCardNm { font-size:14px; font-weight:700; }
 .rCardSub { font-size:11.5px; color:var(--white3); margin-top:2px; }
-.rCardScore { font-weight:800; font-size:22px; font-weight:800; }
+.rCardScore { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:800; }
 .rCardBody { padding:12px 16px; }
 .rCardRow { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--white2); margin-bottom:6px; }
 .rCardRow:last-child { margin-bottom:0; }
@@ -544,58 +514,18 @@ input[type=file] { display:none; }
 .addQBtn { display:flex; align-items:center; gap:6px; padding:8px 12px; border-top:1px solid var(--border); font-size:12px; color:var(--orange); cursor:pointer; -webkit-user-select:none; user-select:none; }
 .addQBtn:active { opacity:.7; }
 
-/* ── NON-CONFORMITE CARDS ───── */
-.ncCard { background:var(--black2); border:1px solid var(--border); border-radius:var(--r); margin-bottom:10px; overflow:hidden; transition:border-color .15s; }
-.ncCard.open  { border-left:3px solid var(--red); }
-.ncCard.closed{ border-left:3px solid var(--green); opacity:.7; }
-.ncHead { padding:12px 16px; display:flex; align-items:flex-start; gap:10px; }
-.ncIco  { width:36px; height:36px; min-width:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#fff; flex-shrink:0; }
-.ncInfo { flex:1; min-width:0; }
-.ncQ    { font-size:13.5px; font-weight:600; line-height:1.4; margin-bottom:4px; }
-.ncMeta { font-size:11.5px; color:var(--white3); }
-.ncDesc { margin:0 16px 12px; padding:10px 12px; background:var(--black3); border-left:3px solid var(--red); border-radius:0 var(--r2) var(--r2) 0; font-size:13px; color:var(--white2); font-style:italic; }
-.ncFoot { padding:10px 16px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
-.ncStatus { font-size:11px; font-weight:700; }
-.btnClose { padding:7px 16px; border-radius:var(--r2); background:var(--green); color:#000; font-size:12px; font-weight:700; border:none; cursor:pointer; -webkit-user-select:none; user-select:none; }
-.btnClose:active { opacity:.7; }
-.btnReopen { padding:7px 16px; border-radius:var(--r2); background:var(--black3); color:var(--white3); font-size:12px; font-weight:700; border:1px solid var(--border); cursor:pointer; -webkit-user-select:none; user-select:none; }
-
-/* ── SIGNATURE PAD ───────────── */
-.sigPad { background:var(--black3); border:1.5px dashed var(--border); border-radius:var(--r2); touch-action:none; cursor:crosshair; display:block; }
-.sigWrap { margin-top:12px; }
-.sigLbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--white3); margin-bottom:6px; display:block; }
-
-/* ── OVERDUE BADGES ─────────── */
-.fItem.overdue { border-left: 3px solid var(--red); }
-.fItem.due-soon { border-left: 3px solid var(--yellow); }
-.overdue-badge {
-  display:inline-flex; align-items:center; gap:4px;
-  padding:2px 8px; border-radius:10px;
-  font-size:10px; font-weight:700;
-  background:#f04f5a22; color:var(--red);
-  margin-left:6px;
-}
-.soon-badge {
-  display:inline-flex; align-items:center; gap:4px;
-  padding:2px 8px; border-radius:10px;
-  font-size:10px; font-weight:700;
-  background:#f5c51822; color:var(--yellow);
-  margin-left:6px;
-}
-.overdue-banner {
-  background: linear-gradient(135deg, #f04f5a18, #f04f5a08);
-  border: 1px solid #f04f5a40;
-  border-radius: var(--r);
-  padding: 12px 16px;
-  margin-bottom: 12px;
-  display: flex; align-items: center; gap: 12px;
-}
-.overdue-banner-icon { font-size:24px; flex-shrink:0; }
-.overdue-banner-txt { flex:1; }
-.overdue-banner-title { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; color:var(--red); margin-bottom:2px; }
-.overdue-banner-sub { font-size:12px; color:var(--white3); }
-
 /* ── DESKTOP ────────────────── */
+
+/* -- QR MODAL -------------- */
+.qrModal{display:none;position:fixed;inset:0;background:#00000095;z-index:80;align-items:center;justify-content:center;padding:20px;}
+.qrModal.open{display:flex;}
+.qrBox{background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:28px 22px;width:100%;max-width:340px;text-align:center;position:relative;}
+.qrBox::before{content:'';position:absolute;top:0;left:20px;right:20px;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);}
+.qrTitle{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px;text-align:left;}
+.qrSub{font-size:11px;color:var(--white3);margin-bottom:16px;text-align:left;}
+.qrImg{background:#fff;border-radius:8px;padding:12px;display:inline-block;margin-bottom:14px;}
+.qrUrlBox{font-size:10px;color:var(--white4);word-break:break-all;margin-bottom:14px;padding:8px;background:var(--black3);border-radius:6px;text-align:left;}
+
 @media(min-width:700px) { .sGrid{grid-template-columns:repeat(4,1fr);} }
 @media(min-width:1024px) {
   #app { flex-direction:row; }
@@ -614,6 +544,19 @@ input[type=file] { display:none; }
 .dkTop { display:none; height:58px; flex-shrink:0; background:var(--black2); border-bottom:1px solid var(--border); align-items:center; padding:0 24px; gap:14px; }
 .dkLogo { display:none; }
 </style>
+<script>
+(function() {
+  function loadScript(url, cb) {
+    var s = document.createElement('script');
+    s.src = url; s.crossOrigin = 'anonymous';
+    s.onload = function() { if(cb) cb(true); };
+    s.onerror = function() { console.log('CDN skip:', url.split('/').pop()); if(cb) cb(false); };
+    document.head.appendChild(s);
+  }
+  loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js', function(ok){ window.__qrcodeReady=ok; });
+  loadScript('https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js', function(ok){ window.__emailjsReady=ok; });
+})();
+</script>
 </head>
 <body>
 
@@ -675,12 +618,12 @@ input[type=file] { display:none; }
     <div class="nTab" data-page="rapports"><div class="nI">📄</div><div class="nL">Rapports</div><div class="nBdg" id="rBdg" style="background:var(--orange);display:none;">0</div><div class="nDot"></div></div>
     <div class="nTab adminOnly" data-page="employes"><div class="nI">👥</div><div class="nL">Employés</div><div class="nBdg" id="eBdg" style="background:#9b72f7">0</div><div class="nDot"></div></div>
     <div class="nTab adminOnly" data-page="stats"><div class="nI">📊</div><div class="nL">Stats</div><div class="nDot"></div></div>
-    <div class="nTab" data-page="nonconf"><div class="nI">⚠️</div><div class="nL">NC</div><div class="nBdg" id="ncBdg" style="background:var(--red);display:none;">0</div><div class="nDot"></div></div>
+    <div class="nTab adminOrChef" data-page="nc"><div class="nI">⚠️</div><div class="nL">NC</div><div class="nBdg" id="ncBdg" style="background:var(--red);display:none;">0</div><div class="nDot"></div></div>
   </nav>
 
   <div class="mWrap">
     <div class="dkTop" id="dkTop">
-      <span id="dkTitle" style="font-weight:800;font-size:19px;font-weight:800;letter-spacing:.3px;">Tableau de bord</span>
+      <span id="dkTitle" style="font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;letter-spacing:.3px;">Tableau de bord</span>
       <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
         <div class="iBtn" id="dkBell">🔔</div>
         <div class="uChip" id="dkChip">
@@ -694,12 +637,11 @@ input[type=file] { display:none; }
 
       <!-- DASHBOARD -->
       <div class="page active" id="page-dashboard">
-        <div id="overdueBanner" class="overdue-banner" style="display:none;"></div>
         <div class="fbStatus" id="fbStatus"><div class="fbDot" id="fbDot"></div><span id="fbTxt">Connexion à la base de données…</span></div>
         <div class="sGrid" id="dashGrid"></div>
         <div class="card"><div class="cH"><div class="cT">📈 COMPLÉTIONS MENSUELLES</div></div>
           <div class="cB"><div class="chrt" id="chart1"></div>
-            <div class="legend"><div class="li"><div class="ld" style="background:var(--orange)"></div>Rapports soumis</div></div>
+            <div class="legend"><div class="li"><div class="ld" style="background:var(--orange)"></div>2024</div><div class="li"><div class="ld" style="background:var(--orange);opacity:.3"></div>2023</div></div>
           </div>
         </div>
         <div class="card adminOnly2"><div class="cH"><div class="cT">🏆 TOP 5 FORMULAIRES</div></div><div class="cB" id="topList1" style="padding-top:6px;padding-bottom:6px;"></div></div>
@@ -745,15 +687,6 @@ input[type=file] { display:none; }
           <div class="empty"><div class="emIco">🔍</div><div class="emTxt">Allez dans Formulaires<br>et appuyez sur ▶ Démarrer</div></div>
         </div>
         <div style="height:70px;"></div><!-- spacer for sticky btn -->
-        <!-- SIGNATURE -->
-        <div id="sigWrapDiv" style="display:none;background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-            <label class="sigLbl" style="margin-bottom:0;">✍️ Signature de l'opérateur</label>
-            <button class="btnS btn" style="flex:0;padding:6px 12px;font-size:12px;" onclick="clearSignature()">Effacer</button>
-          </div>
-          <canvas id="sigCanvas" class="sigPad" style="width:100%;height:120px;"></canvas>
-          <div style="font-size:11px;color:var(--white4);margin-top:6px;">Signez ci-dessus avec votre doigt</div>
-        </div>
         <div id="btnSaveInspWrap" style="display:none;position:fixed;bottom:calc(var(--nav) + 10px);left:0;right:0;padding:0 13px;z-index:15;">
           <button class="btn btnP" style="width:100%;padding:16px;font-size:16px;box-shadow:0 4px 24px #ff620050;" id="btnSaveInsp">💾 ENREGISTRER L'INSPECTION</button>
         </div>
@@ -771,7 +704,7 @@ input[type=file] { display:none; }
       <!-- RAPPORTS -->
       <div class="page" id="page-rapports">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <div style="font-weight:800;font-size:18px;font-weight:800;letter-spacing:.3px;">RAPPORTS SOUMIS</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:.3px;">RAPPORTS SOUMIS</div>
           <div class="bdg bor" id="rapportsCount">0 rapport</div>
         </div>
         <div class="card" id="rapportsList">
@@ -780,18 +713,7 @@ input[type=file] { display:none; }
       </div>
 
       <!-- STATS (admin only) -->
-      <div class="page adminOnly" id="page-stats">
-        <div class="sGrid" id="statsGrid"></div>
-        <div class="card"><div class="cH"><div class="cT">📊 RAPPORTS PAR MOIS — ANNÉE EN COURS</div></div>
-          <div class="cB"><div class="chrt" id="chart2"></div>
-            <div class="legend"><div class="li"><div class="ld" style="background:var(--orange)"></div>Rapports soumis</div></div>
-          </div>
-        </div>
-        <div class="card"><div class="cH"><div class="cT">🏆 TOP FORMULAIRES</div></div><div class="cB" id="topList2" style="padding-top:6px;padding-bottom:6px;"></div></div>
-      </div>
-
-      <!-- NON-CONFORMITES -->
-      <div class="page" id="page-nonconf">
+      <div class="page adminOrChef" id="page-nc">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:.3px;">NON-CONFORMITES</div>
           <div style="display:flex;gap:8px;">
@@ -799,7 +721,17 @@ input[type=file] { display:none; }
             <div class="pill" id="ncFilterAll" style="font-size:11px;padding:5px 12px;">Toutes</div>
           </div>
         </div>
-        <div class="card" id="ncList"><div class="empty"><div class="emIco">✅</div><div class="emTxt">Aucune non-conformité ouverte</div></div></div>
+        <div class="card" id="ncList"><div class="empty"><div class="emIco">✅</div><div class="emTxt">Aucune non-conformité</div></div></div>
+      </div>
+
+      <div class="page adminOnly" id="page-stats">
+        <div class="sGrid" id="statsGrid"></div>
+        <div class="card"><div class="cH"><div class="cT">📊 ÉVOLUTION 2023 VS 2024</div></div>
+          <div class="cB"><div class="chrt" id="chart2"></div>
+            <div class="legend"><div class="li"><div class="ld" style="background:var(--orange)"></div>2024</div><div class="li"><div class="ld" style="background:var(--orange);opacity:.3"></div>2023</div></div>
+          </div>
+        </div>
+        <div class="card"><div class="cH"><div class="cT">🏆 TOP FORMULAIRES</div></div><div class="cB" id="topList2" style="padding-top:6px;padding-bottom:6px;"></div></div>
       </div>
 
     </div><!-- /scroll -->
@@ -818,7 +750,29 @@ input[type=file] { display:none; }
     <div class="fg"><label class="flbl">Fréquence</label>
       <select class="fSel" id="ffFreq"><option>Quotidienne</option><option>Hebdomadaire</option><option>Mensuelle</option><option>Annuelle</option></select>
     </div>
-    <div class="fg"><label class="flbl">Assigné à</label><select class="fSel" id="ffAssign"></select></div>
+    <div class="fg">
+      <label class="flbl">Rôle ciblé</label>
+      <select class="fSel" id="ffTargetRole">
+        <option value="all">Tous les employés</option>
+        <option value="Opérateur">Opérateur</option>
+        <option value="Technicien">Technicien</option>
+        <option value="Direction">Direction</option>
+        <option value="RH">RH</option>
+        <option value="Chef d'équipe">Chef d'équipe</option>
+        <option value="Responsable d'exploitation">Responsable d'exploitation</option>
+        <option value="RQHSE">RQHSE</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="flbl">Zone d'affectation ciblée</label>
+      <select class="fSel" id="ffTargetZone">
+        <option value="">Toutes les zones</option>
+        <option value="samsung blanc">Samsung Blanc</option>
+        <option value="samsung btob">Samsung BtoB</option>
+        <option value="samsung btoc">Samsung BtoC</option>
+        <option value="pole boisson">Pôle Boisson</option>
+      </select>
+    </div>
     <div class="fg"><label class="flbl">Description</label><input class="fInp" id="ffDesc" placeholder="Optionnel…"></div>
     
     <!-- SECTIONS & QUESTIONS -->
@@ -850,6 +804,16 @@ input[type=file] { display:none; }
       <select class="fSel" id="efRole"><option>Opérateur</option><option>Technicien</option><option>Direction</option><option>RH</option><option>Chef d'équipe</option><option>Responsable d'exploitation</option><option>RQHSE</option></select>
     </div>
     <div class="fg"><label class="flbl">Département</label><input class="fInp" id="efDept" placeholder="Montréal – Production"></div>
+    <div class="fg">
+      <label class="flbl">Zone d'affectation</label>
+      <select class="fSel" id="efZone">
+        <option value="">-- Sélectionner une zone --</option>
+        <option value="samsung blanc">Samsung Blanc</option>
+        <option value="samsung btob">Samsung BtoB</option>
+        <option value="samsung btoc">Samsung BtoC</option>
+        <option value="pole boisson">Pôle Boisson</option>
+      </select>
+    </div>
     <div class="fg"><label class="flbl">Type d'emploi</label>
       <select class="fSel" id="efType"><option>Permanent</option><option>Temporaire</option><option>Contractuel</option></select>
     </div>
@@ -883,8 +847,7 @@ input[type=file] { display:none; }
 <div class="rDetail" id="rDetail">
   <div class="rDetailHead">
     <div class="iBtn" id="rDetailBack" style="font-size:20px;">←</div>
-  <div style="padding:0 16px 10px;"><button class="btn-pdf" id="btnExportPDF">&#128196; Exporter en PDF</button></div>
-    <div style="flex:1;font-weight:800;font-size:18px;font-weight:800;" id="rDetailTitle">Rapport</div>
+    <div style="flex:1;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;" id="rDetailTitle">Rapport</div>
     <div class="bdg bor" id="rDetailScore">–</div>
   </div>
   <div class="rDetailBody" id="rDetailBody"></div>
@@ -895,6 +858,69 @@ input[type=file] { display:none; }
 <script>
 (function() {
 "use strict";
+
+/* ── iOS POLYFILLS ─────────────────────── */
+if (!Object.values) {
+  Object.values = function(obj) {
+    return Object.keys(obj).map(function(k) { return obj[k]; });
+  };
+}
+if (!Object.entries) {
+  Object.entries = function(obj) {
+    return Object.keys(obj).map(function(k) { return [k, obj[k]]; });
+  };
+}
+if (!Object.assign) {
+  Object.assign = function(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var src = arguments[i];
+      if (src) {
+        var keys = Object.keys(src);
+        for (var j = 0; j < keys.length; j++) {
+          target[keys[j]] = src[keys[j]];
+        }
+      }
+    }
+    return target;
+  };
+}
+if (!Array.prototype.find) {
+  Array.prototype.find = function(fn) {
+    for (var i = 0; i < this.length; i++) {
+      if (fn(this[i], i, this)) return this[i];
+    }
+    return undefined;
+  };
+}
+if (!Array.prototype.findIndex) {
+  Array.prototype.findIndex = function(fn) {
+    for (var i = 0; i < this.length; i++) {
+      if (fn(this[i], i, this)) return i;
+    }
+    return -1;
+  };
+}
+if (!Array.prototype.includes) {
+  Array.prototype.includes = function(v) {
+    return this.indexOf(v) > -1;
+  };
+}
+if (!String.prototype.includes) {
+  String.prototype.includes = function(v) {
+    return this.indexOf(v) > -1;
+  };
+}
+if (!String.prototype.startsWith) {
+  String.prototype.startsWith = function(v) {
+    return this.indexOf(v) === 0;
+  };
+}
+if (!String.prototype.endsWith) {
+  String.prototype.endsWith = function(v) {
+    return this.slice(-v.length) === v;
+  };
+}
+
 
 /* ════════════════════════════════════
    FIREBASE CONFIG
@@ -933,8 +959,36 @@ var D23  = [18,22,28,15,20,18,25,28];
 var TOP  = [{n:'Approbation de produits',c:8},{n:'Inspection Chariot',c:7},{n:'Évaluation des risques',c:6},{n:'Audit cadenassage',c:5},{n:'Prog. sécurité',c:4}];
 var CAT_C= {inspection:'ctI',audit:'ctA',examen:'ctE',securite:'ctS'};
 var CAT_N= {inspection:'Inspection',audit:'Audit',examen:'Examen',securite:'Sécurité'};
-var PT   = {dashboard:'Tableau de bord',formulaires:'Formulaires',inspection:'Inspection',rapports:'Rapports',employes:'Employés',stats:'Statistiques'};
+var PT   = {dashboard:'Tableau de bord',formulaires:'Formulaires',inspection:'Inspection',rapports:'Rapports',employes:'Employés',stats:'Statistiques',nc:'Non-Conformités'};
 var COLORS=['#ff6200','#4f8ef7','#9b72f7','#27c97a','#f5c518','#f04f5a','#ff9a50','#06b6d4'];
+
+// ── ROLE PERMISSIONS ─────────────────────
+// canManageForms: create/edit/delete forms
+// canManageEmps:  create/edit/delete employees
+// canSeeStats:    access stats page
+// isAdmin:        full access (all of the above)
+var ROLE_PERMS = {
+  'admin':                    {isAdmin:true,  canManageForms:true,  canManageEmps:true,  canSeeStats:true},
+  'direction':                {isAdmin:true,  canManageForms:true,  canManageEmps:true,  canSeeStats:true},
+  'rqhse':                    {isAdmin:false, canManageForms:false, canManageEmps:false, canSeeStats:true},
+  'responsable d\'exploitation':{isAdmin:false,canManageForms:false, canManageEmps:false, canSeeStats:true},
+  'chef d\'équipe':           {isAdmin:false, canManageForms:false, canManageEmps:false, canSeeStats:true},
+  'operateur':                {isAdmin:false, canManageForms:false, canManageEmps:false, canSeeStats:false},
+  'technicien':               {isAdmin:false, canManageForms:false, canManageEmps:false, canSeeStats:false},
+  'rh':                       {isAdmin:false, canManageForms:false, canManageEmps:false, canSeeStats:false},
+  'employe':                  {isAdmin:false, canManageForms:false, canManageEmps:false, canSeeStats:false}
+};
+
+function getPerms() {
+  if (!currentUser) return ROLE_PERMS['employe'];
+  // Admin account always has full rights
+  if (currentUser.role === 'admin') return ROLE_PERMS['admin'];
+  // Get employee role
+  var emp = currentUser.empId ? EMPS.find(function(e){return e.id===currentUser.empId;}) : null;
+  if (!emp) return ROLE_PERMS['employe'];
+  var roleKey = emp.role.toLowerCase();
+  return ROLE_PERMS[roleKey] || ROLE_PERMS['employe'];
+}
 
 /* ── STATE ─────── */
 var nxtId = 200;
@@ -978,10 +1032,12 @@ function initFirebase() {
     });
   } catch(e) {
     var dot = G('fbDot'), txt = G('fbTxt');
-    dot.className = 'fbDot error';
-    txt.textContent = '⚠ Firebase non configuré — mode démo local';
+    if (dot) dot.className = 'fbDot error';
+    if (txt) txt.textContent = 'Mode local (Firebase non disponible)';
     useFirebase = false;
   }
+  // Start app after Firebase init
+  buildAll();
 }
 
 function loadFirebaseData() {
@@ -1042,6 +1098,14 @@ function fbRemove(path, cb) {
 ════════════════════════════════════ */
 function G(id) { return document.getElementById(id); }
 function on(id, ev, fn) { var el = G(id); if (el) el.addEventListener(ev, fn); }
+function onSafe(id, ev, fn) {
+  // Deferred - waits for DOM ready
+  document.addEventListener('DOMContentLoaded', function() {
+    var el = G(id); if (el) el.addEventListener(ev, fn);
+  });
+  // Also try immediately in case DOM already loaded
+  var el = G(id); if (el) el.addEventListener(ev, fn);
+}
 function onAll(root, sel, ev, fn) { root.querySelectorAll(sel).forEach(function(n) { n.addEventListener(ev, fn); }); }
 
 function showToast(msg) {
@@ -1093,7 +1157,7 @@ function doLogout() {
 ════════════════════════════════════ */
 function applyRoleUI() {
   if (!currentUser) return;
-  var isAdmin = currentUser.role === 'admin';
+  var perms = getPerms();
   var emp = currentUser.empId ? EMPS.find(function(e) { return e.id === currentUser.empId; }) : null;
   var name = emp ? (emp.prenom + ' ' + emp.nom) : 'Admin';
   var ini  = emp ? (emp.prenom[0] + (emp.nom[0] || '')).toUpperCase() : 'AD';
@@ -1106,22 +1170,36 @@ function applyRoleUI() {
   });
   ['tNm','dkNm'].forEach(function(id) { var el = G(id); if (el) el.textContent = name; });
   G('umNm').textContent = name;
-  G('umRl').textContent = isAdmin ? '🔑 Administrateur' : (emp ? emp.role : 'Employé');
+  var roleLabel = perms.isAdmin ? '🔑 Administrateur' : (emp ? emp.role : 'Employé');
+  G('umRl').textContent = roleLabel;
 
-  // Show/hide admin-only nav tabs
+  // Stats tab — visible if canSeeStats
   document.querySelectorAll('.adminOnly').forEach(function(el) {
-    el.style.display = isAdmin ? '' : 'none';
+    el.style.display = perms.isAdmin ? '' : 'none';
   });
+  // NC tab — visible if canSeeStats (admin, direction, chef, rqhse, resp d'exploitation)
+  document.querySelectorAll('.adminOrChef').forEach(function(el) {
+    el.style.display = perms.canSeeStats ? '' : 'none';
+  });
+  // Stats tab specifically
+  var statsTab = document.querySelector('.nTab[data-page="stats"]');
+  if (statsTab) statsTab.style.display = perms.canSeeStats ? '' : 'none';
+  var statsPage = G('page-stats');
+  // Stats nav item in sidebar
   document.querySelectorAll('.adminOnly2').forEach(function(el) {
-    el.style.display = isAdmin ? '' : 'none';
+    el.style.display = perms.canManageForms ? '' : 'none';
   });
-  // Admin add buttons
-  if (G('btnAddForm')) G('btnAddForm').style.display = isAdmin ? 'flex' : 'none';
-  if (G('btnAddEmp'))  G('btnAddEmp').style.display  = isAdmin ? 'flex' : 'none';
+
+  // Add form button — canManageForms
+  if (G('btnAddForm')) G('btnAddForm').style.display = perms.canManageForms ? 'flex' : 'none';
+  // Add employee button — canManageEmps only (admin)
+  if (G('btnAddEmp'))  G('btnAddEmp').style.display  = perms.canManageEmps  ? 'flex' : 'none';
+  // Employees tab — admin only
+  var empTab = document.querySelector('.nTab[data-page="employes"]');
+  if (empTab) empTab.style.display = perms.canManageEmps ? '' : 'none';
 
   // Inspection user label
   if (G('inspUser')) G('inspUser').textContent = '👤 ' + name;
-  // Update today's date on inspection
   var today = new Date();
   var dateStr = today.getDate() + ' ' + ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'][today.getMonth()] + ' ' + today.getFullYear();
   if (G('inspDate')) G('inspDate').textContent = '📅 ' + dateStr;
@@ -1140,6 +1218,10 @@ function goPage(id) {
   if (tab) tab.classList.add('active');
   G('scrollArea').scrollTop = 0;
   var dt = G('dkTitle'); if (dt) dt.textContent = PT[id] || id;
+  // Page-specific render hooks
+  if (id === 'nc') { if (typeof renderNC === 'function') renderNC(); }
+  if (id === 'rapports') { if (typeof renderRapports === 'function') renderRapports(); }
+  if (id === 'stats') { if (typeof buildStats === 'function') buildStats(); }
 }
 document.querySelectorAll('.nTab').forEach(function(tab) {
   tab.addEventListener('click', function() { goPage(this.getAttribute('data-page')); });
@@ -1308,10 +1390,38 @@ function buildRecentActivity() {
 
 
 function getVisibleForms() {
-  var isAdmin = currentUser && currentUser.role === 'admin';
+  var perms = getPerms();
+  var isAdmin = perms.isAdmin;
+  var canManageForms = perms.canManageForms;
   var q = fSearch.toLowerCase();
   return FORMS.filter(function(f) {
-    var mine = isAdmin || f.assign === currentUser.username || f.assign === 'all';
+    var mine = false;
+    if (isAdmin) {
+      mine = true;
+    } else if (f.targetRole === 'all' || !f.targetRole) {
+      // No zone filter = everyone sees it
+      mine = !f.targetZone || f.targetZone === '';
+      if (!mine) {
+        // Check employee zone
+        var emp = currentUser.empId ? EMPS.find(function(e){return e.id===currentUser.empId;}) : null;
+        var empZone = emp ? (emp.zone || '').toLowerCase() : '';
+        mine = empZone && f.targetZone && empZone.indexOf(f.targetZone) > -1;
+      }
+    } else {
+      // Role-targeted form
+      var emp = currentUser.empId ? EMPS.find(function(e){return e.id===currentUser.empId;}) : null;
+      if (emp) {
+        var roleMatch = f.targetRole === emp.role;
+        if (roleMatch) {
+          if (!f.targetZone || f.targetZone === '') {
+            mine = true; // Role matches, no zone restriction
+          } else {
+            var empZone = (emp.zone || '').toLowerCase();
+            mine = empZone && empZone.indexOf(f.targetZone.toLowerCase()) > -1;
+          }
+        }
+      }
+    }
     var matchTxt = f.nm.toLowerCase().indexOf(q) > -1 || f.code.toLowerCase().indexOf(q) > -1;
     var matchCat = fCat === '' || f.cat === fCat;
     return mine && matchTxt && matchCat;
@@ -1319,7 +1429,9 @@ function getVisibleForms() {
 }
 
 function renderForms() {
-  var isAdmin = currentUser && currentUser.role === 'admin';
+  var perms = getPerms();
+  var isAdmin = perms.isAdmin;
+  var canManageForms = perms.canManageForms;
   var list = getVisibleForms();
   if (!list.length) {
     G('fList').innerHTML = '<div class="empty"><div class="emIco">📋</div><div class="emTxt">Aucun formulaire trouvé</div></div>';
@@ -1327,8 +1439,9 @@ function renderForms() {
   }
   var html = '';
   list.forEach(function(f) {
-    var assignEmp = EMPS.find(function(e) { return e.username === f.assign; });
-    var assignNm = f.assign === 'all' ? 'Tous' : (assignEmp ? assignEmp.prenom + ' ' + assignEmp.nom : f.assign);
+    var roleNm = (!f.targetRole || f.targetRole === 'all') ? 'Tous' : f.targetRole;
+    var zoneNm = f.targetZone ? f.targetZone : '';
+    var assignNm = roleNm + (zoneNm ? ' — ' + zoneNm : '');
     var fStatus = getFormStatus(f);
     var daysSince = getDaysSince(f.id);
     var statusBadge = '';
@@ -1348,8 +1461,9 @@ function renderForms() {
       + '<div class="fFoot"><div class="pb" style="flex:1;"><div class="pf" style="width:' + f.p + '%"></div></div><div class="fPl">' + f.p + '%</div></div>'
       + '<div class="fActs">'
       + '<div class="fAct go" data-fid="' + f.id + '" data-act="start">▶ Démarrer</div>'
-      + (isAdmin ? '<div class="fAct ed" data-fid="' + f.id + '" data-act="edit">✏ Modifier</div>' : '')
-      + (isAdmin ? '<div class="fAct dl" data-fid="' + f.id + '" data-act="del">🗑 Supprimer</div>' : '')
+      + '<div class="fAct" data-fid="' + f.id + '" data-act="qr" style="color:var(--orange);border-color:var(--orange);background:var(--orangeGl);">&#x2B1B; QR</div>'
+      + (canManageForms ? '<div class="fAct ed" data-fid="' + f.id + '" data-act="edit">✏ Modifier</div>' : '')
+      + (canManageForms ? '<div class="fAct dl" data-fid="' + f.id + '" data-act="del">🗑 Supprimer</div>' : '')
       + '</div></div>';
   });
   G('fList').innerHTML = html;
@@ -1357,6 +1471,8 @@ function renderForms() {
     var fid = this.getAttribute('data-fid');
     var act = this.getAttribute('data-act');
     if (act === 'start') { startInspection(fid); }
+    else if (act === 'qr') { showQrForForm(fid); }
+    else if (act === 'qr')    { openQrModal(fid); }
     else if (act === 'edit') { openEditForm(fid); }
     else if (act === 'del') { openConfirmDelForm(fid); }
   });
@@ -1394,12 +1510,12 @@ function renderSectionsEditor() {
     html += '<div class="secEditor">'
       + '<div class="secEditorHead">'
       + '<input class="secEditorTitle" data-si="' + si + '" placeholder="Nom de la section…" value="' + (sec.t||'').replace(/"/g,'&quot;') + '">'
-      + '<div class="secDelBtn" data-si="' + si + '" data-act="delsec">✕</div>'
+      + '<div class="secDelBtn" data-si="' + si + '" data-act="delsec">x</div>'
       + '</div>'
       + (sec.qs||[]).map(function(q, qi) {
           return '<div class="qEditor">'
             + '<input class="qEditorInp" data-si="' + si + '" data-qi="' + qi + '" placeholder="Question…" value="' + (q||'').replace(/"/g,'&quot;') + '">'
-            + '<div class="qDelBtn" data-si="' + si + '" data-qi="' + qi + '" data-act="delq">✕</div>'
+            + '<div class="qDelBtn" data-si="' + si + '" data-qi="' + qi + '" data-act="delq">x</div>'
             + '</div>';
         }).join('')
       + '<div class="addQBtn" data-si="' + si + '" data-act="addq">＋ Ajouter une question</div>'
@@ -1438,8 +1554,9 @@ function openNewForm() {
   G('shFormTitle').textContent = 'NOUVEAU FORMULAIRE';
   G('ffTitle').value = ''; G('ffCat').value = 'inspection';
   G('ffFreq').value = 'Quotidienne'; G('ffDesc').value = ''; G('ffId').value = '';
+  if (G('ffTargetRole')) G('ffTargetRole').value = 'all';
+  if (G('ffTargetZone')) G('ffTargetZone').value = '';
   editingSecs = JSON.parse(JSON.stringify(DEFAULT_SECS));
-  populateAssign('all');
   renderSectionsEditor();
   openSheet('shForm');
 }
@@ -1448,8 +1565,9 @@ function openEditForm(id) {
   G('shFormTitle').textContent = 'MODIFIER LE FORMULAIRE';
   G('ffTitle').value = f.nm; G('ffCat').value = f.cat;
   G('ffFreq').value = f.freq; G('ffDesc').value = f.desc || ''; G('ffId').value = f.id;
+  if (G('ffTargetRole')) G('ffTargetRole').value = f.targetRole || 'all';
+  if (G('ffTargetZone')) G('ffTargetZone').value = f.targetZone || '';
   editingSecs = f.secs ? JSON.parse(JSON.stringify(f.secs)) : JSON.parse(JSON.stringify(DEFAULT_SECS));
-  populateAssign(f.assign);
   renderSectionsEditor();
   openSheet('shForm');
 }
@@ -1468,10 +1586,13 @@ function openConfirmDelForm(id) {
   openConf();
 }
 function saveForm() {
+  if (!getPerms().canManageForms) { showToast('⛔ Accès refusé'); return; }
   var title = G('ffTitle').value.trim();
   if (!title) { G('ffTitle').focus(); showToast('⚠ Entrez un titre'); return; }
   var id = G('ffId').value;
-  var data = {nm:title, cat:G('ffCat').value, freq:G('ffFreq').value, assign:G('ffAssign').value, desc:G('ffDesc').value, p:0, r:1, code:''};
+  var tRole = G('ffTargetRole') ? G('ffTargetRole').value : 'all';
+  var tZone = G('ffTargetZone') ? G('ffTargetZone').value.trim().toLowerCase() : '';
+  var data = {nm:title, cat:G('ffCat').value, freq:G('ffFreq').value, assign:tRole, targetRole:tRole, targetZone:tZone, desc:G('ffDesc').value, p:0, r:1, code:''};
 
   // Save sections (filter empty)
   data.secs = editingSecs.map(function(sec) {
@@ -1583,7 +1704,7 @@ function buildInsp() {
 
   onAll(G('inspSections'), 'input[type=file]', 'change', function() {
     var key = this.id.replace('pf_', '');
-    var files = Array.from(this.files);
+    var files = Array.prototype.slice.call(this.files);
     if (!photos[key]) photos[key] = [];
     Promise.all(files.map(function(f) {
       return new Promise(function(res) {
@@ -1604,7 +1725,7 @@ function renderThumbs(key) {
   var arr = photos[key] || [];
   if (!arr.length) { el.innerHTML = '<span class="pEmpty">Aucune photo</span>'; return; }
   var h = arr.map(function(url, i) {
-    return '<div class="pThumb"><img src="' + url + '" alt=""><div class="pDel" data-key="' + key + '" data-idx="' + i + '">✕</div></div>';
+    return '<div class="pThumb"><img src="' + url + '" alt=""><div class="pDel" data-key="' + key + '" data-idx="' + i + '">x</div></div>';
   }).join('');
   el.innerHTML = h;
   onAll(el, '.pDel', 'click', function() {
@@ -1751,7 +1872,7 @@ function renderEmps() {
     html += '<div class="eItem">'
       + '<div class="eAv" style="background:linear-gradient(135deg,' + (e.c||'#ff6200') + ',' + (e.c||'#ff6200') + '88)">' + ini + '</div>'
       + '<div style="flex:1;min-width:0;"><div class="eNm">' + e.prenom + ' ' + e.nom + '</div>'
-      + '<div class="eRl">' + e.role + ' · ' + e.dept + '</div>'
+      + '<div class="eRl">' + e.role + ' · ' + e.dept + (e.zone ? ' · <span style="color:var(--orange)">📍 ' + e.zone + '</span>' : '') + '</div>'
       + '<div style="font-size:11px;color:var(--white4);margin-top:2px;">🔑 ' + (e.username || '–') + '</div></div>'
       + '<div class="eR"><div><div class="eSc">' + (e.s || 0) + '%</div><div class="eScL">Score</div></div>'
       + '<div class="eBtns"><div class="eBtn ed" data-eid="' + e.id + '" data-act="edit">✏</div>'
@@ -1782,7 +1903,9 @@ function openEditEmp(id) {
   G('efPrenom').value = e.prenom; G('efNom').value = e.nom;
   G('efUser').value = e.username || ''; G('efPw').value = '';
   G('efRole').value = e.role; G('efDept').value = e.dept || '';
-  G('efType').value = e.type || 'Permanent'; G('efId').value = e.id;
+  G('efType').value = e.type || 'Permanent';
+  if (G('efZone')) G('efZone').value = e.zone || '';
+  G('efId').value = e.id;
   openSheet('shEmp');
 }
 function openConfirmDelEmp(id) {
@@ -1800,13 +1923,14 @@ function openConfirmDelEmp(id) {
   openConf();
 }
 function saveEmp() {
+  if (!getPerms().canManageEmps) { showToast('⛔ Accès refusé'); return; }
   var prenom = G('efPrenom').value.trim();
   var nom    = G('efNom').value.trim();
   var uname  = G('efUser').value.trim().toLowerCase();
   var pw     = G('efPw').value.trim();
   if (!prenom || !nom) { showToast('⚠ Entrez prénom et nom'); return; }
   var id = G('efId').value;
-  var data = {prenom:prenom, nom:nom, role:G('efRole').value, dept:G('efDept').value, type:G('efType').value, s:0, c:COLORS[EMPS.length % COLORS.length]};
+  var data = {prenom:prenom, nom:nom, role:G('efRole').value, dept:G('efDept').value, type:G('efType').value, zone:G('efZone').value.trim(), s:0, c:COLORS[EMPS.length % COLORS.length]};
   if (uname) data.username = uname;
 
   if (id) {
@@ -1926,6 +2050,109 @@ on('lBtnGo', 'click', doLogin);
 on('lPass',  'keydown', function(e) { if (e.key === 'Enter') doLogin(); });
 on('lUser',  'keydown', function(e) { if (e.key === 'Enter') G('lPass').focus(); });
 
+
+/* ---- QR CODE -------------------------------- */
+var APP_URL = 'https://demantesjordan.github.io/Gxo-check';
+
+function showQrForForm(fid) {
+  var f = FORMS.find(function(x){ return x.id === fid; });
+  if (!f) return;
+  var url = APP_URL + '?form=' + fid;
+  G('qrT').textContent = f.nm;
+  G('qrS').textContent = f.code + ' - ' + f.freq;
+  G('qrUrl').textContent = url;
+  G('qrDiv').innerHTML = '';
+  if (typeof QRCode === 'undefined') {
+    G('qrDiv').innerHTML = '<p style="padding:10px;font-size:11px;word-break:break-all;">' + url + '</p>';
+    G('qrUrl').textContent = url; return;
+  }
+  try {
+    new QRCode(G('qrDiv'), {
+      text: url, width: 180, height: 180,
+      colorDark: '#000000', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  } catch(e) {
+    G('qrDiv').innerHTML = '<p style="font-size:10px;padding:10px;word-break:break-all;">' + url + '</p>';
+  }
+  G('qrModal').classList.add('open');
+}
+
+window.addEventListener('load', function() {
+  var qrCloseEl = G('qrClose');
+  if (qrCloseEl) qrCloseEl.addEventListener('click', function(){ G('qrModal').classList.remove('open'); });
+  var qrModalEl = G('qrModal');
+  if (qrModalEl) qrModalEl.addEventListener('click', function(e){ if(e.target===this) this.classList.remove('open'); });
+  var qrDlEl = G('qrDl');
+  if (qrDlEl) qrDlEl.addEventListener('click', function(){
+  var canvas = G('qrDiv').querySelector('canvas');
+  if (!canvas) { showToast('QR non disponible'); return; }
+  var url = G('qrUrl').textContent;
+  var fid = url.split('form=')[1];
+  var f = FORMS.find(function(x){ return x.id === fid; });
+  var a = document.createElement('a');
+  a.download = 'QR_' + (f ? f.code : 'form') + '.png';
+  a.href = canvas.toDataURL();
+  a.click();
+  showToast('QR telecharge !');
+  });
+});
+
+/* QR SCAN: check URL param on load */
+function checkQrParam() {
+  try {
+    var fid = (function() {
+      var q = window.location.search.substring(1);
+      var pairs = q.split('&');
+      for (var pi = 0; pi < pairs.length; pi++) {
+        var pair = pairs[pi].split('=');
+        if (decodeURIComponent(pair[0]) === 'form') return decodeURIComponent(pair[1] || '');
+      }
+      return null;
+    })();
+    if (!fid) return false;
+    var attempts = 0;
+    var tryFind = function() {
+      attempts++;
+      var f = FORMS.find(function(x){ return x.id === fid; });
+      if (!f && attempts < 10) { setTimeout(tryFind, 500); return; }
+      if (!f) { return; }
+      // Fill scan login
+      G('qlFName').textContent = f.nm;
+      G('qlFCode').textContent = f.code + ' - ' + f.freq;
+      var sel = G('qlEmp');
+      sel.innerHTML = '<option value="">-- Selectionnez votre nom --</option>'
+        + EMPS.map(function(e){
+            return '<option value="'+e.id+'">'+e.prenom+' '+e.nom+' ('+e.role+')</option>';
+          }).join('');
+      G('qlErr').textContent = '';
+      G('qlPw').value = '';
+      G('qrScanLogin').style.display = 'flex';
+
+      function doQrLoginFn() {
+        var eid = sel.value;
+        var pw = G('qlPw').value;
+        if (!eid) { G('qlErr').textContent = 'Selectionnez votre nom'; return; }
+        var emp = EMPS.find(function(e){ return e.id === eid; });
+        if (!emp) { G('qlErr').textContent = 'Employe introuvable'; return; }
+        if (emp.pw !== pw) { G('qlErr').textContent = 'Mot de passe incorrect'; return; }
+        currentUser = {username:emp.username, pw:emp.pw, role:'employe', color:emp.c||'#ff6200', empId:emp.id};
+        G('qrScanLogin').style.display = 'none';
+        G('loginScreen').style.display = 'none';
+        G('app').style.display = 'flex';
+        applyRoleUI();
+        buildAll();
+        setTimeout(function(){ startInspection(f.id); }, 300);
+        showToast('Bonjour ' + emp.prenom + ' !');
+      }
+      G('qlBtn').onclick = doQrLoginFn;
+      G('qlPw').onkeydown = function(e){ if(e.key==='Enter') doQrLoginFn(); };
+    };
+    setTimeout(tryFind, 600);
+    return true;
+  } catch(e) { return false; }
+}
+
 /* ════════════════════════════════════
    BUILD ALL
 ════════════════════════════════════ */
@@ -1976,13 +2203,13 @@ function sendRapportEmail(rapport) {
         var key = si + '_' + qi;
         if ((rapport.answers||{})[key] === 'no') {
           var desc = (rapport.comments||{})[key] || '(aucune description)';
-          ncDetails += qnEmail + '. ' + q + ' -- ' + desc + ' | ';
+          ncDetails += '<p style="margin:6px 0;"><strong>' + qnEmail + '. ' + q + '</strong><br>&#8594; ' + desc + '</p>';
         }
       });
     });
-    if (!ncDetails) ncDetails = 'Aucune non-conformite';
+    if (!ncDetails) ncDetails = '<p style="color:green;">✅ Aucune non-conformité</p>';
 
-    emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+    (typeof emailjs!=="undefined"?emailjs:{send:function(){return {then:function(f){},catch:function(){}}}}).send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
       to_email:     ADMIN_EMAIL,
       emp_name:     rapport.empNm,
       form_name:    rapport.formNm,
@@ -2402,7 +2629,7 @@ function generatePDF(rapport) {
     doc.setFontSize(18);doc.setFont('helvetica','bold');
     txt('GXO Check',M,11);
     doc.setFontSize(9);doc.setFont('helvetica','normal');
-    txt("Rapport d'inspection",M,19);
+    txt('Rapport inspection',M,19);
     txt(rapport.pct+'%  |  '+rapport.date, W-M, 11, {align:'right'});
     txt(rapport.empNm+' - '+rapport.formCode, W-M, 19, {align:'right'});
     y=32;
@@ -2517,11 +2744,142 @@ function generatePDF(rapport) {
 }
 
 /* ════════════════════════════════════
+   QR CODE
+════════════════════════════════════ */
+var BASE_URL = 'https://demantesjordan.github.io/Gxo-check';
+
+function openQrModal(fid) {
+  var f = FORMS.find(function(x){return x.id===fid;}); if(!f) return;
+  // URL that deep-links to the form
+  var url = BASE_URL + '?form=' + encodeURIComponent(fid);
+  G('qrTitle').textContent = f.nm;
+  G('qrSubtitle').textContent = f.code + ' · ' + f.freq;
+  G('qrUrl').textContent = url;
+  // Generate QR
+  var canvas = G('qrCanvas');
+  QRCode.toCanvas(canvas, url, {
+    width: 220,
+    margin: 2,
+    color: { dark: '#000000', light: '#ffffff' }
+  }, function(err) {
+    if (err) { showToast('Erreur QR: ' + err); return; }
+  });
+  openSheet('shQr');
+}
+
+function downloadQr() {
+  var canvas = G('qrCanvas') || (G('qrDiv') && G('qrDiv').querySelector('canvas'));
+  if (!canvas) { showToast('QR non disponible'); return; }
+  var titleEl = G('qrTitle') || G('qrT');
+  var title = titleEl ? titleEl.textContent.replace(/[^a-zA-Z0-9]/g, '_') : 'qrcode';
+  var link = document.createElement('a');
+  link.download = 'QR_' + title + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  showToast('QR telecharge !');
+}
+
+// Handle deep link on page load — ?form=ID
+function checkDeepLink() {
+  var formId = (function() {
+    var q = window.location.search.substring(1);
+    var pairs = q.split('&');
+    for (var pi = 0; pi < pairs.length; pi++) {
+      var kv = pairs[pi].split('=');
+      if (decodeURIComponent(kv[0]) === 'form') return decodeURIComponent(kv[1] || '');
+    }
+    return null;
+  })();
+  if (!formId) return;
+  // Store for after login
+  window._pendingFormId = formId;
+}
+
+function handlePendingForm() {
+  if (!window._pendingFormId) return;
+  var fid = window._pendingFormId;
+  window._pendingFormId = null;
+  // Check if this form is accessible to current user
+  var f = FORMS.find(function(x){return x.id===fid;});
+  if (!f) { showToast('⚠ Formulaire introuvable'); return; }
+  var perms = getPerms();
+  var mine = perms.isAdmin || f.assign === currentUser.username || f.assign === 'all';
+  if (!mine) { showToast('⚠ Ce formulaire ne vous est pas assigné'); return; }
+  // Auto-start the inspection
+  setTimeout(function() {
+    startInspection(fid);
+    showToast('📋 Formulaire chargé via QR Code !');
+  }, 500);
+}
+
+// Wire up QR modal buttons
+on('shQrClose',     'click', function(){ closeSheet('shQr'); });
+on('btnDownloadQr', 'click', downloadQr);
+var shQrEl = G('shQr'); if (shQrEl) shQrEl.addEventListener('click', function(e){ if(e.target===this) closeSheet('shQr'); });
+
+// Check deep link on load
+checkDeepLink();
+
+/* ════════════════════════════════════
    INIT
 ════════════════════════════════════ */
-initFirebase();
+// Wait for Firebase to load dynamically
+(function tryInitFirebase(attempts) {
+  if (typeof firebase !== 'undefined') {
+    initFirebase();
+  } else if (attempts > 0) {
+    setTimeout(function() { tryInitFirebase(attempts - 1); }, 300);
+  } else {
+    console.log('Firebase not available - offline mode');
+    useFirebase = false;
+    buildAll();
+  }
+})(20); // buildAll called by initFirebase or above
+checkQrParam();
+
 
 })();
 </script>
+
+<!-- QR MODAL -->
+<div class="qrModal" id="qrModal">
+  <div class="qrBox">
+    <div class="qrTitle" id="qrT">QR Code</div>
+    <div class="qrSub" id="qrS">Scanner pour ouvrir le formulaire</div>
+    <div class="qrImg"><div id="qrDiv"></div></div>
+    <div class="qrUrlBox" id="qrUrl"></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btnS" id="qrClose">Fermer</button>
+      <button class="btn btnP" id="qrDl">&#11015; Telecharger</button>
+    </div>
+  </div>
+</div>
+
+<!-- QR SCAN LOGIN -->
+<div id="qrScanLogin" style="display:none;position:fixed;inset:0;z-index:210;background:var(--black);align-items:center;justify-content:center;padding:20px;flex-direction:column;">
+  <div style="position:relative;background:var(--black2);border:1px solid var(--border);border-radius:var(--r);padding:28px 22px;width:100%;max-width:380px;">
+    <div style="position:absolute;top:0;left:20px;right:20px;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);"></div>
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="width:48px;height:48px;background:var(--orange);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:#000;">GX</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;">GXO <span style="color:var(--orange)">Check</span></div>
+    </div>
+    <div style="background:var(--orangeGl);border:1px solid var(--orange);border-radius:var(--r2);padding:14px;margin-bottom:20px;text-align:center;">
+      <div style="font-size:11px;color:var(--white3);margin-bottom:4px;">Formulaire a remplir</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:var(--orange);" id="qlFName"></div>
+      <div style="font-size:11px;color:var(--white4);margin-top:2px;" id="qlFCode"></div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <label class="lLbl">Qui etes-vous ?</label>
+      <select class="lInp" id="qlEmp" style="margin-top:6px;"></select>
+    </div>
+    <div style="margin-bottom:6px;">
+      <label class="lLbl">Mot de passe</label>
+      <input class="lInp" id="qlPw" type="password" placeholder="..." style="margin-top:6px;">
+    </div>
+    <div class="lErr" id="qlErr"></div>
+    <button class="lBtn" id="qlBtn" style="margin-top:14px;">ACCEDER AU FORMULAIRE</button>
+  </div>
+</div>
+
 </body>
 </html>
